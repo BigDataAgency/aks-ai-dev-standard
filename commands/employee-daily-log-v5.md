@@ -13,7 +13,8 @@ Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 2. แยก output/result/blocker
 3. ให้คะแนน confidence
 4. ระบุ tomorrow focus
-5. ไม่ใส่ claim ที่ไม่มีหลักฐาน
+5. ระบุ AI usage ทุกวัน: ถ้าใช้ AI ต้องใส่ tool/model และ token/cost ถ้ามี; ถ้าไม่ได้ใช้ AI ต้องยืนยัน "No AI used / ไม่ได้ใช้ AI"
+6. ไม่ใส่ claim ที่ไม่มีหลักฐาน
 
 Output ที่ต้องส่ง: daily log v5 ตาม template
 
@@ -25,6 +26,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 - [ ] แยก output/result/blocker
 - [ ] ให้คะแนน confidence
 - [ ] ระบุ tomorrow focus
+- [ ] ระบุ AI usage fields ครบ หรือยืนยัน no-AI อย่างชัดเจน
 - [ ] ไม่ใส่ claim ที่ไม่มีหลักฐาน
 
 ## Required report sections

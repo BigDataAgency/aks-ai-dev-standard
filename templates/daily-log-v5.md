@@ -17,6 +17,16 @@
 
 ## Learnings / Notes
 
+## AI Usage
+- Used AI: Yes / No
+- If Yes:
+  - Tool / Model:
+  - Input tokens:
+  - Output tokens:
+  - Cost:
+  - Notes / evidence:
+- If No: No AI used / ไม่ได้ใช้ AI วันนี้
+
 ## Tomorrow Focus
 1. 
 2. 
