@@ -8,6 +8,22 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.2.0] - 2026-05-17
+
+### Added
+
+- QA/product evidence workflow for test case/scenario execution with screenshot capture and Markdown report generation:
+  - `commands/test-scenario-report.md`
+  - `workflows/test-scenario-report.md`
+  - `templates/test-scenario-report.md`
+  - `claude/commands/test-scenario-report.md`
+- Smoke validation coverage for the new test scenario report workflow and Claude slash command.
+
+### Notes
+
+- This workflow is explicitly separate from Employee Daily Log v5 and performance evaluation.
+- User-facing checks, including InnoHub scenarios, should use visible-menu navigation by default; hidden/direct routes must be labeled technical verification only.
+
 ## [0.1.0] - 2026-05-17
 
 Initial public release.

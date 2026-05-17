@@ -1,6 +1,6 @@
 # BDA AI Dev Standard
 
-Version: `0.1.0`
+Version: `0.2.0`
 License: MIT
 
 มาตรฐานกลางสำหรับการทำงานร่วมกับ AI ในงานพัฒนา ซ่อมบั๊ก ตรวจโค้ด เขียนเอกสาร งาน Obsidian งาน Performance และงานติดตามทีมของ BDA
@@ -11,7 +11,7 @@ License: MIT
 
 BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
-- Current version: `0.1.0`
+- Current version: `0.2.0`
 - ดูประวัติการเปลี่ยนแปลงที่ `CHANGELOG.md`
 - เลข version หลักอยู่ใน `VERSION`
 - ทุก update สำคัญต้องเปลี่ยน version ใน repo นี้ก่อน rollout
@@ -38,9 +38,11 @@ BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 - แก้บั๊ก: `commands/fix-bug.md`
 - Code Review: `commands/review-change.md`
 - เช็กแอปจริง: `commands/check-real-app.md`
+- รายงาน test scenario พร้อม screenshot: `commands/test-scenario-report.md`
 - เขียนเอกสาร: `commands/write-document.md`
 - อัปเดต Obsidian: `commands/update-obsidian.md`
 - Feedback เพื่อปรับปรุงมาตรฐาน: `commands/standard-feedback.md`
+- Test Scenario Report (QA/product evidence): `commands/test-scenario-report.md`
 - Performance: `commands/performance-review.md`
 - Employee Daily Log v5: `commands/employee-daily-log-v5.md`
 - PM Weekly Focus v2: `commands/pm-weekly-focus-v2.md`
@@ -55,8 +57,21 @@ BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
 ใช้ `/` command ใน Claude Code ได้เมื่อ copy/ติดตั้งไฟล์จาก `claude/commands/*.md` ไปไว้ใน `.claude/commands/` ของ target repo และ copy `claude/CLAUDE.md` ไปเป็น `CLAUDE.md` ที่ root ของ target repo แล้ว
 
-- Interactive Claude Code: เรียกได้ เช่น `/fix-bug`, `/review-change`, `/build-feature`, `/write-document`, `/standard-feedback`
+- Interactive Claude Code: เรียกได้ เช่น `/fix-bug`, `/review-change`, `/build-feature`, `/write-document`, `/standard-feedback`, `/test-scenario-report`
 - Print mode (`claude -p`): slash command แบบ interactive จะไม่ถูกรันโดยตรง ให้ reference ไฟล์ command (`commands/fix-bug.md`) หรือ paste prompt จาก command แทน
+
+## QA/Product evidence workflow
+
+เมื่อต้องการทำ test case/scenario พร้อม capture screenshot และสร้างรายงาน ให้ใช้ชุดนี้:
+
+- Command: `commands/test-scenario-report.md`
+- Workflow: `workflows/test-scenario-report.md`
+- Template: `templates/test-scenario-report.md`
+- Claude slash command: `/test-scenario-report` จาก `claude/commands/test-scenario-report.md`
+
+Workflow นี้เป็น QA/product evidence workflow เท่านั้น **ไม่ใช่** Employee Daily Log v5, performance review, score, KPI, daily performance หรือการประเมินบุคคล
+
+สำหรับ InnoHub หรือ user-facing checks ให้ใช้ visible-menu navigation เป็น default และห้ามใช้ hidden route/direct URL เพื่อ claim user journey เว้นแต่ label ชัดว่าเป็น technical verification only
 
 ## Feedback loop สำหรับปรับปรุงมาตรฐาน
 

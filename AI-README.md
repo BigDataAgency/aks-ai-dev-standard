@@ -26,9 +26,19 @@
 - review: `commands/review-change.md`
 - docs/writing: `commands/write-document.md`
 - Obsidian: `commands/update-obsidian.md`
+- QA/product evidence พร้อม screenshot report: `commands/test-scenario-report.md`, `workflows/test-scenario-report.md`, `templates/test-scenario-report.md`
 - feedback เพื่อปรับปรุง BDA AI Dev Standard: `commands/standard-feedback.md`, `FEEDBACK.md`, `templates/standard-feedback.md`
 - performance: `commands/performance-review.md`
 - ส่งงาน: `commands/handoff-report.md`
+
+## Test scenario report workflow
+
+ใช้เมื่อต้องการทำ test case/scenario, capture screenshot, ตรวจ console/network และสร้าง report สำหรับ QA/product evidence โดยแยกจาก Employee Daily Log v5 และ performance evaluation
+
+- ใช้ `commands/test-scenario-report.md`
+- ทำตาม `workflows/test-scenario-report.md`
+- กรอก/สร้างรายงานจาก `templates/test-scenario-report.md`
+- สำหรับ InnoHub/user-facing checks ใช้ visible-menu navigation เป็น default; direct URL/hidden route ต้อง label เป็น technical verification only
 
 ## Standard feedback loop
 

@@ -12,9 +12,17 @@
 
 1. Copy ไฟล์นี้ไปเป็น `CLAUDE.md` ที่ root ของ target repo
 2. Copy `claude/commands/*.md` ไปไว้ที่ `.claude/commands/` ของ target repo
-3. เปิด Claude Code แบบ interactive ใน target repo แล้วใช้ slash commands ได้ เช่น `/fix-bug`, `/review-change`, `/build-feature`, `/write-document`, `/verify-work`, `/standard-feedback`
+3. เปิด Claude Code แบบ interactive ใน target repo แล้วใช้ slash commands ได้ เช่น `/fix-bug`, `/review-change`, `/build-feature`, `/write-document`, `/verify-work`, `/standard-feedback`, `/test-scenario-report`
 
 หมายเหตุ: slash commands ใช้กับ interactive Claude Code เท่านั้น; ใน print mode (`claude -p`) ให้ reference path ของ command หรือ paste เนื้อหา command แทน เพราะ `/command` จะไม่ทำงานแบบ interactive
+
+## Test Scenario Report สำหรับ QA/product evidence
+
+ใช้ `/test-scenario-report` หรือ `commands/test-scenario-report.md` เมื่อต้องการทำ test case/scenario, capture screenshot, ตรวจ console/network และสร้างรายงาน Markdown ตาม `workflows/test-scenario-report.md` กับ `templates/test-scenario-report.md`
+
+Workflow นี้ไม่ใช่ Employee Daily Log v5, performance review, score, KPI, daily performance หรือการประเมินบุคคล ให้ใช้เป็น QA/product evidence เท่านั้น
+
+สำหรับ InnoHub หรือ user-facing checks ต้องใช้ visible-menu navigation เป็น default; direct URL/hidden route ต้อง label เป็น technical verification only
 
 ## Feedback เพื่อปรับปรุงมาตรฐาน
 

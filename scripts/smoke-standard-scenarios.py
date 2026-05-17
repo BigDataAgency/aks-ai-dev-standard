@@ -31,6 +31,7 @@ SCENARIOS = {
     "update-obsidian": ["commands/update-obsidian.md", "workflows/obsidian.md"],
     "performance-review": ["commands/performance-review.md", "workflows/performance.md"],
     "standard-feedback": ["commands/standard-feedback.md", "templates/standard-feedback.md", "workflows/standard-improvement.md", "FEEDBACK.md"],
+    "test-scenario-report": ["commands/test-scenario-report.md", "templates/test-scenario-report.md", "workflows/test-scenario-report.md"],
 }
 
 GLOBAL_FILES = [
@@ -47,6 +48,7 @@ CLAUDE_COMMANDS = [
     "claude/commands/write-document.md",
     "claude/commands/verify-work.md",
     "claude/commands/standard-feedback.md",
+    "claude/commands/test-scenario-report.md",
 ]
 
 FORBIDDEN_CLAIMS = [
@@ -94,6 +96,7 @@ def validate_claude_usage_docs() -> None:
                 "/fix-bug",
                 "/review-change",
                 "/standard-feedback",
+                "/test-scenario-report",
             ],
         )
 
@@ -135,6 +138,54 @@ def validate_standard_feedback_loop() -> None:
             "templates/standard-feedback.md",
             "workflows/standard-improvement.md",
             "ไม่ใช่ทุกทีม/ทุก role ใช้มาตรฐานนี้",
+        ],
+    )
+
+
+def validate_test_scenario_report_workflow() -> None:
+    scenario_files = [
+        "commands/test-scenario-report.md",
+        "workflows/test-scenario-report.md",
+        "templates/test-scenario-report.md",
+        "claude/commands/test-scenario-report.md",
+    ]
+    required_terms = [
+        "QA/product evidence",
+        "screenshot",
+        "test matrix",
+        "expected",
+        "actual",
+        "console",
+        "severity",
+        "recommendations",
+        "visible-menu navigation",
+        "technical verification only",
+        "Employee Daily Log v5",
+        "performance",
+    ]
+    for rel in scenario_files:
+        assert_contains_all(rel, required_terms)
+
+    assert_contains_all(
+        "templates/test-scenario-report.md",
+        [
+            "Pass / Fail / Blocked / Not run",
+            "MEDIA:/absolute/path/to",
+            "Console errors",
+            "Network/API failures",
+            "Non-performance confirmation",
+        ],
+    )
+
+    assert_contains_all(
+        "README.md",
+        [
+            "commands/test-scenario-report.md",
+            "workflows/test-scenario-report.md",
+            "templates/test-scenario-report.md",
+            "claude/commands/test-scenario-report.md",
+            "visible-menu navigation",
+            "technical verification only",
         ],
     )
 
@@ -198,6 +249,7 @@ def main() -> int:
         validate_required_sections,
         validate_claude_usage_docs,
         validate_standard_feedback_loop,
+        validate_test_scenario_report_workflow,
         validate_scenario_templates,
         validate_no_forbidden_claims,
     ]
