@@ -3,16 +3,41 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { createServer } from 'node:http';
 
 const root = new URL('..', import.meta.url).pathname.replace(/\/$/, '');
 const cli = join(root, 'scripts', 'send-ingest-report.mjs');
 
-function run(args) {
+function run(args, env = {}) {
   return spawnSync(process.execPath, [cli, ...args], {
     cwd: root,
     encoding: 'utf8',
-    env: { ...process.env, INNOHUB_INGEST_TOKEN: '', INNOHUB_INGEST_URL: '' },
+    env: { ...process.env, INNOHUB_INGEST_TOKEN: '', INNOHUB_INGEST_TOKEN_FILE: '', INNOHUB_INGEST_URL: '', INNOHUB_TENANT_ID: '', ...env },
+  });
+}
+
+function listen(server) {
+  return new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => resolve(server.address().port));
+  });
+}
+
+function runAsync(args, env = {}) {
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, [cli, ...args], {
+      cwd: root,
+      env: { ...process.env, INNOHUB_INGEST_TOKEN: '', INNOHUB_INGEST_TOKEN_FILE: '', INNOHUB_INGEST_URL: '', INNOHUB_TENANT_ID: '', ...env },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', (chunk) => { stdout += chunk; });
+    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.on('close', (status) => resolve({ status, stdout, stderr }));
   });
 }
 
@@ -73,7 +98,39 @@ async function main() {
 
     const sendNoAuth = run(['--file', validReport, '--send']);
     assert.notEqual(sendNoAuth.status, 0);
-    assert.match(sendNoAuth.stderr, /--endpoint and --token-file are required/);
+    assert.match(sendNoAuth.stderr, /--endpoint or INNOHUB_INGEST_URL is required/);
+
+    let capturedRequest = null;
+    const server = createServer((req, res) => {
+      let body = '';
+      req.setEncoding('utf8');
+      req.on('data', (chunk) => { body += chunk; });
+      req.on('end', () => {
+        capturedRequest = { headers: req.headers, body: JSON.parse(body) };
+        res.writeHead(202, { 'content-type': 'application/json' });
+        res.end(JSON.stringify({ event_id: 'evt_test_12345' }));
+      });
+    });
+    const port = await listen(server);
+    try {
+      const sent = await runAsync(['--file', validReport, '--send'], {
+        INNOHUB_INGEST_URL: `http://127.0.0.1:${port}/api/ingest`,
+        INNOHUB_INGEST_TOKEN: 'staff-test-token-value',
+        INNOHUB_TENANT_ID: 'tenant-test',
+      });
+      assert.equal(sent.status, 0, sent.stderr);
+      const sentOutput = JSON.parse(sent.stdout);
+      assert.equal(sentOutput.mode, 'sent');
+      assert.equal(sentOutput.endpoint, `http://127.0.0.1:${port}/api/ingest`);
+      assert.equal(sentOutput.result.status, 202);
+      assert.equal(sentOutput.result.event_id, 'evt_test_12345');
+      assert.equal(capturedRequest.headers.authorization, 'Bearer staff-test-token-value');
+      assert.equal(capturedRequest.headers['x-innohub-tenant-id'], 'tenant-test');
+      assert.equal(capturedRequest.body.payload.summary.project, 'Demo Shop Checkout');
+      assert.doesNotMatch(sent.stdout, /staff-test-token-value/);
+    } finally {
+      server.close();
+    }
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

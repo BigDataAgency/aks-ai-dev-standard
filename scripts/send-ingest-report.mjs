@@ -16,9 +16,19 @@ class CliError extends Error {
 }
 
 function usage() {
-  return `Usage: node scripts/send-ingest-report.mjs --file <report.md|report.json> [--project <name>] [--source <source>] [--send --endpoint <url> --token-file <path> [--tenant <id>]]
+  return `Usage: node scripts/send-ingest-report.mjs --file <report.md|report.json> [--project <name>] [--source <source>] [--send --endpoint <url> (--token-file <path>|--token-env <ENV_NAME>) [--tenant <id>]]
 
-Defaults to dry-run local JSON output. Remote ingest requires explicit --send plus --endpoint and --token-file.`;
+Defaults to dry-run local JSON output. Remote ingest requires explicit --send plus an endpoint and token source.
+
+Private env alternatives for staff/CI (never commit real values):
+  INNOHUB_INGEST_URL          endpoint used when --endpoint is omitted
+  INNOHUB_INGEST_TOKEN_FILE   token-file path used when --token-file is omitted
+  INNOHUB_INGEST_TOKEN        token value used when --token-env is omitted and no token-file is set
+  INNOHUB_TENANT_ID           tenant used when --tenant is omitted
+
+Examples:
+  npm run ingest:report -- --file reports/test-report.md
+  npm run ingest:report -- --file reports/test-report.md --send --endpoint https://example.com/ingest --token-file /private/path/ingest-token`;
 }
 
 function parseArgs(argv) {
@@ -27,7 +37,7 @@ function parseArgs(argv) {
     const arg = argv[index];
     if (arg === '--help' || arg === '-h') args.help = true;
     else if (arg === '--send') args.send = true;
-    else if (['--file', '--endpoint', '--token-file', '--tenant', '--project', '--source'].includes(arg)) {
+    else if (['--file', '--endpoint', '--token-file', '--token-env', '--tenant', '--project', '--source'].includes(arg)) {
       const value = argv[index + 1];
       if (!value || value.startsWith('--')) throw new CliError(`${arg} requires a value`);
       args[arg.slice(2).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = value;
@@ -228,6 +238,34 @@ async function readTokenFile(path) {
   return token;
 }
 
+function readTokenEnv(name) {
+  const token = (process.env[name] || '').trim();
+  if (!token) throw new CliError(`Token environment variable is empty or unset: ${name}`);
+  if (detectHighConfidenceSecrets(`Authorization: Bearer ${token}`)) {
+    // The token itself is expected to be secret; this branch only validates without printing it.
+    return token;
+  }
+  return token;
+}
+
+function resolveSendInputs(args) {
+  const endpoint = args.endpoint || process.env.INNOHUB_INGEST_URL || process.env.BDA_INGEST_ENDPOINT || '';
+  const tenant = args.tenant || process.env.INNOHUB_TENANT_ID || '';
+  const tokenFile = args.tokenFile || process.env.INNOHUB_INGEST_TOKEN_FILE || '';
+  const tokenEnv = args.tokenEnv || (!tokenFile && process.env.INNOHUB_INGEST_TOKEN ? 'INNOHUB_INGEST_TOKEN' : '');
+
+  if (!endpoint) {
+    throw new CliError('--endpoint or INNOHUB_INGEST_URL is required when --send is used');
+  }
+  if (!tokenFile && !tokenEnv) {
+    throw new CliError('--token-file, --token-env, INNOHUB_INGEST_TOKEN_FILE, or INNOHUB_INGEST_TOKEN is required when --send is used');
+  }
+  if (tokenFile && tokenEnv) {
+    throw new CliError('Choose one token source only: --token-file/INNOHUB_INGEST_TOKEN_FILE or --token-env/INNOHUB_INGEST_TOKEN');
+  }
+  return { endpoint, tenant, tokenFile, tokenEnv };
+}
+
 function validateEndpoint(endpoint) {
   let url;
   try {
@@ -254,7 +292,14 @@ async function sendPayload(endpoint, token, payload, tenant) {
   const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
   const body = await response.text();
   if (!response.ok) throw new CliError(`Ingest endpoint rejected request with HTTP ${response.status}`, 4);
-  return { status: response.status, response_body_redacted: redactText(body).slice(0, 1000) };
+  let eventId = '';
+  try {
+    const parsed = JSON.parse(body);
+    eventId = String(parsed.event_id || parsed.eventId || parsed.id || '');
+  } catch {
+    eventId = '';
+  }
+  return { status: response.status, event_id: redactText(eventId), response_body_redacted: redactText(body).slice(0, 1000) };
 }
 
 async function main() {
@@ -264,9 +309,7 @@ async function main() {
     return;
   }
   if (!args.file) throw new CliError('--file is required');
-  if (args.send && (!args.endpoint || !args.tokenFile)) {
-    throw new CliError('--endpoint and --token-file are required when --send is used');
-  }
+  const sendInputs = args.send ? resolveSendInputs(args) : null;
 
   let info;
   try {
@@ -303,9 +346,9 @@ async function main() {
     return;
   }
 
-  const endpoint = validateEndpoint(args.endpoint);
-  const token = await readTokenFile(args.tokenFile);
-  const result = await sendPayload(endpoint, token, payload, args.tenant);
+  const endpoint = validateEndpoint(sendInputs.endpoint);
+  const token = sendInputs.tokenFile ? await readTokenFile(sendInputs.tokenFile) : readTokenEnv(sendInputs.tokenEnv);
+  const result = await sendPayload(endpoint, token, payload, sendInputs.tenant);
   console.log(JSON.stringify({ mode: 'sent', endpoint: `${endpoint.origin}${endpoint.pathname}`, result }, null, 2));
 }
 
