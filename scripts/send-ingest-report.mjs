@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFile, stat } from 'node:fs/promises';
 import { basename } from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 const VERSION = '0.4.1';
 const DEFAULT_SOURCE = 'bda-ai-dev-standard/test-scenario-report';
@@ -246,6 +247,8 @@ async function sendPayload(endpoint, token, payload, tenant) {
     'content-type': 'application/json',
     authorization: `Bearer ${token}`,
     'user-agent': `bda-ai-dev-standard-ingest/${VERSION}`,
+    'x-bda-schema-version': payload.standard_version,
+    'x-bda-request-id': randomUUID(),
   };
   if (tenant) headers['x-innohub-tenant-id'] = tenant;
   const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
