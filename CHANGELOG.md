@@ -8,6 +8,17 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.3.0] - 2026-05-18
+
+### Changed
+
+- Improved `test-scenario-report` based on an InnoHub production trial:
+  - Added production read-only guardrails and no-mutation pass criteria.
+  - Added Auth/RBAC matrix and test account classification.
+  - Added route source trace, technical-verification-only wording, route drift checks, and SPA 404 detection.
+  - Added blocked reason taxonomy and evidence manifest with screenshot/console/network/PII masking fields.
+  - Reinforced InnoHub/user-facing visible-menu navigation rule.
+
 ## [0.2.0] - 2026-05-17
 
 ### Added
