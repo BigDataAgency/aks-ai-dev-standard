@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "ingest:report": "node scripts/send-ingest-report.mjs",
+    "test:ingest-report": "node scripts/test-ingest-report.mjs",
+    "test": "python3 scripts/smoke-standard-scenarios.py && node scripts/test-ingest-report.mjs",
+    "security:public-repo": "scripts/security-public-repo-check.sh"
+  }
+}
