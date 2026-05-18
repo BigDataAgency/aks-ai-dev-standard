@@ -52,10 +52,10 @@ async function main() {
     assert.equal(dry.status, 0, dry.stderr);
     const payload = JSON.parse(dry.stdout);
     assert.equal(payload.mode, 'dry-run');
-    assert.equal(payload.payload.report_summary.schema_version, '0.4.1');
-    assert.equal(payload.payload.report_summary.project, 'Demo Shop Checkout');
-    assert.equal(payload.payload.report_summary.status, 'PASS');
-    assert.equal(payload.payload.report_summary.evidence_manifest.length, 1);
+    assert.equal(payload.payload.standard_version, 'test_report.v0.4.1');
+    assert.equal(payload.payload.payload.summary.project, 'Demo Shop Checkout');
+    assert.equal(payload.payload.payload.summary.status, 'PASS');
+    assert.equal(payload.payload.payload.summary.evidence_manifest.length, 1);
 
     const missing = run(['--file', join(dir, 'missing.md')]);
     assert.notEqual(missing.status, 0);

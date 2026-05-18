@@ -247,7 +247,7 @@ async function sendPayload(endpoint, token, payload, tenant) {
     authorization: `Bearer ${token}`,
     'user-agent': `bda-ai-dev-standard-ingest/${VERSION}`,
   };
-  if (tenant) headers['x-bda-tenant-id'] = tenant;
+  if (tenant) headers['x-innohub-tenant-id'] = tenant;
   const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
   const body = await response.text();
   if (!response.ok) throw new CliError(`Ingest endpoint rejected request with HTTP ${response.status}`, 4);
@@ -283,8 +283,16 @@ async function main() {
   validateSummary(summary);
 
   const payload = {
-    ingest_schema: `bda-standard-ingest/${VERSION}`,
-    report_summary: summary,
+    type: 'test_report',
+    standard_version: `test_report.v${VERSION}`,
+    source: summary.source,
+    created_at: new Date().toISOString(),
+    payload: {
+      title: summary.report_title,
+      summary,
+      status: summary.status,
+      report_path: args.file,
+    },
   };
 
   if (!args.send) {
