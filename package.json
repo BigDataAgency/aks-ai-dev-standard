@@ -1,8 +1,10 @@
 {
   "scripts": {
     "ingest:report": "node scripts/send-ingest-report.mjs",
+    "sync:github-reports": "node scripts/sync-github-reports.mjs",
     "test:ingest-report": "node scripts/test-ingest-report.mjs",
-    "test": "python3 scripts/smoke-standard-scenarios.py && node scripts/test-ingest-report.mjs",
+    "test:github-sync": "node scripts/test-github-report-sync.mjs",
+    "test": "python3 scripts/smoke-standard-scenarios.py && node scripts/test-ingest-report.mjs && node scripts/test-github-report-sync.mjs",
     "security:public-repo": "scripts/security-public-repo-check.sh"
   }
 }
