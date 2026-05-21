@@ -19,8 +19,6 @@
 
 Codex uses this file as agent instruction; it does not use Claude Code slash commands. When asked for commands, reference normal command names:
 
-- `daily-log` → `commands/daily-log.md`; mark missing commit/link/output as pending evidence.
-- `weekly-focus` → `commands/weekly-focus.md`; do not turn planning into performance scoring.
 - `test-report` → `commands/test-report.md` and `commands/test-scenario-report.md`; QA/product evidence only, not individual evaluation.
 
 ## Working rules

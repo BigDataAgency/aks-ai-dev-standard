@@ -2,7 +2,7 @@
 
 ใช้ command หลักจาก `commands/standard-feedback.md` เพื่อรับ feedback สำหรับปรับปรุง BDA AI Dev Standard และตอบตามมาตรฐานเป็นภาษาไทย
 
-ข้อสำคัญ: feedback นี้ไม่ใช่ Daily Log, performance review, score, KPI, หรือการประเมินบุคคล ให้ใช้เพื่อปรับปรุงมาตรฐาน/command/workflow/template/Claude-Codex support เท่านั้น
+ข้อสำคัญ: feedback นี้ไม่ใช่ performance review, score, KPI, หรือการประเมินบุคคล ให้ใช้เพื่อปรับปรุงมาตรฐาน/command/workflow/template/Claude-Codex support เท่านั้น
 
 ควรอ้างอิง `FEEDBACK.md`, `templates/standard-feedback.md`, และ `workflows/standard-improvement.md` เมื่อเกี่ยวข้อง
 

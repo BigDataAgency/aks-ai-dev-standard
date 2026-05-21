@@ -1,6 +1,6 @@
 # BDA AI Dev Standard
 
-Version: `0.6.0`
+Version: `0.7.0`
 License: MIT
 
 มาตรฐานกลางสำหรับการทำงานร่วมกับ AI ในงานพัฒนา ซ่อมบั๊ก ตรวจโค้ด เขียนเอกสาร งาน Obsidian งาน Performance และงานติดตามทีมของ BDA
@@ -11,7 +11,7 @@ License: MIT
 
 BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
-- Current version: `0.6.0`
+- Current version: `0.7.0`
 - ดูประวัติการเปลี่ยนแปลงที่ `CHANGELOG.md`
 - เลข version หลักอยู่ใน `VERSION`
 - ทุก update สำคัญต้องเปลี่ยน version ใน repo นี้ก่อน rollout
@@ -50,8 +50,6 @@ BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 - Feedback เพื่อปรับปรุงมาตรฐาน: `commands/standard-feedback.md`
 - Test Report (QA/product evidence): `commands/test-report.md` (source: `commands/test-scenario-report.md`)
 - Performance: `commands/performance-review.md`
-- Daily Log: `commands/daily-log.md`
-- Weekly Focus: `commands/weekly-focus.md`
 
 ## ใช้กับ AI ตัวไหนได้บ้าง
 
@@ -63,21 +61,19 @@ BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
 ใช้ `/` command ใน Claude Code ได้เมื่อ copy/ติดตั้งไฟล์จาก `claude/commands/*.md` ไปไว้ใน `.claude/commands/` ของ target repo และ copy `claude/CLAUDE.md` ไปเป็น `CLAUDE.md` ที่ root ของ target repo แล้ว
 
-- Interactive Claude Code: เรียกได้ เช่น `/init`, `/fix-bug`, `/review-change`, `/build-feature`, `/write-document`, `/standard-feedback`, `/daily-log`, `/weekly-focus`, `/test-report`
+- Interactive Claude Code: เรียกได้ เช่น `/init`, `/fix-bug`, `/review-change`, `/build-feature`, `/write-document`, `/standard-feedback`, `/test-report`
 - Print mode (`claude -p`): slash command แบบ interactive จะไม่ถูกรันโดยตรง ให้ reference ไฟล์ command (`commands/fix-bug.md`) หรือ paste prompt จาก command แทน
 
 
 ## Command Pack
 
-Command names use normal names without legacy version suffixes:
+Command names are limited to supported developer, Obsidian, QA, reporting, and feedback workflows:
 
-- Daily Log: `commands/daily-log.md` and template `templates/daily-log.md`
-- Weekly Focus: `commands/weekly-focus.md` and template `templates/weekly-focus.md`
 - Test Report: `commands/test-report.md`, `commands/test-scenario-report.md`, `workflows/test-scenario-report.md`, `templates/test-scenario-report.md`
 
 Adapter usage:
 
-- Claude Code: copy `claude/commands/*.md` to `.claude/commands/` and use slash commands `/daily-log`, `/weekly-focus`, `/test-report` in interactive Claude Code only.
+- Claude Code: copy `claude/commands/*.md` to `.claude/commands/` and use slash commands such as `/init`, `/fix-bug`, `/build-feature`, `/write-document`, `/standard-feedback`, `/test-report` in interactive Claude Code only.
 - Gemini: use prompt commands in `gemini/prompts/`; Gemini does not use Claude Code slash commands.
 - Claude coworker: use prompt commands in `claude-coworker/prompts/`; these are paste/reference prompts, not Claude Code slash commands.
 - Codex: use `codex/AGENTS.md` as agent instruction and reference the command files by path.
@@ -105,7 +101,7 @@ Adapter usage:
 - Template: `templates/test-scenario-report.md`
 - Claude Code slash command: `/test-report` จาก `claude/commands/test-report.md` (slash command ใช้กับ Claude Code interactive เท่านั้น)
 
-Workflow นี้เป็น QA/product evidence workflow เท่านั้น **ไม่ใช่** Daily Log, performance review, score, KPI, daily performance หรือการประเมินบุคคล
+Workflow นี้เป็น QA/product evidence workflow เท่านั้น **ไม่ใช่** performance review, score, KPI, daily performance หรือการประเมินบุคคล
 
 สำหรับ InnoHub หรือ user-facing checks ให้ใช้ visible-menu navigation เป็น default และห้ามใช้ hidden route/direct URL เพื่อ claim user journey เว้นแต่ label ชัดว่าเป็น technical verification only
 
@@ -152,7 +148,7 @@ npm run test:github-sync
 - กรอก `templates/standard-feedback.md`
 - ถ้าจะลงมือแก้มาตรฐาน ให้ตาม `workflows/standard-improvement.md`
 
-Feedback loop นี้เป็น product-improvement process สำหรับมาตรฐานเท่านั้น **ไม่ใช่** Daily Log, performance review, score, KPI, daily performance หรือการประเมินบุคคล เพราะไม่ใช่ทุกทีม/ทุก role ใช้มาตรฐานนี้ และ non-dev ทีม อาจไม่เกี่ยวข้อง
+Feedback loop นี้เป็น product-improvement process สำหรับมาตรฐานเท่านั้น **ไม่ใช่** performance review, score, KPI, daily performance หรือการประเมินบุคคล เพราะไม่ใช่ทุกทีม/ทุก role ใช้มาตรฐานนี้ และ non-dev ทีม อาจไม่เกี่ยวข้อง
 
 ## Output บังคับทุก workflow/command
 

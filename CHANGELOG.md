@@ -8,21 +8,34 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.7.0] - 2026-05-21
+
+### Removed
+
+- Removed staff operational reporting and planning commands from the public command surface to avoid employee confusion.
+- Removed the related command files, Claude slash adapters, staff adapters, Gemini prompts, Claude coworker prompts, and templates.
+- Removed these workflows from README, AI, Claude, Codex, and smoke validation routing.
+
+### Changed
+
+- Command pack now focuses on developer work, Obsidian context, QA/product evidence, report sending, performance review, and standard feedback.
+- `test-report` remains the staff-facing QA/product evidence command.
+- Smoke validation now fails if removed staff reporting/planning command files or terms return.
+- Updated current version metadata to `0.7.0`.
+
 ## [0.6.0] - 2026-05-21
 
 ### Removed
 
-- Removed legacy versioned daily/weekly command files and Claude adapters.
-- Removed legacy daily/weekly template filenames and replaced them with normal template names:
-  - `templates/daily-log.md`
-  - `templates/weekly-focus.md`
+- Removed legacy versioned staff reporting/planning command files and Claude adapters.
+- Removed legacy staff reporting/planning template filenames.
 - Removed legacy self-contained wording from report-sender command docs.
 
 ### Changed
 
-- `daily-log` and `weekly-focus` are now direct canonical commands, not aliases to versioned internal commands.
-- Updated README, AI, Claude, Codex, staff, Gemini, and Claude coworker docs to reference only normal command names.
-- Updated smoke validation to fail if removed legacy daily/weekly terms or files return.
+- Staff reporting/planning names were temporarily made direct canonical commands before being removed in `0.7.0`.
+- Updated README, AI, Claude, Codex, staff, Gemini, and Claude coworker docs to reference normal command names.
+- Updated smoke validation to fail if removed legacy versioned terms or files return.
 - Updated current version metadata to `0.6.0`.
 
 ## [0.5.0] - 2026-05-21
@@ -60,24 +73,12 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 
 ### Added
 
-- Command pack with normal, non-versioned command names:
-  - `commands/daily-log.md`
-  - `commands/weekly-focus.md`
-  - `commands/test-report.md`
-- Claude Code slash aliases: `/daily-log`, `/weekly-focus`, `/test-report`.
-- Staff documentation under `staff/commands/` and adapter prompt packs for Gemini and Claude coworker.
-- Codex/Claude/general AI docs now describe command aliases and adapter-specific usage.
+- Staff command pack and adapter prompt packs for Gemini and Claude coworker.
+- Codex/Claude/general AI docs for command aliases and adapter-specific usage.
 
 ### Changed
 
 - Updated current version metadata to `0.4.0`.
-- Added friendly aliases for daily, weekly, and test report workflows.
-
-### Guardrails
-
-- Daily Log requires missing commit/link/output evidence to be marked as pending evidence instead of invented.
-- Weekly Focus remains a planning/coordination artifact and must not become performance scoring.
-- Test Report keeps QA/product evidence behavior and must not be used for individual performance evaluation.
 
 ## [0.3.0] - 2026-05-18
 
@@ -103,7 +104,7 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 
 ### Notes
 
-- This workflow is explicitly separate from Daily Log and performance evaluation.
+- This workflow is explicitly separate from performance evaluation.
 - User-facing checks, including InnoHub scenarios, should use visible-menu navigation by default; hidden/direct routes must be labeled technical verification only.
 
 ## [0.1.0] - 2026-05-17
@@ -122,24 +123,9 @@ Initial public release.
   - writing and documents
   - Obsidian updates
   - performance review
-  - Daily Log
-  - Weekly Focus
 - Codex adapter: `codex/AGENTS.md`
 - Claude adapter and slash-command files: `claude/CLAUDE.md`, `claude/commands/*.md`
-- Required reporting trace for every standard-driven task:
-  - BDA Standard files used
-  - Pipeline trace
-  - Commands run
-  - Verification / Evidence
-  - Limitations / Risks / Next steps
-- Feedback loop for improving the standard, separate from Daily Log and performance evaluation:
-  - `FEEDBACK.md`
-  - `commands/standard-feedback.md`
-  - `templates/standard-feedback.md`
-  - `workflows/standard-improvement.md`
+- Required reporting trace for every standard-driven task.
+- Feedback loop for improving the standard.
 - Smoke validation script: `scripts/smoke-standard-scenarios.py`
 - MIT License
-
-### Notes
-
-This release is a curated internal-practice standard made public for reuse and feedback. It is not presented as original invention; it combines practical patterns, lessons learned, and open-source-friendly documentation into a versioned workflow standard.

@@ -29,8 +29,6 @@
 - review: `commands/review-change.md`
 - docs/writing: `commands/write-document.md`
 - Obsidian: `commands/update-obsidian.md`
-- daily log: `commands/daily-log.md`
-- weekly focus: `commands/weekly-focus.md`
 - QA/product evidence พร้อม screenshot report: `commands/test-report.md`, `commands/test-scenario-report.md`, `workflows/test-scenario-report.md`, `templates/test-scenario-report.md`
 - feedback เพื่อปรับปรุง BDA AI Dev Standard: `commands/standard-feedback.md`, `FEEDBACK.md`, `templates/standard-feedback.md`
 - performance: `commands/performance-review.md`
@@ -38,13 +36,13 @@
 
 ## Command Pack
 
-ใช้ชื่อ command ปกติ: `daily-log`, `weekly-focus`, `test-report`. ไม่มีชื่อ legacy versioned สำหรับ daily/weekly workflow แล้ว.
+ใช้เฉพาะ command ที่ยังอยู่ใน repo ปัจจุบัน เช่น `build-feature`, `fix-bug`, `write-document`, `init`, `test-report`, `standard-feedback`.
 
 Adapter notes: Claude Code ใช้ slash commands เฉพาะ interactive mode; Gemini/Claude coworker ใช้ prompt commands; Codex ใช้ agent instruction ใน `codex/AGENTS.md`.
 
 ## Test scenario report workflow
 
-ใช้เมื่อต้องการทำ test case/scenario, capture screenshot, ตรวจ console/network และสร้าง report สำหรับ QA/product evidence โดยแยกจาก Daily Log และ performance evaluation
+ใช้เมื่อต้องการทำ test case/scenario, capture screenshot, ตรวจ console/network และสร้าง report สำหรับ QA/product evidence โดยแยกจาก performance evaluation
 
 - ใช้ `commands/test-scenario-report.md`
 - ทำตาม `workflows/test-scenario-report.md`
@@ -64,7 +62,7 @@ Adapter notes: Claude Code ใช้ slash commands เฉพาะ interactive 
 - ใช้ `commands/standard-feedback.md`
 - กรอก `templates/standard-feedback.md`
 - ถ้าต้องแก้มาตรฐาน ให้ใช้ `workflows/standard-improvement.md`
-- ห้ามผูก feedback นี้กับ Daily Log, performance review, score, KPI, daily performance หรือการประเมินบุคคล
+- ห้ามผูก feedback นี้กับ performance review, score, KPI, daily performance หรือการประเมินบุคคล
 
 ## Output มาตรฐาน
 

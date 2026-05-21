@@ -8,7 +8,6 @@
 
 Command นี้ใช้ตรวจคุณภาพ product/scenario เท่านั้น:
 
-- ไม่ใช่ Daily Log
 - ไม่ใช่ performance review, score, KPI, daily performance หรือการประเมินบุคคล
 - ห้ามใช้ผลรายงานนี้เป็นหลักฐานประเมินรายบุคคลโดยตรง
 - ถ้าระบุ role/team ให้ใช้เพื่อเข้าใจ testing context เท่านั้น
@@ -20,7 +19,7 @@ Command นี้ใช้ตรวจคุณภาพ product/scenario เท
 Context: <วาง URL/environment, role/account type, scenario list หรือ acceptance criteria, constraints, output folder ที่ต้องการ>
 โปรดทำตามขั้นตอนนี้:
 1. อ่าน `workflows/test-scenario-report.md` และ `templates/test-scenario-report.md`
-2. ยืนยัน scope ว่าเป็น QA/product evidence ไม่ใช่ Daily Log หรือ performance evaluation
+2. ยืนยัน scope ว่าเป็น QA/product evidence ไม่ใช่ performance evaluation
 3. ถ้าเป็น production ให้ทำ Production Read-only Guardrail Checklist ก่อน execute: ห้าม create/edit/delete/approve/reject/upload/import/export/download sensitive docs เว้นแต่ระบุใน scope และได้รับอนุญาตชัดเจน
 4. ระบุ test account classification โดยไม่ใส่ credentials: real user / synthetic test account / impersonation / limited-role / no credentials และระบุ role/permission เท่าที่ใช้ตรวจ
 5. สร้าง test matrix: scenario ID, priority, role/account class, route source trace, entry point, steps, expected result, screenshot checkpoints, no-mutation criteria
@@ -44,7 +43,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 
 ## Checklist
 
-- [ ] Scope เป็น QA/product evidence ไม่ใช่ Daily Log/performance
+- [ ] Scope เป็น QA/product evidence ไม่ใช่ performance
 - [ ] ระบุ URL/environment/build/version/commit ถ้ามี
 - [ ] ถ้าเป็น production ให้ยืนยัน read-only/no-mutation guardrail ก่อน execute
 - [ ] ห้าม create/edit/delete/approve/reject/upload/import/export/download sensitive docs บน production เว้นแต่มี explicit scope

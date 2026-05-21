@@ -4,11 +4,10 @@
 
 ต้องการส่ง feedback เพื่อปรับปรุง/แก้ไข/เพิ่มความสามารถของ BDA AI Dev Standard เช่น command, workflow, template, policy, Claude/Codex support หรือคำอธิบายที่ทำให้ใช้งานง่ายขึ้น
 
-## สำคัญ: ไม่ใช่ Daily Log/performance
+## สำคัญ: ไม่ใช่ performance
 
 Feedback นี้เป็น product-improvement loop สำหรับมาตรฐานเท่านั้น:
 
-- ไม่ใช่ Daily Log
 - ไม่ใช่ performance review, score, KPI, หรือการประเมินบุคคล
 - ไม่ต้องนำไปคิด daily performance หรือรายงานผลงานรายบุคคล
 - role/team เป็นข้อมูล optional เพื่อเข้าใจ context ของการใช้งาน ไม่ใช่เพื่อประเมินคน
@@ -19,7 +18,7 @@ Feedback นี้เป็น product-improvement loop สำหรับมา
 ทำงาน: Standard Feedback สำหรับ BDA AI Dev Standard
 Context: <วาง feedback, scenario, command/workflow/template ที่เกี่ยวข้อง, expected/actual, evidence เท่าที่ปลอดภัย>
 โปรดทำตามขั้นตอนนี้:
-1. แยก feedback นี้ออกจาก Daily Log และ performance evaluation อย่างชัดเจน
+1. แยก feedback นี้ออกจาก performance evaluation อย่างชัดเจน
 2. จัดประเภท feedback: bug report, confusion, missing command, feature request, scenario request, adoption friction, AI output issue, หรืออื่น ๆ
 3. ระบุ standard file ที่เกี่ยวข้อง เช่น commands/..., workflows/..., templates/..., policies/..., claude/...
 4. สรุป expected vs actual และ evidence ที่มี
@@ -33,7 +32,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 
 ## Checklist
 
-- [ ] ยืนยันว่า feedback นี้เกี่ยวกับ BDA AI Dev Standard ไม่ใช่ Daily Log/performance
+- [ ] ยืนยันว่า feedback นี้เกี่ยวกับ BDA AI Dev Standard ไม่ใช่ performance
 - [ ] ระบุประเภท feedback
 - [ ] ระบุ command/workflow/template/policy/tool support ที่เกี่ยวข้อง
 - [ ] ระบุ expected behavior

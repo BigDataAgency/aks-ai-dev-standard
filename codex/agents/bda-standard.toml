@@ -1,3 +1,3 @@
 name = "bda-standard"
-description = "Neutral BDA AI Dev Standard adapter for software, docs, review, Obsidian, performance, Daily Log, Weekly Focus"
+description = "Neutral BDA AI Dev Standard adapter for software, docs, review, Obsidian, performance, and QA/product evidence"
 instructions = "Read AI-README.md, follow STANDARD.md, verify with evidence, answer in Thai."

@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SANDBOX = Path("/tmp/bda-ai-dev-standard-smoke")
-EXPECTED_VERSION = "0.6.0"
+EXPECTED_VERSION = "0.7.0"
 
 REQUIRED_SECTIONS = [
     "BDA Standard files used",
@@ -28,8 +28,6 @@ SCENARIOS = {
     "bug-fix": ["commands/fix-bug.md", "workflows/bug-fix.md"],
     "review-change": ["commands/review-change.md", "workflows/code-review.md"],
     "write-document": ["commands/write-document.md", "workflows/writing-docs.md"],
-    "daily-log": ["commands/daily-log.md", "templates/daily-log.md"],
-    "weekly-focus": ["commands/weekly-focus.md", "templates/weekly-focus.md"],
     "update-obsidian": ["commands/update-obsidian.md", "workflows/obsidian.md"],
     "performance-review": ["commands/performance-review.md", "workflows/performance.md"],
     "standard-feedback": ["commands/standard-feedback.md", "templates/standard-feedback.md", "workflows/standard-improvement.md", "FEEDBACK.md"],
@@ -53,24 +51,10 @@ CLAUDE_COMMANDS = [
     "claude/commands/verify-work.md",
     "claude/commands/standard-feedback.md",
     "claude/commands/test-scenario-report.md",
-    "claude/commands/daily-log.md",
-    "claude/commands/weekly-focus.md",
     "claude/commands/test-report.md",
 ]
 
 COMMAND_PACK = {
-    "daily-log": {
-        "command": "commands/daily-log.md",
-        "claude": "claude/commands/daily-log.md",
-        "template": "templates/daily-log.md",
-        "terms": ["Daily Log", "AI usage", "tomorrow focus"],
-    },
-    "weekly-focus": {
-        "command": "commands/weekly-focus.md",
-        "claude": "claude/commands/weekly-focus.md",
-        "terms": ["Weekly Focus", "weekly focus", "priorities", "committed", "stretch"],
-        "template": "templates/weekly-focus.md",
-    },
     "test-report": {
         "command": "commands/test-report.md",
         "claude": "claude/commands/test-report.md",
@@ -112,7 +96,7 @@ def validate_version_consistency() -> None:
         raise AssertionError(f"VERSION is {version!r}, expected {EXPECTED_VERSION!r}")
 
     assert_contains_all("README.md", [f"Version: `{EXPECTED_VERSION}`", f"Current version: `{EXPECTED_VERSION}`"])
-    assert_contains_all("CHANGELOG.md", [f"## [{EXPECTED_VERSION}]", "daily-log", "weekly-focus", "test-report"])
+    assert_contains_all("CHANGELOG.md", [f"## [{EXPECTED_VERSION}]", "Removed", "staff operational reporting", "test-report"])
 
 
 def validate_required_sections() -> None:
@@ -141,8 +125,6 @@ def validate_claude_usage_docs() -> None:
                 "/fix-bug",
                 "/review-change",
                 "/standard-feedback",
-                "/daily-log",
-                "/weekly-focus",
                 "/test-report",
             ],
         )
@@ -184,16 +166,20 @@ def validate_obsidian_init_workflow() -> None:
 
 
 LEGACY_REMOVED_TERMS = [
-    "employee-daily-log-" + "v" + "5",
-    "pm-weekly-focus-" + "v" + "2",
-    "daily-log-" + "v" + "5",
-    "weekly-focus-" + "v" + "2",
-    "Employee Daily Log " + "v" + "5",
-    "PM Weekly Focus " + "v" + "2",
+    "daily" + "-log",
+    "weekly" + "-focus",
+    "Daily" + " Log",
+    "Weekly" + " Focus",
+    "/" + "daily" + "-log",
+    "/" + "weekly" + "-focus",
+    "employee-" + "daily" + "-log-" + "v" + "5",
+    "pm-" + "weekly" + "-focus-" + "v" + "2",
+    "daily" + "-log-" + "v" + "5",
+    "weekly" + "-focus-" + "v" + "2",
     "Employee " + "v" + "5",
     "PM " + "v" + "2",
-    "Daily Log " + "v" + "5",
-    "weekly focus " + "v" + "2",
+    "v" + "5",
+    "weekly planning " + "v" + "2",
     "stand" + "alone",
 ]
 
@@ -207,11 +193,7 @@ def validate_command_pack() -> None:
         assert_contains_all(
             rel,
             [
-                "commands/daily-log.md",
-                "commands/weekly-focus.md",
                 "commands/test-report.md",
-                "/daily-log",
-                "/weekly-focus",
                 "/test-report",
             ],
         )
@@ -225,19 +207,31 @@ def validate_optional_adapters() -> None:
     for path in sorted(set(adapter_paths)):
         rel = str(path.relative_to(ROOT))
         if path.name == "README.md":
-            assert_contains_all(rel, ["daily-log", "weekly-focus", "test-report"])
+            assert_contains_all(rel, ["test-report"])
         elif path.stem in COMMAND_PACK:
             assert_contains_all(rel, [path.stem, COMMAND_PACK[path.stem]["command"]])
 
 
 def validate_legacy_staff_versioning_removed() -> None:
     removed_files = [
-        "commands/employee-daily-log-" + "v" + "5.md",
-        "commands/pm-weekly-focus-" + "v" + "2.md",
-        "templates/daily-log-" + "v" + "5.md",
-        "templates/pm-weekly-focus-" + "v" + "2.md",
-        "claude/commands/employee-daily-log-" + "v" + "5.md",
-        "claude/commands/pm-weekly-focus-" + "v" + "2.md",
+        "commands/" + "daily" + "-log.md",
+        "commands/" + "weekly" + "-focus.md",
+        "templates/" + "daily" + "-log.md",
+        "templates/" + "weekly" + "-focus.md",
+        "claude/commands/" + "daily" + "-log.md",
+        "claude/commands/" + "weekly" + "-focus.md",
+        "staff/commands/" + "daily" + "-log.md",
+        "staff/commands/" + "weekly" + "-focus.md",
+        "gemini/prompts/" + "daily" + "-log.md",
+        "gemini/prompts/" + "weekly" + "-focus.md",
+        "claude-coworker/prompts/" + "daily" + "-log.md",
+        "claude-coworker/prompts/" + "weekly" + "-focus.md",
+        "commands/employee-" + "daily" + "-log-" + "v" + "5.md",
+        "commands/pm-" + "weekly" + "-focus-" + "v" + "2.md",
+        "templates/" + "daily" + "-log-" + "v" + "5.md",
+        "templates/pm-" + "weekly" + "-focus-" + "v" + "2.md",
+        "claude/commands/employee-" + "daily" + "-log-" + "v" + "5.md",
+        "claude/commands/pm-" + "weekly" + "-focus-" + "v" + "2.md",
     ]
     existing = [rel for rel in removed_files if (ROOT / rel).exists()]
     if existing:
@@ -249,10 +243,12 @@ def validate_legacy_staff_versioning_removed() -> None:
         if path.suffix not in {".md", ".py", ".toml", ".json", ".txt"} and path.name not in {"VERSION"}:
             continue
         rel = str(path.relative_to(ROOT))
+        if rel == "scripts/smoke-standard-scenarios.py":
+            continue
         text = path.read_text(encoding="utf-8")
         found = [term for term in LEGACY_REMOVED_TERMS if term in text]
         if found:
-            raise AssertionError(f"{rel} still contains removed legacy terms: {found}")
+            raise AssertionError(f"{rel} still contains removed daily/weekly terms: {found}")
 
 
 def validate_standard_feedback_loop() -> None:
@@ -265,7 +261,6 @@ def validate_standard_feedback_loop() -> None:
     ]
     required_terms = [
         "BDA AI Dev Standard",
-        "Daily Log",
         "performance",
         "ไม่ใช่",
     ]
@@ -314,7 +309,6 @@ def validate_test_scenario_report_workflow() -> None:
         "recommendations",
         "visible-menu navigation",
         "technical verification only",
-        "Daily Log",
         "performance",
     ]
     for rel in scenario_files:

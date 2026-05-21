@@ -34,5 +34,5 @@ BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 ## Feedback-driven improvements
 - รับ feedback เพื่อปรับปรุงมาตรฐานผ่าน `FEEDBACK.md`, `commands/standard-feedback.md`, และ `templates/standard-feedback.md`
 - ถ้า feedback นำไปสู่การแก้ repo ให้ใช้ `workflows/standard-improvement.md` และ verify ก่อน commit/rollout
-- Feedback นี้เป็น product-improvement loop ของ BDA AI Dev Standard เท่านั้น ไม่ใช่ Daily Log, performance review, KPI, score, daily performance หรือการประเมินบุคคล
+- Feedback นี้เป็น product-improvement loop ของ BDA AI Dev Standard เท่านั้น ไม่ใช่ performance review, KPI, score, daily performance หรือการประเมินบุคคล
 - ห้ามใช้ role/team/context ใน feedback เพื่อประเมินผลงานรายบุคคล; ใช้เพื่อเข้าใจ adoption และ scenario ของมาตรฐานเท่านั้น

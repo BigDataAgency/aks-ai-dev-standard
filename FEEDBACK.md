@@ -14,11 +14,10 @@
 - Adoption friction: ขั้นตอนเยอะเกินไป ติดตั้งยาก หรือ rollout ยาก
 - AI output issue: AI ทำตาม standard แล้ว output ยังไม่ครบ/ไม่ตรง
 
-## ไม่ใช่ Daily Log หรือ performance
+## ไม่ใช่ performance
 
-- Feedback นี้ **ไม่ใช่** Daily Log
 - Feedback นี้ **ไม่ใช่** performance review, score, KPI, หรือการประเมินคน
-- ไม่ต้องผูกกับ daily log, attendance, productivity, หรือรายงานผลงานรายบุคคล
+- ไม่ต้องผูกกับ operational reporting, attendance, productivity, หรือรายงานผลงานรายบุคคล
 - ใช้เพื่อปรับปรุง product/process ของ BDA AI Dev Standard เพราะไม่ใช่ทุกทีม/ทุก role ใช้มาตรฐานนี้ และ non-dev ทีม อาจไม่เกี่ยวข้อง
 - หากต้องระบุ role/team ให้ระบุแบบ optional เพื่อเข้าใจ context ของการใช้งาน ไม่ใช่เพื่อประเมินบุคคล
 

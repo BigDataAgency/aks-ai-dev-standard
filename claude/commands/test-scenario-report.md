@@ -2,7 +2,7 @@
 
 ใช้ command หลักจาก BDA AI Dev Standard ที่ `commands/test-scenario-report.md` เพื่อทำ QA/product evidence workflow: test case/scenario execution, screenshot capture, console/network check, และ report generation ตาม `workflows/test-scenario-report.md` + `templates/test-scenario-report.md`
 
-ข้อสำคัญ: workflow นี้ไม่ใช่ Daily Log, performance review, score, KPI, daily performance หรือการประเมินบุคคล ให้ใช้เพื่อเก็บ evidence ของ product/scenario เท่านั้น
+ข้อสำคัญ: workflow นี้ไม่ใช่ performance review, score, KPI, daily performance หรือการประเมินบุคคล ให้ใช้เพื่อเก็บ evidence ของ product/scenario เท่านั้น
 
 สำหรับ InnoHub หรือ user-facing checks ต้องใช้ visible-menu navigation เป็น default ห้ามใช้ hidden route/direct URL เพื่อ claim user journey เว้นแต่ label ชัดว่าเป็น technical verification only พร้อม route source trace
 

@@ -1,6 +1,6 @@
 # Staff SOP: Send BDA AI Dev Report to InnoHub
 
-Standalone SOP for staff AI, QA/product staff, and implementation agents that need to prepare or send BDA AI Dev Standard report summaries to an InnoHub ingest endpoint without exposing secrets.
+SOP for staff AI, QA/product staff, and implementation agents that need to prepare or send BDA AI Dev Standard report summaries to an InnoHub ingest endpoint without exposing secrets.
 
 ## Purpose and scope
 
@@ -118,7 +118,7 @@ Successful send returns JSON like:
 }
 ```
 
-Record only redacted evidence in handoff/daily log:
+Record only redacted evidence in handoff/operational reporting:
 
 - Commit/report path: okay.
 - `mode`: okay.

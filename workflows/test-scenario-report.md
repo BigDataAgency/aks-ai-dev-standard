@@ -7,7 +7,6 @@
 ## ขอบเขต
 
 - ใช้สำหรับ QA/product evidence ของระบบ หน้า UI, user journey, acceptance scenario, regression scenario, UAT support หรือ demo readiness
-- ไม่ใช่ Daily Log
 - ไม่ใช่ performance review, score, KPI, daily performance หรือการประเมินบุคคล
 - รายงานนี้วัดคุณภาพของ product/scenario ตาม evidence ที่ตรวจจริง ไม่ใช้ประเมินผลงานรายบุคคล
 
@@ -169,4 +168,4 @@ Pass/fail criteria สำหรับ no mutation/network write:
 9. **Limitations / Risks / Next steps** — ข้อจำกัด ความเสี่ยง สิ่งที่ยังไม่ได้ตรวจ หรือขั้นตอนถัดไป
 
 ---
-ใช้ workflow นี้เป็น QA/product evidence workflow ที่แยกจาก Daily Log และ performance evaluation โดยยึดหลัก: ตรวจจริง, capture จริง, รายงานจริง, ไม่อ้าง evidence ปลอม.
+ใช้ workflow นี้เป็น QA/product evidence workflow ที่แยกจาก performance evaluation โดยยึดหลัก: ตรวจจริง, capture จริง, รายงานจริง, ไม่อ้าง evidence ปลอม.
