@@ -8,6 +8,15 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.8.0] - 2026-05-24
+
+### Changed
+
+- Added BDA-neutral coding discipline guidance across core standard, AI adapters, work commands, and before-commit checklist.
+- Reinforced success criteria, minimum correct change, existing-pattern alignment, changed-line traceability, and no unrelated refactor/format churn.
+- Updated verification expectations so verification maps to success criteria and unverified areas are stated explicitly.
+- Updated current version metadata to `0.8.0`.
+
 ## [0.7.0] - 2026-05-21
 
 ### Removed

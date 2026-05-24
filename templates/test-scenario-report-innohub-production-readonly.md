@@ -1,6 +1,6 @@
 # Test Scenario Report Template: InnoHub Production Read-only
 
-> BDA AI Dev Standard template สำหรับ InnoHub QA/product evidence แบบ production read-only. ใช้เป็นแบบฟอร์มรายงานเท่านั้น ไม่ใช่ Employee Daily Log v5, performance review, score, KPI หรือการประเมินบุคคล
+> BDA AI Dev Standard template สำหรับ InnoHub QA/product evidence แบบ production read-only. ใช้เป็นแบบฟอร์มรายงานเท่านั้น ไม่ใช่รายงานงานประจำวัน, performance review, score, KPI หรือการประเมินบุคคล
 
 ## Summary
 
@@ -21,7 +21,7 @@
 ## Non-performance confirmation
 
 - [ ] This report is QA/product evidence only
-- [ ] This report is not Employee Daily Log v5
+- [ ] This report is not an employee daily report
 - [ ] This report is not a performance review, score, KPI, daily performance, or individual evaluation
 - [ ] Role/team/account context is only for scenario reproducibility
 

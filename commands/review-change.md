@@ -9,19 +9,24 @@
 ทำงาน: Review Change / CR
 Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
-1. อ่าน diff และ requirement
-2. หา bug, security, data loss, compatibility, missing test
-3. แยก blocking vs suggestion
-4. อย่าติ style ถ้าไม่กระทบ
+1. อ่าน diff, requirement, และ success criteria
+2. ตรวจว่าทุก changed line trace กลับไปยัง request, bug, success criteria, หรือ verification ได้
+3. หา bug, security, data loss, compatibility, missing test
+4. หา speculative abstraction/config/dependency/feature, unrelated refactor, หรือ format churn ที่ไม่จำเป็น
+5. แยก blocking vs suggestion
+6. อย่าติ style ถ้าไม่กระทบ correctness, maintainability, security, หรือ pattern เดิม
 
-Output ที่ต้องส่ง: รายการ findings พร้อม severity และ file/line ถ้ามี
+Output ที่ต้องส่ง: รายการ findings พร้อม severity, file/line ถ้ามี, และ mapping ว่า verification ครอบ success criteria หรือไม่
 
 Output ที่ต้องส่งต้องมีหัวข้อ: BDA Standard files used, Pipeline trace, Commands run, Verification / Evidence, Limitations / Risks / Next steps
 ```
 
 ## Checklist
-- [ ] อ่าน diff และ requirement
+- [ ] อ่าน diff, requirement, และ success criteria
+- [ ] ตรวจ traceability ของ changed lines
 - [ ] หา bug, security, data loss, compatibility, missing test
+- [ ] หา speculative abstraction/config/dependency/feature หรือ unrelated refactor/format churn
+- [ ] ตรวจว่า verification map กลับไปยัง success criteria
 - [ ] แยก blocking vs suggestion
 - [ ] อย่าติ style ถ้าไม่กระทบ
 

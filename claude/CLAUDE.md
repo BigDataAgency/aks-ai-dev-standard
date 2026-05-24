@@ -8,6 +8,15 @@
 4. ตรวจด้วย policies และ checklists
 5. สรุปภาษาไทยพร้อม evidence
 
+## Coding discipline
+
+- ก่อนแก้ ให้ระบุ success criteria ที่ตรวจได้
+- ทำ minimum correct change ตาม pattern เดิมของ repo
+- ห้ามเพิ่ม speculative abstraction/config/dependency/feature หรือ unrelated refactor/format churn
+- ทุก changed line ต้อง trace กลับไปยัง request, bug, success criteria, หรือ verification ได้
+- ถาม assumption/ambiguity เฉพาะเมื่อกระทบ scope, data safety, security, หรือ correctness
+- Verification / Evidence ต้อง map กลับไปยัง success criteria และบอกข้อที่ยังไม่มีหลักฐานจริง
+
 ## ติดตั้งใน target repo
 
 1. Copy ไฟล์นี้ไปเป็น `CLAUDE.md` ที่ root ของ target repo

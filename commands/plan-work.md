@@ -10,23 +10,27 @@
 Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
 1. ถ้ามี Obsidian context manifest (`00-Agent-Context.md` หรือ `.bda/obsidian-context.md`) ให้อ่านก่อนวางแผน; ถ้าไม่มีและงานต้องผูกกับ Obsidian ให้เสนอใช้ `commands/init.md`
-2. เลือกขนาดงาน small/medium/large
-3. แบ่งขั้นตอนที่ verify ได้
-4. ระบุไฟล์หลัก, command ตรวจ, และ Obsidian work/evidence note ที่จะอัปเดตเมื่อเกี่ยวข้อง
-5. ลดงานที่ไม่จำเป็น
+2. ระบุ success criteria ที่ตรวจได้
+3. เลือกขนาดงาน small/medium/large
+4. แบ่งขั้นตอนที่ verify ได้ และ map verification กลับไปยัง success criteria
+5. ระบุไฟล์หลัก, command ตรวจ, และ Obsidian work/evidence note ที่จะอัปเดตเมื่อเกี่ยวข้อง
+6. เลือก minimum correct change และตัด speculative abstraction/config/feature หรือ unrelated refactor/format churn ออก
+7. ระบุ assumption/ambiguity เฉพาะที่กระทบ scope, data safety, security, หรือ correctness
 
-Output ที่ต้องส่ง: แผน 3-7 bullet พร้อม verification และ Obsidian update target ถ้ามี context
+Output ที่ต้องส่ง: แผน 3-7 bullet พร้อม success criteria, minimum correct change, verification, และ Obsidian update target ถ้ามี context
 
 Output ที่ต้องส่งต้องมีหัวข้อ: BDA Standard files used, Pipeline trace, Commands run, Verification / Evidence, Limitations / Risks / Next steps
 ```
 
 ## Checklist
 - [ ] อ่าน Obsidian context manifest ถ้ามี หรือระบุว่าไม่มี context
+- [ ] ระบุ success criteria ที่ตรวจได้
 - [ ] เลือกขนาดงาน small/medium/large
-- [ ] แบ่งขั้นตอนที่ verify ได้
+- [ ] แบ่งขั้นตอนที่ verify ได้และ map กลับไปยัง success criteria
 - [ ] ระบุไฟล์หลักและ command ตรวจ
 - [ ] ระบุ session/evidence note ที่จะอัปเดตถ้าใช้ Obsidian
-- [ ] ลดงานที่ไม่จำเป็น
+- [ ] เลือก minimum correct change
+- [ ] ตัด speculative abstraction/config/feature และ unrelated refactor/format churn ออก
 
 ## Required report sections
 

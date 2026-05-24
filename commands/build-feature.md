@@ -10,25 +10,30 @@
 Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
 1. ถ้ามี Obsidian context manifest (`00-Agent-Context.md` หรือ `.bda/obsidian-context.md`) ให้อ่านก่อนเริ่ม และเตรียม session/evidence note ตาม context; ถ้าไม่มีและงานต้องผูกกับ Obsidian ให้ใช้ `commands/init.md`
-2. ยืนยัน expected behavior
+2. ยืนยัน expected behavior และ success criteria
 3. สำรวจ pattern เดิม
-4. implement แบบ minimal
-5. เพิ่ม/ปรับ test ถ้าเหมาะสม
-6. verify build/test/manual
-7. อัปเดต Obsidian session/evidence note ด้วย feature summary, files changed, testcase/evidence, commands run, และข้อจำกัด ถ้ามี context
+4. implement แบบ minimum correct change ตาม pattern เดิม
+5. ห้ามเพิ่ม speculative abstraction/config/dependency/feature หรือ unrelated refactor/format churn
+6. ให้ทุก changed line trace กลับไปยัง request, success criteria, หรือ verification ได้
+7. เพิ่ม/ปรับ test ถ้าเหมาะสม
+8. verify build/test/manual และ map evidence กลับไปยัง success criteria
+9. อัปเดต Obsidian session/evidence note ด้วย feature summary, files changed, testcase/evidence, commands run, และข้อจำกัด ถ้ามี context
 
-Output ที่ต้องส่ง: feature summary พร้อม files, evidence, และ Obsidian note ที่อัปเดตถ้ามี context
+Output ที่ต้องส่ง: feature summary พร้อม success criteria, files, evidence mapping, และ Obsidian note ที่อัปเดตถ้ามี context
 
 Output ที่ต้องส่งต้องมีหัวข้อ: BDA Standard files used, Pipeline trace, Commands run, Verification / Evidence, Limitations / Risks / Next steps
 ```
 
 ## Checklist
 - [ ] อ่าน Obsidian context manifest ถ้ามี หรือระบุว่าไม่มี context
-- [ ] ยืนยัน expected behavior
+- [ ] ยืนยัน expected behavior และ success criteria
 - [ ] สำรวจ pattern เดิม
-- [ ] implement แบบ minimal
+- [ ] implement แบบ minimum correct change
+- [ ] ไม่มี speculative abstraction/config/dependency/feature
+- [ ] ไม่มี unrelated refactor/format churn
+- [ ] ทุก changed line trace กลับไปยัง request/success criteria/verification ได้
 - [ ] เพิ่ม/ปรับ test ถ้าเหมาะสม
-- [ ] verify build/test/manual
+- [ ] verify build/test/manual และ map กลับไปยัง success criteria
 - [ ] อัปเดต session/evidence note หรือระบุเหตุผลที่ไม่ได้อัปเดต
 
 ## Required report sections

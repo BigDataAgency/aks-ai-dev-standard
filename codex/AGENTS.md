@@ -24,10 +24,14 @@ Codex uses this file as agent instruction; it does not use Claude Code slash com
 ## Working rules
 
 - สำรวจก่อนแก้เสมอ: files, tests, scripts, git status
-- สรุปความเข้าใจและความเสี่ยงก่อนลงมือ เมื่อ scope ไม่ชัดให้ระบุ assumption
-- ใช้ patch/edit แบบ targeted หลีกเลี่ยง refactor นอก scope
+- สรุปความเข้าใจ ความเสี่ยง และ success criteria ก่อนลงมือ; เมื่อ scope ไม่ชัดให้ระบุ assumption
+- ใช้ patch/edit แบบ targeted และเลือก minimum correct change
+- ทำตาม existing patterns ก่อนสร้าง pattern ใหม่
+- หลีกเลี่ยง speculative abstraction/config/dependency/feature และ unrelated refactor/format churn
+- ทุก changed line ต้อง trace กลับไปยัง request, bug, success criteria, หรือ verification ได้
+- ถาม clarification เฉพาะ ambiguity ที่กระทบ scope, data safety, security, หรือ correctness
 - งาน bug fix ต้อง reproduce หรืออธิบายให้ชัดว่าทำไม reproduce ไม่ได้, หา root cause, แก้แบบ minimal, และทำ regression check
-- รัน verification ที่เกี่ยวข้องก่อนสรุป
+- รัน verification ที่เกี่ยวข้องก่อนสรุป และ map ผลตรวจกลับไปยัง success criteria
 - ห้าม claim ว่ารัน test หรือใช้งานได้ ถ้าไม่ได้รัน/ตรวจจริง
 
 ## Final response

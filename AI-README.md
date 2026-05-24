@@ -9,13 +9,14 @@
 1) อ่าน task brief และ context ก่อน
 2) ถ้าเป็น repo ให้สำรวจไฟล์/โครงสร้างก่อนแก้
 3) ถ้างานผูกกับ Obsidian ให้หา `00-Agent-Context.md` หรือ `.bda/obsidian-context.md`; ถ้ายังไม่มีให้ใช้ `commands/init.md`
-4) สรุปความเข้าใจและความเสี่ยง
-5) ทำแผนสั้นตามขนาดงาน
-6) ลงมือทำด้วย tool ที่เหมาะสม
-7) verify ด้วยคำสั่งจริงหรือหลักฐานจริง
-8) อัปเดต Obsidian session/evidence note ถ้ามี context manifest
-9) ส่ง handoff เป็นภาษาไทย พร้อมไฟล์ที่แก้, ผลทดสอบ, ข้อจำกัด, next step
-10) ทุก output ต้องมีหัวข้อ: BDA Standard files used, Pipeline trace, Commands run, Verification / Evidence, Limitations / Risks / Next steps
+4) สรุปความเข้าใจ ความเสี่ยง และ success criteria
+5) ทำแผนสั้นตามขนาดงาน โดยเลือก minimum correct change
+6) ลงมือทำด้วย tool ที่เหมาะสมตาม pattern เดิมของ repo
+7) ห้ามเพิ่ม speculative abstraction/config/feature หรือ unrelated refactor/format churn
+8) verify ด้วยคำสั่งจริงหรือหลักฐานจริง โดย map กลับไปยัง success criteria
+9) อัปเดต Obsidian session/evidence note ถ้ามี context manifest
+10) ส่ง handoff เป็นภาษาไทย พร้อมไฟล์ที่แก้, ผลทดสอบ, ข้อจำกัด, next step
+11) ทุก output ต้องมีหัวข้อ: BDA Standard files used, Pipeline trace, Commands run, Verification / Evidence, Limitations / Risks / Next steps
 ห้ามอ้างว่าเสร็จหรือผ่าน test ถ้าไม่ได้ตรวจจริง
 ```
 
@@ -54,6 +55,15 @@ Adapter notes: Claude Code ใช้ slash commands เฉพาะ interactive 
 ใช้ `commands/init.md` เพื่อสำรวจ vault/project และสร้าง `00-Agent-Context.md` จาก `templates/obsidian-context.md` พร้อม session/evidence index จาก `templates/obsidian-work-note.md`.
 
 หลังมี context แล้ว command หลัก เช่น `plan-work`, `fix-bug`, `build-feature`, `write-document`, `test-report`, และ `update-obsidian` ต้องอ่าน manifest ก่อนทำงาน และอัปเดต session/evidence note โดยไม่ต้องรอให้ user สั่งเก็บเพิ่มอีกครั้ง. ถ้าไม่มีหลักฐานจริงให้ระบุ `pending evidence` หรือ `not available`.
+
+## Coding discipline
+
+- ก่อนแก้ ให้ระบุ success criteria ที่ตรวจได้
+- เลือก minimum correct change และทุก changed line ต้อง trace กลับไปยัง request, bug, success criteria, หรือ verification ได้
+- ทำตาม existing patterns ก่อนสร้าง pattern ใหม่
+- ห้าม speculative abstraction/config/dependency/feature และห้าม unrelated refactor/format churn
+- ถาม assumption/ambiguity เฉพาะเมื่อกระทบ scope, data safety, security, หรือ correctness; ถ้าไม่กระทบให้ระบุ assumption แล้วทำต่อแบบเล็กที่สุด
+- Verification / Evidence ต้อง map กลับไปยัง success criteria และบอกส่วนที่ยังไม่ได้ตรวจจริง
 
 ## Standard feedback loop
 

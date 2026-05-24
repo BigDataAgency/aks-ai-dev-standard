@@ -9,16 +9,23 @@
 - งานเล็ก: 3-5 bullet
 - งานกลาง: แผนเป็น phase และไฟล์หลัก
 - งานใหญ่: discovery, design, implementation, verification, rollout
+- ระบุ success criteria ก่อนแก้ เพื่อให้ทุกขั้นตอนตรวจกลับได้
+- วางแผน minimum correct change: ทำสิ่งที่จำเป็นให้ถูกต้องก่อน ไม่เพิ่ม abstraction/config/feature เผื่ออนาคต
 
 ## 3. Execute
 - แก้เฉพาะ scope ที่เกี่ยวข้อง
 - เก็บ backward compatibility ถ้าเป็นระบบใช้งานจริง
 - อย่า format หรือ refactor ใหญ่โดยไม่จำเป็น
+- ทำตาม pattern เดิมของ repo ก่อนสร้าง pattern ใหม่
+- ทุกบรรทัดที่แก้ต้อง trace กลับไปยัง request, bug, success criteria, หรือ verification ได้
+- ห้ามเพิ่ม speculative abstraction, configuration, dependency, หรือ feature ที่ผู้ใช้ไม่ได้ขอ
+- ถ้ามี assumption/ambiguity ให้หยุดถามเฉพาะเมื่อมีผลต่อ scope, data safety, security, หรือ correctness; ถ้าไม่กระทบให้ระบุ assumption แล้วทำต่อแบบเล็กที่สุด
 
 ## 4. Verify
 - ใช้ test/lint/build/manual check จริง
 - ถ้ารันไม่ได้ ให้บอก blocker และทางเลือกตรวจ
 - เก็บ command และผลลัพธ์ไว้ในรายงาน
+- map verification กลับไปยัง success criteria ทีละข้อ และระบุส่วนที่ยังไม่มี evidence
 
 ## 5. Handoff
 - สรุปให้คนรับงานทำต่อได้ทันที
@@ -37,8 +44,12 @@
 
 ## Definition of Done
 - Requirement หลักครบ
+- Success criteria ทุกข้อมีผลลัพธ์หรือข้อจำกัดที่ระบุชัด
+- Change เป็น minimum correct change และไม่มี speculative abstraction/config/feature
+- ทุก changed line trace กลับไปยัง request หรือ verification ได้
+- ไม่มี unrelated refactor, format churn, หรือ style-only change นอก scope
 - ไม่มี fake evidence
-- มี verification ที่เหมาะสม
+- มี verification ที่เหมาะสมและ map กลับไปยัง success criteria
 - มี handoff/report
 - handoff/report มี BDA files used, pipeline trace, commands run, evidence, limitations ครบถ้วน
 - ถ้าเป็น production-facing ต้องมี rollback หรือ mitigation
