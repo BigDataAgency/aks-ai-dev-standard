@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SANDBOX = Path("/tmp/bda-ai-dev-standard-smoke")
-EXPECTED_VERSION = "0.8.1"
+EXPECTED_VERSION = "0.10.0"
 
 REQUIRED_SECTIONS = [
     "BDA Standard files used",
@@ -197,6 +197,23 @@ def validate_command_pack() -> None:
                 "/test-report",
             ],
         )
+
+
+def validate_bda_session_cli() -> None:
+    for rel in [
+        "docs/bda-session-cli.md",
+        "docs/ai-work-event-logging.md",
+        "README.md",
+        "AI-README.md",
+        "claude/CLAUDE.md",
+        "codex/AGENTS.md",
+        "prompts/general-ai/start-here.md",
+    ]:
+        assert_contains_all(rel, ["bda start", "bda stop", "bda help", "bda-dev-debug", "bda-nondev-explore", "bda-pm-status"])
+
+    assert_contains_all("package.json", ['"bda": "scripts/bda.mjs"', '"test:bda-session"'])
+    assert_contains_all("scripts/bda.mjs", ["bda start", "bda event", "bda stop", "outbox", "BDA_AI_WORK_EVENT_URL"])
+    assert_contains_all("scripts/test-bda-session.mjs", ["bda session CLI smoke test passed"])
 
 
 def validate_optional_adapters() -> None:
@@ -400,6 +417,7 @@ def main() -> int:
         validate_required_sections,
         validate_claude_usage_docs,
         validate_command_pack,
+        validate_bda_session_cli,
         validate_optional_adapters,
         validate_legacy_staff_versioning_removed,
         validate_obsidian_init_workflow,

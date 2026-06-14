@@ -33,13 +33,31 @@
 - QA/product evidence พร้อม screenshot report: `commands/test-report.md`, `commands/test-scenario-report.md`, `workflows/test-scenario-report.md`, `templates/test-scenario-report.md`
 - feedback เพื่อปรับปรุง BDA AI Dev Standard: `commands/standard-feedback.md`, `FEEDBACK.md`, `templates/standard-feedback.md`
 - performance: `commands/performance-review.md`
+- PM lead/project management: `commands/pm-log.md`, `commands/pm-standup.md`, `commands/pm-status.md`, `commands/pm-risk.md`, `commands/pm-followup.md`, `commands/pm-requirement.md`
+- AI work event logging: `docs/ai-work-event-logging.md`, `docs/bda-session-cli.md`, `scripts/bda.mjs`, `scripts/bda-work-event.mjs`
+- Hermes/Windsurf/IDE setup: `docs/tool-setup-hermes-windsurf-ide.md`
 - ส่งงาน: `commands/handoff-report.md`
 
 ## Command Pack
 
-ใช้เฉพาะ command ที่ยังอยู่ใน repo ปัจจุบัน เช่น `build-feature`, `fix-bug`, `write-document`, `init`, `test-report`, `standard-feedback`.
+ใช้เฉพาะ command ที่ยังอยู่ใน repo ปัจจุบัน เช่น `build-feature`, `fix-bug`, `write-document`, `init`, `test-report`, `standard-feedback`, `pm-log`, `pm-status`, `pm-risk`.
 
 Adapter notes: Claude Code ใช้ slash commands เฉพาะ interactive mode; Gemini/Claude coworker ใช้ prompt commands; Codex ใช้ agent instruction ใน `codex/AGENTS.md`.
+
+## Work event logging
+
+งานจริงของ BDA ควรถูกบันทึกเป็น work event เพื่อแทน manual daily log:
+
+- อ่าน `docs/ai-work-event-logging.md`
+- ใช้ `bda start`, `bda event`, และ `bda stop` จาก `scripts/bda.mjs` เป็น default; ใช้ `scripts/bda-work-event.mjs` สำหรับ one-off event
+- ห้าม hardcode production endpoint/key ใน repo นี้
+- ใช้ private config เช่น `~/.bda-skills/config.json` หรือ env vars `BDA_WORK_LOG_URL`, `BDA_AI_ROUTER_API_KEY`
+- ถ้าผู้ใช้พิมพ์ `bda start` ใน chat ให้ AI draft metadata ที่จำเป็น เช่น project, task_summary, command, work_type, employee_code, employee_group, ai_provider/model, used_bda_gateway แล้วให้ผู้ใช้ตรวจ/แก้ก่อนเริ่ม
+- ถ้าผู้ใช้พิมพ์ `bda help` ให้สรุป command catalog ที่ใช้ได้
+- ระหว่าง session ให้ผู้ใช้สั่งงานแบบ `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, หรือ `bda-pm-status: <prompt>` ได้ และ AI ต้องส่ง/เตรียม work event ของ command นั้น
+- ถ้าผู้ใช้ใช้ AI ตัวอื่นที่ไม่ใช่ BDA Gateway ให้ยังใช้ `bda start/stop` เพื่อส่ง event กลับ BDA; ถ้าส่ง endpoint ไม่ได้ให้บันทึก outbox และแจ้ง limitation
+
+PM lead ใช้ work events เพื่อสร้าง project log จาก command/task/status/blocker/next step/due date ไม่ใช่ raw token usage อย่างเดียว
 
 ## Command UX and workflow discipline
 

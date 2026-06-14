@@ -1,10 +1,18 @@
 {
+  "version": "0.10.0",
+  "bin": {
+    "bda": "scripts/bda.mjs",
+    "bda-work-event": "scripts/bda-work-event.mjs"
+  },
   "scripts": {
+    "bda": "node scripts/bda.mjs",
     "ingest:report": "node scripts/send-ingest-report.mjs",
     "sync:github-reports": "node scripts/sync-github-reports.mjs",
     "test:ingest-report": "node scripts/test-ingest-report.mjs",
     "test:github-sync": "node scripts/test-github-report-sync.mjs",
-    "test": "python3 scripts/smoke-standard-scenarios.py && node scripts/test-ingest-report.mjs && node scripts/test-github-report-sync.mjs",
+    "work:event": "node scripts/bda-work-event.mjs",
+    "test:bda-session": "node scripts/test-bda-session.mjs",
+    "test": "python3 scripts/smoke-standard-scenarios.py && node scripts/test-ingest-report.mjs && node scripts/test-github-report-sync.mjs && node scripts/test-bda-session.mjs",
     "security:public-repo": "scripts/security-public-repo-check.sh"
   }
 }

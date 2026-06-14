@@ -8,6 +8,36 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.0] - 2026-06-14
+
+### Added
+
+- Added `bda` session CLI with `bda start`, `bda event`, `bda stop`, `bda current`, and `bda help` so staff can log useful AI work as sessions instead of manual daily logs.
+- Added `docs/bda-session-cli.md` with the command catalog and AI behavior for drafting/confirming metadata when staff type `bda start`.
+- Added local outbox fallback under `.bda-skills/outbox/` when work-event delivery fails, so staff using non-BDA AI providers can still preserve work events for later sync.
+- Added smoke coverage for the BDA session CLI.
+
+### Changed
+
+- Updated `bda-work-event` config loading to honor project-local config fields and `BDA_AI_WORK_EVENT_URL`, matching the private Hermes/BDA gateway installer environment.
+- Preserved existing coding discipline: command sessions still require minimum correct change thinking, and verification maps to success criteria in final handoff.
+- Updated version metadata to `0.10.0`.
+
+## [0.9.0] - 2026-06-14
+
+### Added
+
+- Added automatic BDA work event logging guidance for dev, nondev, and PM lead workflows so useful AI-assisted work can replace manual daily log collection.
+- Added `scripts/bda-work-event.mjs` for sending standard work events through a configurable endpoint without hardcoding production secrets in the public repo.
+- Added PM / PM lead command set: `pm-log`, `pm-standup`, `pm-status`, `pm-risk`, `pm-followup`, and `pm-requirement`, including Claude Code slash adapters.
+- Added setup guidance for Hermes, Windsurf, and IDE use with personal employee keys and required metadata for real BDA work.
+
+### Changed
+
+- Updated README, AI routing, Codex instructions, and Claude instructions to reference PM lead commands and work event logging.
+- Documented Claude Code Developer Mode as a supported gateway client when the installed build or organization wrapper supports local gateway/base-url configuration.
+- Updated current version metadata to `0.9.0`.
+
 ## [0.8.1] - 2026-06-05
 
 ### Changed

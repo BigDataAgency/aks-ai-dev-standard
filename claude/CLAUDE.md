@@ -22,6 +22,7 @@
 1. Copy ไฟล์นี้ไปเป็น `CLAUDE.md` ที่ root ของ target repo
 2. Copy `claude/commands/*.md` ไปไว้ที่ `.claude/commands/` ของ target repo
 3. เปิด Claude Code แบบ interactive ใน target repo แล้วใช้ slash commands ได้ เช่น `/init`, `/fix-bug`, `/review-change`, `/build-feature`, `/write-document`, `/verify-work`, `/standard-feedback`, `/test-report`
+4. สำหรับ PM / PM lead ให้ copy slash commands เพิ่ม: `/pm-log`, `/pm-standup`, `/pm-status`, `/pm-risk`, `/pm-followup`, `/pm-requirement`
 
 หมายเหตุ: slash commands ใช้กับ interactive Claude Code เท่านั้น; ใน print mode (`claude -p`) ให้ reference path ของ command หรือ paste เนื้อหา command แทน เพราะ `/command` จะไม่ทำงานแบบ interactive
 
@@ -30,6 +31,12 @@
 ใช้ชื่อปกติใน Claude Code interactive เท่านั้น:
 
 - `/test-report` → `commands/test-report.md` และ `commands/test-scenario-report.md`
+- `/pm-log` → `commands/pm-log.md`
+- `/pm-standup` → `commands/pm-standup.md`
+- `/pm-status` → `commands/pm-status.md`
+- `/pm-risk` → `commands/pm-risk.md`
+- `/pm-followup` → `commands/pm-followup.md`
+- `/pm-requirement` → `commands/pm-requirement.md`
 
 หมายเหตุ: slash commands ใช้กับ Claude Code interactive เท่านั้น; Gemini/Claude coworker ใช้ prompt commands และ Codex ใช้ agent instruction.
 
@@ -61,6 +68,21 @@ Workflow นี้ไม่ใช่ performance review, score, KPI, daily perfo
 ใช้ `/standard-feedback` หรือ `commands/standard-feedback.md` เมื่อต้องการส่ง feedback เพื่อปรับปรุง BDA AI Dev Standard เอง และอ้างอิง `FEEDBACK.md`, `templates/standard-feedback.md`, `workflows/standard-improvement.md` ตามความเหมาะสม
 
 Feedback นี้ไม่ใช่ performance review, score, KPI, daily performance หรือการประเมินบุคคล ให้ใช้เพื่อปรับปรุงมาตรฐาน/command/workflow/template/Claude-Codex support เท่านั้น
+
+## Automatic work event logging
+
+เป้าหมายคือให้ daily log และ PM log เกิดจากการใช้ AI ที่ฉลาดผ่าน BDA AI Dev Standard ไม่ใช่ให้พนักงานต้องส่งรายงานซ้ำทุกวัน
+
+- งาน BDA จริงที่เรียก command/workflow ต้องส่ง work event ตาม `docs/ai-work-event-logging.md`
+- ใช้ `bda start`, `bda event`, และ `bda stop` จาก `scripts/bda.mjs` เป็น default; ใช้ `scripts/bda-work-event.mjs` สำหรับ one-off event
+- คุยทั่วไป ทดลองถามครั้งแรก หรือ setup tool ยังไม่ต้องบังคับ metadata
+- ถ้าผู้ใช้พิมพ์ `bda start` ให้ถามกลับ/เติม draft metadata ให้ตรวจ ได้แก่ `project`, `task_summary`, `command`, `work_type`, `employee_code`, `employee_group`, `ai_provider`, `ai_model`, และ `used_bda_gateway`
+- ถ้าผู้ใช้พิมพ์ `bda help` ให้แสดง command catalog แบบสั้นจาก `docs/bda-session-cli.md`
+- ระหว่าง session ให้รับรูปแบบ `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, หรือ `bda-pm-status: <prompt>` แล้วส่ง event ของ command นั้น
+- ถ้าผู้ใช้พิมพ์ `bda stop` ให้สรุป outcome/status/blocker/next step และส่ง stop event
+- ถ้าเป็นงาน dev/nondev/PM lead เช่น `/fix-bug`, `/review-change`, `/write-document`, `/test-report`, `/pm-log`, `/pm-status`, `/pm-risk` ต้องมี metadata: `employee_code`, `employee_group`, `command`, `task_summary`, `work_type`, `project`, `tool`, `ai_model`, `status`, และผลลัพธ์งาน
+- ห้าม hardcode production endpoint, API key, employee key, หรือ private IP ใน public repo; ให้ตั้งผ่าน env/config หรือ private rollout package เท่านั้น
+- ถ้าส่ง endpoint ไม่ได้ ให้บันทึก local fallback/outbox และแจ้งใน handoff ว่า event ยังไม่ได้ sync
 
 ## Output บังคับ
 

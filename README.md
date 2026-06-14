@@ -1,6 +1,6 @@
 # BDA AI Dev Standard
 
-Version: `0.8.1`
+Version: `0.10.0`
 License: MIT
 
 มาตรฐานกลางสำหรับการทำงานร่วมกับ AI ในงานพัฒนา ซ่อมบั๊ก ตรวจโค้ด เขียนเอกสาร งาน Obsidian งาน Performance และงานติดตามทีมของ BDA
@@ -11,7 +11,7 @@ License: MIT
 
 BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
-- Current version: `0.8.1`
+- Current version: `0.10.0`
 - ดูประวัติการเปลี่ยนแปลงที่ `CHANGELOG.md`
 - เลข version หลักอยู่ใน `VERSION`
 - ทุก update สำคัญต้องเปลี่ยน version ใน repo นี้ก่อน rollout
@@ -50,6 +50,10 @@ BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 - Feedback เพื่อปรับปรุงมาตรฐาน: `commands/standard-feedback.md`
 - Test Report (QA/product evidence): `commands/test-report.md` (source: `commands/test-scenario-report.md`)
 - Performance: `commands/performance-review.md`
+- PM / PM lead: `commands/pm-log.md`, `commands/pm-standup.md`, `commands/pm-status.md`, `commands/pm-risk.md`, `commands/pm-followup.md`, `commands/pm-requirement.md`
+- Automatic work event logging: `docs/ai-work-event-logging.md` and `scripts/bda-work-event.mjs`
+- BDA session CLI: `docs/bda-session-cli.md` and `scripts/bda.mjs`
+- Hermes / Windsurf / IDE setup: `docs/tool-setup-hermes-windsurf-ide.md`
 
 ## ใช้กับ AI ตัวไหนได้บ้าง
 
@@ -70,13 +74,54 @@ BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 Command names are limited to supported developer, Obsidian, QA, reporting, and feedback workflows:
 
 - Test Report: `commands/test-report.md`, `commands/test-scenario-report.md`, `workflows/test-scenario-report.md`, `templates/test-scenario-report.md`
+- PM Lead: `commands/pm-log.md`, `commands/pm-standup.md`, `commands/pm-status.md`, `commands/pm-risk.md`, `commands/pm-followup.md`, `commands/pm-requirement.md`
 
 Adapter usage:
 
-- Claude Code: copy `claude/commands/*.md` to `.claude/commands/` and use slash commands such as `/init`, `/fix-bug`, `/build-feature`, `/write-document`, `/standard-feedback`, `/test-report` in interactive Claude Code only.
+- Claude Code: copy `claude/commands/*.md` to `.claude/commands/` and use slash commands such as `/init`, `/fix-bug`, `/build-feature`, `/write-document`, `/standard-feedback`, `/test-report` in interactive Claude Code only. If the installed Claude Code build supports Developer Mode gateway/base-url configuration, route it through the BDA gateway with the employee personal key.
+- PM lead Claude commands include `/pm-log`, `/pm-standup`, `/pm-status`, `/pm-risk`, `/pm-followup`, and `/pm-requirement`.
 - Gemini: use prompt commands in `gemini/prompts/`; Gemini does not use Claude Code slash commands.
 - Claude coworker: use prompt commands in `claude-coworker/prompts/`; these are paste/reference prompts, not Claude Code slash commands.
 - Codex: use `codex/AGENTS.md` as agent instruction and reference the command files by path.
+
+## AI work event logging
+
+For real BDA work, staff should use one personal API key and send a work event tied to the command/task. This replaces manual daily log collection and lets PM lead logs be generated from actual useful AI-assisted work.
+
+Public repo rule: do not commit production endpoints or API keys to this repo. Configure private values through `~/.bda-skills/config.json`, `.bda-skills/config.json`, or environment variables.
+
+See:
+
+- `docs/ai-work-event-logging.md`
+- `docs/tool-setup-hermes-windsurf-ide.md`
+- `scripts/bda-work-event.mjs`
+
+Recommended session flow:
+
+```bash
+bda start --project "Project Name" --task "fix login validation bug" --command bda-dev-debug
+bda help
+bda event --command bda-dev-review --task "review login fix" --status done
+bda stop --status done --outcome "login validation fixed" --next-step "deploy staging"
+```
+
+When a staff member types `bda start` in AI chat, the AI should draft the metadata first, ask the staff member to confirm or edit it, and only then continue the work. During an active session, staff can write commands as `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, or `bda-pm-status: <prompt>`.
+
+See `docs/bda-session-cli.md`.
+
+One-off event example:
+
+```bash
+npm run work:event -- \
+  --employee-code EMPLOYEE_CODE \
+  --employee-group dev \
+  --command "/fix-bug" \
+  --work-type debug \
+  --status done \
+  --project "Project Name" \
+  --task "fix login validation bug" \
+  --dry-run
+```
 
 ### Command UX and workflow discipline
 

@@ -20,7 +20,23 @@
 Codex uses this file as agent instruction; it does not use Claude Code slash commands. When asked for commands, reference normal command names:
 
 - `test-report` → `commands/test-report.md` and `commands/test-scenario-report.md`; QA/product evidence only, not individual evaluation.
+- PM / PM lead commands → `commands/pm-log.md`, `commands/pm-standup.md`, `commands/pm-status.md`, `commands/pm-risk.md`, `commands/pm-followup.md`, and `commands/pm-requirement.md`.
+- Work event logging → `docs/ai-work-event-logging.md`, `docs/bda-session-cli.md`, `scripts/bda.mjs`, and `scripts/bda-work-event.mjs`.
+- Hermes / Windsurf / IDE setup → `docs/tool-setup-hermes-windsurf-ide.md`.
 - Keep command names stable. Improve the workflow behind existing commands instead of inventing new names unless the user explicitly requests a new command or the standard is being versioned with a migration note.
+
+## Work event logging
+
+- งาน BDA จริงที่ใช้ command/workflow ของ standard ต้องบันทึก work event เพื่อใช้แทน daily log/manual PM log
+- การคุยเล่น ทดลอง tool ครั้งแรก หรือคำถามทั่วไปไม่ต้องบังคับ metadata
+- ถ้าผู้ใช้พิมพ์ `bda start` ให้ draft metadata ก่อนแล้วถามให้ผู้ใช้ตรวจ/แก้ ได้แก่ `project`, `task_summary`, `command`, `work_type`, `employee_code`, `employee_group`, `ai_provider`, `ai_model`, และ `used_bda_gateway`; อย่าเริ่มงานจริงจนกว่าจะยืนยัน metadata สำคัญ
+- ระหว่าง active session ให้รับคำสั่งรูปแบบ `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, `bda-pm-status: <prompt>` แล้ว map เป็น work event ของ command นั้น
+- ถ้าผู้ใช้พิมพ์ `bda help` ให้สรุป command catalog จาก `docs/bda-session-cli.md`
+- ถ้าผู้ใช้พิมพ์ `bda stop` ให้สรุป outcome/status/blocker/next step แล้วส่งหรือเตรียม stop event
+- เมื่อมีการใช้ command เช่น `fix-bug`, `review-change`, `build-feature`, `write-document`, `test-report`, หรือ PM command ให้เก็บอย่างน้อย: `employee_code`, `employee_group`, `command`, `task_summary`, `work_type`, `project`, `tool`, `ai_model`, `status`, `outcome`, `tokens` ถ้ามี, และ `duration_ms` ถ้ามี
+- ส่ง event ผ่าน `scripts/bda.mjs`, `scripts/bda-work-event.mjs`, หรือ integration ที่ compatible กับ contract ใน `docs/ai-work-event-logging.md`
+- ห้าม hardcode production endpoint, API key, employee key, หรือ private IP ใน public repo; ใช้ env/config ของเครื่องผู้ใช้หรือ private rollout package เท่านั้น
+- ถ้า endpoint ใช้งานไม่ได้ ให้บันทึก local fallback/outbox แล้วระบุ limitation ใน handoff
 
 ## Working rules
 
