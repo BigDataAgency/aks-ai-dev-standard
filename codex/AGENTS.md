@@ -29,21 +29,13 @@ Codex uses this file as agent instruction; it does not use Claude Code slash com
 
 - งาน BDA จริงที่ใช้ command/workflow ของ standard ต้องบันทึก work event เพื่อใช้แทน daily log/manual PM log
 - การคุยเล่น ทดลอง tool ครั้งแรก หรือคำถามทั่วไปไม่ต้องบังคับ metadata
-- ก่อน start/stop ให้รัน `bda current --all`; ถ้ามีหลาย session ให้ใช้เฉพาะ `session_id` ของ Codex thread นี้
-- ถ้าผู้ใช้พิมพ์ `bda start` ให้ draft metadata ก่อนแล้วถามให้ผู้ใช้ตรวจ/แก้ ได้แก่ `project`, `task_summary`, `command`, `work_type`, `employee_code`, `employee_group`, `ai_provider`, `ai_model`, และ `used_bda_gateway`; project อาจ infer จาก `~/.bda-skills/project-map.json`; อย่าเริ่มงานจริงจนกว่าจะยืนยัน metadata สำคัญ
-- เมื่อ start แล้ว ให้เก็บ `session_id` ที่ CLI ส่งกลับมาไว้ใน thread context และส่งทุก event/stop ด้วย `--session-id <session_id>`
+- ถ้าผู้ใช้พิมพ์ `bda start` ให้ draft metadata ก่อนแล้วถามให้ผู้ใช้ตรวจ/แก้ ได้แก่ `project`, `task_summary`, `command`, `work_type`, `employee_code`, `employee_group`, `ai_provider`, `ai_model`, และ `used_bda_gateway`; อย่าเริ่มงานจริงจนกว่าจะยืนยัน metadata สำคัญ
 - สำหรับ Hermes/local model ให้ใช้ metadata confirmation แบบสั้นเท่านั้น; อย่า paste standard ยาวหรือ JSON ก้อนใหญ่ถ้าไม่จำเป็น
 - ระหว่าง active session ให้รับคำสั่งรูปแบบ `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, `bda-pm-status: <prompt>` แล้ว map เป็น work event ของ command นั้น
 - ถ้าผู้ใช้พิมพ์ `bda help` ให้สรุป command catalog จาก `docs/bda-session-cli.md`
 - ถ้าผู้ใช้พิมพ์ `bda stop` ให้สรุป outcome/status/blocker/next step แล้วส่งหรือเตรียม stop event โดยต้องใช้ session_id/project/task เดิมจาก active `bda start`; ห้ามเดา session ใหม่
-- เมื่อมีการใช้ command เช่น `fix-bug`, `review-change`, `build-feature`, `write-document`, `test-report`, หรือ PM command ให้เก็บอย่างน้อย: `employee_code`, `employee_group`, `command`, `task_summary`, `work_type`, `project`, `tool`, `ai_provider`, `ai_model`, `used_bda_gateway`, `status`, `outcome`, `tokens` ถ้ามี, และ `duration_ms` ถ้ามี
-- สำหรับ Codex Desktop ใช้ metadata จริง: `--tool codex-desktop-agent --ai-provider openai --ai-model codex/gpt-5 --used-bda-gateway false`; ถ้า token เป็นค่าประมาณต้องส่ง `token_estimate=true` และ `token_estimate_method`
+- เมื่อมีการใช้ command เช่น `fix-bug`, `review-change`, `build-feature`, `write-document`, `test-report`, หรือ PM command ให้เก็บอย่างน้อย: `employee_code`, `employee_group`, `command`, `task_summary`, `work_type`, `project`, `tool`, `ai_model`, `status`, `outcome`, `tokens` ถ้ามี, และ `duration_ms` ถ้ามี
 - ส่ง event ผ่าน `scripts/bda.mjs`, `scripts/bda-work-event.mjs`, หรือ integration ที่ compatible กับ contract ใน `docs/ai-work-event-logging.md`
-- สำหรับ mapped BDA work แบบ non-trivial ให้ใช้ gateway-first-by-default: หลัง `bda start` ต้องพยายามมี Gateway checkpoint อย่างน้อย 1 ครั้งก่อนปิด session และสรุปสถานะเป็น `gateway_used`, `gateway_deferred`, `gateway_skipped`, หรือ `gateway_failed`
-- ใช้ Gateway เฉพาะ bounded subtask ที่มีประโยชน์ เช่น risk review, requirement summary, test-plan draft, PM/report wording, evidence audit, release/deploy checklist, หรือ second opinion; สำหรับ Codex Desktop ให้ prefer `bda/deepseek-paid-cloud` และ fallback เฉพาะเมื่อไม่พร้อม/ไม่เหมาะ; log event แยกด้วย `tool=hermes-cli`, `ai_provider=bda-gateway`, `used_bda_gateway=true` หลังเรียกสำเร็จและใช้ผลจริง
-- การแตก subagent/sub-session ต่อไฟล์ใช้แบบ case-by-case เพื่อประหยัด Codex context เท่านั้น: ไฟล์ต้องอิสระ, scope bounded, ไม่มี secrets/sensitive data, และ output ต้อง verify จาก diff/tool evidence ก่อนใช้หรือ log
-- ถ้า Gateway ยังต้องรอ deterministic repo/tool evidence ให้ใช้ `gateway_deferred`; ถ้าไม่เหมาะ/ไม่ปลอดภัย/ไม่พร้อมใช้งาน/ผู้ใช้ขอ Codex-only/เป็นงาน trivial deterministic ให้ keep `used_bda_gateway=false` และบอกเหตุผลใน outcome/blocker/final summary
-- Gateway target ranges เป็น guidance ไม่ใช่ KPI แข็ง: 80-100% สำหรับ PM/reporting และ delivery evidence, 70-100% high-risk, 50-80% ambiguous/multi-module, 30-60% bug/feature ปกติ, 0-20% deterministic checks, 0% casual/setup/secrets/Codex-only
 - ห้าม hardcode production endpoint, API key, employee key, หรือ private IP ใน public repo; ใช้ env/config ของเครื่องผู้ใช้หรือ private rollout package เท่านั้น
 - ถ้า endpoint ใช้งานไม่ได้ ให้บันทึก local fallback/outbox แล้วระบุ limitation ใน handoff
 

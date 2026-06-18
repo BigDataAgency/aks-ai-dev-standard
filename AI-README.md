@@ -27,15 +27,11 @@
 ```text
 ใช้ BDA AI Dev Standard แบบสั้น:
 - คุยทั่วไปไม่ต้อง log
-- ก่อน start/stop ให้เช็ค `bda current --all`
-- เมื่อพิมพ์ bda start ให้ร่าง project/task/command/work_type/employee_code/group/model ให้ตรวจ ไม่ต้องให้กรอก JSON; project อาจ infer จาก `~/.bda-skills/project-map.json`
-- หลังยืนยัน ให้ถือว่า session นี้ active และเก็บ session_id ของ chat/thread นี้ไว้จนกว่าจะ bda stop
-- ระหว่าง session ถ้าพิมพ์ bda-dev-*, bda-nondev-*, bda-pm-* ให้ทำงานและส่ง/เตรียม work event พร้อม `--session-id` เดิม
+- เมื่อพิมพ์ bda start ให้ร่าง project/task/command/work_type/employee_code/group/model ให้ตรวจ ไม่ต้องให้กรอก JSON
+- หลังยืนยัน ให้ถือว่า session นี้ active และใช้ session_id เดิมจนกว่าจะ bda stop
+- ระหว่าง session ถ้าพิมพ์ bda-dev-*, bda-nondev-*, bda-pm-* ให้ทำงานและส่ง/เตรียม work event
 - bda help แสดง command ที่ใช้ได้แบบสั้น
-- bda stop สรุป outcome/status/blocker/next step แล้วปิด session_id เดิมเท่านั้น
-- ถ้าเป็น Codex Desktop ให้ใช้ metadata จริง: `--tool codex-desktop-agent --ai-provider openai --ai-model codex/gpt-5 --used-bda-gateway false`
-- ถ้าไม่มี token usage จริง ให้ใส่ token แบบประมาณได้เมื่อ mark `--token-estimate true --token-estimate-method codex-rough-v1`
-- งาน BDA mapped project ที่ไม่ trivial ให้ใช้ gateway-first-by-default: หลัง start ต้องพยายามมี Gateway checkpoint อย่างน้อย 1 ครั้งก่อนปิด session; สถานะต้องเป็น used/deferred/skipped/failed และใช้จริงเฉพาะ bounded review/summary/test-plan/evidence/PM wording
+- bda stop สรุป outcome/status/blocker/next step แล้วปิด session เดิมเท่านั้น
 - ถ้างานยาว/หลายไฟล์/ภาพ ให้บอกให้แตกงาน ใช้ model context ใหญ่ หรือใช้ vision tool ก่อน
 ```
 
@@ -80,20 +76,13 @@ Adapter notes: Claude Code ใช้ slash commands เฉพาะ interactive 
 
 - อ่าน `docs/ai-work-event-logging.md`
 - ใช้ `bda start`, `bda event`, และ `bda stop` จาก `scripts/bda.mjs` เป็น default; ใช้ `scripts/bda-work-event.mjs` สำหรับ one-off event
-- ใช้ `bda current --all` ก่อน start/stop และใช้ `--session-id` กับ event/stop ใน AI chat เพื่อกันปิด session ของงานอื่น
-- ใช้ user-level project map `~/.bda-skills/project-map.json` เพื่อ infer project จาก cwd เมื่อทำได้อย่างปลอดภัย
 - ห้าม hardcode production endpoint/key ใน repo นี้
 - ใช้ private config เช่น `~/.bda-skills/config.json` หรือ env vars `BDA_WORK_LOG_URL`, `BDA_AI_ROUTER_API_KEY`
 - ถ้าผู้ใช้พิมพ์ `bda start` ใน chat ให้ AI draft metadata ที่จำเป็น เช่น project, task_summary, command, work_type, employee_code, employee_group, ai_provider/model, used_bda_gateway แล้วให้ผู้ใช้ตรวจ/แก้ก่อนเริ่ม
 - ถ้าผู้ใช้พิมพ์ `bda help` ให้สรุป command catalog ที่ใช้ได้
-- ระหว่าง session ให้ผู้ใช้สั่งงานแบบ `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, หรือ `bda-pm-status: <prompt>` ได้ และ AI ต้องส่ง/เตรียม work event ของ command นั้นโดยอ้าง `session_id` เดิม
+- ระหว่าง session ให้ผู้ใช้สั่งงานแบบ `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, หรือ `bda-pm-status: <prompt>` ได้ และ AI ต้องส่ง/เตรียม work event ของ command นั้น
 - ถ้าผู้ใช้พิมพ์ `bda stop` ต้องอ้างอิง session_id/project/task เดิมจาก `bda start`; ห้ามเดา metadata ใหม่จนกลายเป็นคนละ session
 - ถ้าผู้ใช้ใช้ AI ตัวอื่นที่ไม่ใช่ BDA Gateway ให้ยังใช้ `bda start/stop` เพื่อส่ง event กลับ BDA; ถ้าส่ง endpoint ไม่ได้ให้บันทึก outbox และแจ้ง limitation
-- provider/tool/model/token fields ต้องเป็นความจริงตาม runtime นั้น ๆ; ถ้า token เป็นค่าประมาณให้ mark เป็น estimate เสมอ
-- สำหรับ mapped BDA work แบบ non-trivial ให้ใช้ gateway-first-by-default และมี Gateway status ทุก session: ใช้ Gateway จริงและ log event แยก, defer เพื่อรอ deterministic evidence, หรือ skip/fail พร้อมเหตุผล
-- ใช้ Gateway กับ bounded subtask เช่น risk review, requirement summary, test-plan draft, PM/report wording, evidence audit, release/deploy checklist, หรือ second opinion; ใน Codex Desktop ให้ prefer `bda/deepseek-paid-cloud` แล้ว fallback เฉพาะเมื่อไม่พร้อม/ไม่เหมาะ; ห้ามยิง Gateway เปล่า ซ้ำงานโดยไม่ใช้ผลลัพธ์ หรือส่ง prompt artificial เพื่อสร้าง usage
-- การแตก subagent/sub-session ต่อไฟล์เป็น case-by-case token strategy เท่านั้น: ใช้เมื่อไฟล์อิสระ, prompt bounded, ไม่ต้องส่ง secrets, และ Codex verify ผลด้วย context น้อยกว่า; ห้ามใช้กับ batch mechanical edit, shared contract/schema/security, branch conflict, หรือ deterministic evidence ที่ต้องดูสดใน Codex
-- Gateway target ranges เป็น guidance: 80-100% สำหรับ PM/reporting และ delivery evidence, 70-100% high-risk, 50-80% ambiguous/multi-module, 30-60% bug/feature ปกติ, 0-20% deterministic checks, 0% casual/setup/secrets/Codex-only
 
 PM lead ใช้ work events เพื่อสร้าง project log จาก command/task/status/blocker/next step/due date ไม่ใช่ raw token usage อย่างเดียว
 
