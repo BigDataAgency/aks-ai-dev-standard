@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SANDBOX = Path("/tmp/bda-ai-dev-standard-smoke")
-EXPECTED_VERSION = "0.10.2"
+EXPECTED_VERSION = "0.10.3"
 
 REQUIRED_SECTIONS = [
     "BDA Standard files used",
@@ -96,7 +96,7 @@ def validate_version_consistency() -> None:
         raise AssertionError(f"VERSION is {version!r}, expected {EXPECTED_VERSION!r}")
 
     assert_contains_all("README.md", [f"Version: `{EXPECTED_VERSION}`", f"Current version: `{EXPECTED_VERSION}`"])
-    assert_contains_all("CHANGELOG.md", [f"## [{EXPECTED_VERSION}]", "coding discipline", "minimum correct change", "verification maps to success criteria"])
+    assert_contains_all("CHANGELOG.md", [f"## [{EXPECTED_VERSION}]", "gateway-first-by-default", "bda/deepseek-paid-cloud", "per-file subagent/sub-session"])
 
 
 def validate_required_sections() -> None:

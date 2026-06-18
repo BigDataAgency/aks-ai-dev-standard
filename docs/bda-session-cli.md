@@ -136,7 +136,7 @@ For mapped BDA work, the standard is gateway-first-by-default, not Gateway-alway
 Use Gateway for bounded subtasks where usage should be visible or a second lane improves quality:
 
 - commit/push evidence, release, deploy, production verification, or customer acceptance
-- PM/status/risk/report/daily-log wording
+- PM/status/risk/report/daily log wording
 - requirement summary, acceptance criteria, or stakeholder-facing summary
 - security, auth/RBAC, data/privacy, schema, migration, CI/CD, or high-risk architecture review
 - test-plan draft, evidence audit, or second-opinion checklist
@@ -151,7 +151,7 @@ Target ranges for CEO usage visibility:
 
 | Work class | Gateway target |
 | --- | --- |
-| PM/status/risk/report/daily-log, requirement summary, customer/stakeholder summary | 80-100% |
+| PM/status/risk/report/daily log, requirement summary, customer/stakeholder summary | 80-100% |
 | Commit/push evidence, release, deploy, production verification, acceptance, delivery handoff | 80-100% |
 | Auth/RBAC, security, schema/migration, CI/CD, high-risk architecture, data/privacy | 70-100% |
 | Multi-module work, ambiguous scope, cross-repo investigation, second-opinion-heavy work | 50-80% |
