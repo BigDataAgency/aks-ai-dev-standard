@@ -16,6 +16,9 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - Added `gateway_deferred` alongside used/skipped/failed status language so Codex can gather deterministic repo/tool evidence first while still planning a Gateway checkpoint before closeout.
 - Reinforced truthful runtime metadata: Codex Desktop work remains `codex-desktop-agent` / `openai` / `codex/gpt-5` with `used_bda_gateway=false`, while successful Gateway subtasks are logged as separate BDA Gateway events.
 - Updated Gateway guardrails across AI/Codex/session docs to prevent empty prompts, duplicate artificial calls, or marking Gateway usage when the output was not actually used.
+- Set `bda/deepseek-paid-cloud` as the preferred model for Codex Desktop bounded Gateway checkpoints, with fallback to configured BDA models only when unavailable or unsuitable.
+- Added case-by-case per-file subagent/sub-session delegation guidance so Gateway usage can reduce Codex context only when the file is independent, bounded, safe to share, and verified against repo/tool evidence.
+- Clarified that commit/push/main work must use preservation-first safe-fetch-pull evidence rather than rebase/autostash shortcuts.
 - Updated current version metadata to `0.10.3`.
 
 ### Notes

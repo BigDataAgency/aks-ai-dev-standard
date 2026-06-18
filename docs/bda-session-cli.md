@@ -14,7 +14,7 @@ Public repo rule: do not commit production endpoint or employee keys. Configure 
   "api_key": "sk-personal-key",
   "tool": "hermes-desktop-agent",
   "ai_provider": "bda-gateway",
-  "ai_model": "bda/auto-default-local",
+  "ai_model": "bda/deepseek-paid-cloud",
   "used_bda_gateway": true
 }
 ```
@@ -47,7 +47,7 @@ bda current --all
 Start a real BDA work session:
 
 ```bash
-bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev-debug --tool hermes-desktop-agent --ai-provider bda-gateway --ai-model bda/auto-default-local --used-bda-gateway true
+bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev-debug --tool hermes-desktop-agent --ai-provider bda-gateway --ai-model bda/deepseek-paid-cloud --used-bda-gateway true
 ```
 
 Send an event during the session:
@@ -114,6 +114,8 @@ Runtime metadata must describe the AI tool that actually did the work, not the t
 
 Hermes/BDA Gateway work should use Hermes/BDA Gateway values. Do not record `used_bda_gateway=true` unless the actual AI work was routed through BDA Gateway.
 
+For Codex Desktop bounded Gateway checkpoints, prefer `bda/deepseek-paid-cloud`. Fall back to `bda/auto-default-local` or another configured BDA model only when the preferred paid-cloud route is unavailable or unsuitable, and always log the actual model used.
+
 If exact token usage is available from the provider or gateway, send exact numbers. If exact usage is unavailable, estimated values are acceptable only when clearly marked:
 
 ```bash
@@ -138,6 +140,8 @@ Use Gateway for bounded subtasks where usage should be visible or a second lane 
 - requirement summary, acceptance criteria, or stakeholder-facing summary
 - security, auth/RBAC, data/privacy, schema, migration, CI/CD, or high-risk architecture review
 - test-plan draft, evidence audit, or second-opinion checklist
+
+Per-file subagent/sub-session delegation is optional and case-by-case. It can reduce Codex Desktop context tokens only when each file is independent, the prompt is tightly bounded, no secrets or sensitive data are sent, and the expected Codex context saved is greater than the setup plus verification overhead. Do not delegate mechanical batch edits, shared-interface/schema/security decisions, conflict-prone branch work, or tasks that require fresh deterministic tool evidence in the primary Codex session.
 
 Do not mark `used_bda_gateway=true` for ordinary Codex/Claude/Gemini work. The BDA CLI sends work-event logs, but Gateway usage is counted only when the actual AI subtask was routed through BDA Gateway.
 

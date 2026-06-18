@@ -29,7 +29,7 @@ Each employee should have a private config outside the repo:
   "gsd_profile": "budget",
   "tool": "hermes-desktop-agent",
   "ai_provider": "bda-gateway",
-  "ai_model": "bda/auto-default-local",
+  "ai_model": "bda/deepseek-paid-cloud",
   "used_bda_gateway": true
 }
 ```
@@ -124,6 +124,10 @@ Use Gateway when usage should be visible in the audit trail or a second lane mat
 - security, auth/RBAC, data/privacy, schema, migration, CI/CD, or high-risk architecture review
 - test-plan draft, evidence audit, document wording, or second-opinion checklist
 
+For Codex Desktop bounded Gateway checkpoints, prefer `bda/deepseek-paid-cloud`. If it is unavailable or unsuitable, fall back to `bda/auto-default-local` or another configured BDA model and log the actual model used.
+
+Per-file subagent/sub-session delegation is a case-by-case token strategy, not a default. Use it only when each file can be reviewed or drafted independently, the prompt is bounded, no secrets or sensitive data are needed, and Codex can verify the result with smaller diff/evidence context than doing the whole task itself. Avoid delegation for mechanical batch edits, shared contracts, schema/security decisions, conflict-prone branch work, or tasks that need fresh deterministic tool evidence.
+
 Defer Gateway when Codex or another primary tool must first gather deterministic repo/tool evidence, but a useful checkpoint should still happen before closeout. Skip Gateway when the work is trivial/deterministic, unmapped/non-BDA, explicitly Codex-only, unsafe to share, Gateway is unavailable, or a call would be artificial. If skipped or failed, keep `used_bda_gateway=false` and put the reason in `outcome`, `blocker`, or the final stop summary.
 
 Successful Gateway work must be logged as its own event with truthful runtime metadata:
@@ -132,7 +136,7 @@ Successful Gateway work must be logged as its own event with truthful runtime me
 {
   "tool": "hermes-cli",
   "ai_provider": "bda-gateway",
-  "ai_model": "bda/auto-default-local",
+  "ai_model": "bda/deepseek-paid-cloud",
   "used_bda_gateway": true
 }
 ```

@@ -91,7 +91,8 @@ Adapter notes: Claude Code ใช้ slash commands เฉพาะ interactive 
 - ถ้าผู้ใช้ใช้ AI ตัวอื่นที่ไม่ใช่ BDA Gateway ให้ยังใช้ `bda start/stop` เพื่อส่ง event กลับ BDA; ถ้าส่ง endpoint ไม่ได้ให้บันทึก outbox และแจ้ง limitation
 - provider/tool/model/token fields ต้องเป็นความจริงตาม runtime นั้น ๆ; ถ้า token เป็นค่าประมาณให้ mark เป็น estimate เสมอ
 - สำหรับ mapped BDA work แบบ non-trivial ให้ใช้ gateway-first-by-default และมี Gateway status ทุก session: ใช้ Gateway จริงและ log event แยก, defer เพื่อรอ deterministic evidence, หรือ skip/fail พร้อมเหตุผล
-- ใช้ Gateway กับ bounded subtask เช่น risk review, requirement summary, test-plan draft, PM/report wording, evidence audit, release/deploy checklist, หรือ second opinion; ห้ามยิง Gateway เปล่า ซ้ำงานโดยไม่ใช้ผลลัพธ์ หรือส่ง prompt artificial เพื่อสร้าง usage
+- ใช้ Gateway กับ bounded subtask เช่น risk review, requirement summary, test-plan draft, PM/report wording, evidence audit, release/deploy checklist, หรือ second opinion; ใน Codex Desktop ให้ prefer `bda/deepseek-paid-cloud` แล้ว fallback เฉพาะเมื่อไม่พร้อม/ไม่เหมาะ; ห้ามยิง Gateway เปล่า ซ้ำงานโดยไม่ใช้ผลลัพธ์ หรือส่ง prompt artificial เพื่อสร้าง usage
+- การแตก subagent/sub-session ต่อไฟล์เป็น case-by-case token strategy เท่านั้น: ใช้เมื่อไฟล์อิสระ, prompt bounded, ไม่ต้องส่ง secrets, และ Codex verify ผลด้วย context น้อยกว่า; ห้ามใช้กับ batch mechanical edit, shared contract/schema/security, branch conflict, หรือ deterministic evidence ที่ต้องดูสดใน Codex
 - Gateway target ranges เป็น guidance: 80-100% สำหรับ PM/reporting และ delivery evidence, 70-100% high-risk, 50-80% ambiguous/multi-module, 30-60% bug/feature ปกติ, 0-20% deterministic checks, 0% casual/setup/secrets/Codex-only
 
 PM lead ใช้ work events เพื่อสร้าง project log จาก command/task/status/blocker/next step/due date ไม่ใช่ raw token usage อย่างเดียว
