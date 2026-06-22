@@ -8,6 +8,12 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.8] - 2026-06-22
+
+### Fixed
+
+- Removed `bda/gpt-oss-20b-local` from Hermes model config because its 32K context is below Hermes Agent's 64K minimum and can prevent agent initialization.
+
 ## [0.10.7] - 2026-06-22
 
 ### Fixed

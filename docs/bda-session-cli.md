@@ -74,7 +74,7 @@ bda update
 
 `bda update` refreshes the local standard repo from `main` using git and overwrites local edits in `~/.bda-ai-dev-standard`. This is intentional for employee machines; the standard is centrally managed. Restart Hermes Desktop after the update if it is open.
 
-Important: `bda update` in v0.10.7 updates command/session behavior and cleans Hermes BDA provider/model config. Restart Hermes Desktop after the update so the model picker reloads without the legacy BDA group. If Hermes still shows two BDA groups, close Hermes, run `bda config-clean`, and open Hermes again.
+Important: `bda update` in v0.10.8 updates command/session behavior and cleans Hermes BDA provider/model config. Restart Hermes Desktop after the update so the model picker reloads without the legacy BDA group. If Hermes still shows two BDA groups, close Hermes, run `bda config-clean`, and open Hermes again.
 
 ## How AI Should React to `bda start`
 
