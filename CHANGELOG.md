@@ -8,6 +8,12 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.15] - 2026-06-23
+
+### Fixed
+
+- `bda config-clean` now removes Hermes `ollama_cloud_models_cache.json` in addition to provider/model caches, so stale model picker entries from the old BDA group do not survive a restart.
+
 ## [0.10.14] - 2026-06-22
 
 ### Changed
