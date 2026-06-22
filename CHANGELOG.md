@@ -8,6 +8,14 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.12] - 2026-06-22
+
+### Changed
+
+- Reduced Hermes BDA model config to two employee-facing choices: `bda/nondev-local` and `bda/dev-local`.
+- Set `bda/dev-local` as the default coding lane and `bda/nondev-local` as the compression/long-reading lane.
+- Removed paid/cloud and legacy local aliases from employee Hermes config so the picker no longer exposes stale model groups.
+
 ## [0.10.11] - 2026-06-22
 
 ### Removed

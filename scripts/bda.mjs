@@ -7,7 +7,7 @@ import readline from "node:readline/promises";
 import { execFileSync } from "node:child_process";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.10.11";
+const SESSION_VERSION = "bda-session/0.10.12";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const MAC_HERMES_APP_SUPPORT = path.join(os.homedir(), "Library", "Application Support", "Hermes");
 const HERMES_CONFIG_PATHS = Array.from(new Set([
@@ -41,40 +41,28 @@ const HERMES_CACHE_PATHS = [
 
 const BDA_HERMES_CONFIG_BLOCK = `model:
   provider: bda
-  default: bda/auto-default-local
-  context_length: 65536
+  default: bda/dev-local
+  context_length: 131072
   max_tokens: 8192
-  compression_model: bda/auto-default-local
-  auxiliary_compression_model: bda/auto-default-local
+  compression_model: bda/nondev-local
+  auxiliary_compression_model: bda/nondev-local
 auxiliary:
   compression:
     provider: bda
-    model: bda/auto-default-local
-    context_length: 65536
+    model: bda/nondev-local
+    context_length: 262144
 providers:
   bda:
     name: BDA AI Gateway
     api: https://ai.bda.co.th/v1
     key_env: BDA_AI_ROUTER_API_KEY
     transport: openai_chat
-    default_model: bda/auto-default-local
+    default_model: bda/dev-local
     discover_models: false
     models:
-      bda/auto-default-local:
-        context_length: 65536
-      bda/free-fast-local:
-        context_length: 65536
-      bda/qwen3.6-local:
-        context_length: 65536
-      bda/deepseek-fast-paid-cloud:
-        context_length: 131072
-      bda/deepseek-paid-cloud:
-        context_length: 131072
-      bda/qwen3.7-plus-paid-cloud:
-        context_length: 1000000
-      bda/qwen3.7-max-paid-cloud:
-        context_length: 1000000
-      bda/glm-5.1-paid-cloud:
+      bda/nondev-local:
+        context_length: 262144
+      bda/dev-local:
         context_length: 131072
 `;
 
@@ -475,7 +463,7 @@ function removeTopLevelBlocks(yamlText, keys) {
 
 function removeLegacyAgentCommandCatalog(yamlText) {
   return yamlText
-    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.10.11")
+    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.10.12")
     .replace(/During an active session, treat bda-dev-\*, bda-nondev-\*, and bda-pm-\* prefixes as real BDA work commands and send\/prepare bda event\./g,
       "During an active session, use only the compact BDA commands: bda-dev, bda-nondev, and bda-pm. Send/prepare bda event for meaningful subtasks.")
     .replace(/Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup\./g,
