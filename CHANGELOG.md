@@ -8,6 +8,18 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.4] - 2026-06-22
+
+### Changed
+
+- Reduced the Hermes employee-facing BDA command catalog to `bda-dev`, `bda-nondev`, and `bda-pm` so local models do not waste context on many near-duplicate workflow commands.
+- Moved detailed activity classification into `work_type` such as `debug`, `review`, `test`, `documentation`, `pm-status`, and `risk`.
+- Kept legacy command aliases such as `bda-dev-debug` and `bda-pm-status` accepted by the CLI for migration, but they are no longer shown in employee help.
+
+### Fixed
+
+- Prevented local/Hermes prompts from exposing the long dev plan command family, which caused confusion and unnecessary context pressure.
+
 ## [0.10.2] - 2026-06-16
 
 ### Changed

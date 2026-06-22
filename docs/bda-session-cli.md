@@ -35,13 +35,13 @@ BDA_USED_BDA_GATEWAY
 Start a real BDA work session:
 
 ```bash
-bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev-debug
+bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev --work-type debug
 ```
 
 Send an event during the session:
 
 ```bash
-bda event --command bda-dev-review --task "review login fix" --status done
+bda event --command bda-dev --work-type review --task "review login fix" --status done
 ```
 
 Stop the session:
@@ -106,12 +106,12 @@ Model:
 Use a command prefix followed by the staff prompt:
 
 ```text
-bda-dev-debug: debug login error after password reset
-bda-nondev-explore: สรุป requirement จาก meeting note วันนี้
-bda-pm-status: สรุปสถานะ project สำหรับ lead
+bda-dev: debug login error after password reset
+bda-nondev: สรุป requirement จาก meeting note วันนี้
+bda-pm: สรุปสถานะ project สำหรับ lead
 ```
 
-During an active `bda start` session, each command should produce or trigger a `bda event` with command, task summary, status, outcome, blocker/next step when relevant, and token/duration values when available.
+During an active `bda start` session, each command should produce or trigger a `bda event` with command, `work_type`, task summary, status, outcome, blocker/next step when relevant, and token/duration values when available.
 
 When the staff member types `bda stop`, the AI must summarize the current session and close that same session:
 
@@ -137,30 +137,19 @@ Local coding models can hit context limits quickly. Use these rules:
 ## Command Catalog
 
 ```text
-bda-dev-debug          debug            แก้บั๊ก / ไล่ error / หาสาเหตุ
-bda-dev-review         review           review code / PR / design risk
-bda-dev-tdd            test             เขียน test ก่อนแก้หรือเพิ่ม feature
-bda-dev-plan-discuss   plan             คุย scope และทางเลือกก่อนทำ
-bda-dev-plan-create    plan             สร้างแผนงาน
-bda-dev-plan-execute   implementation   ทำงานตามแผน
-bda-dev-plan-review    review           ตรวจแผน/ผลลัพธ์
-bda-dev-plan-verify    verification     ตรวจผล/หลักฐาน
-bda-nondev-explore     explore          ค้น/สรุป/วิเคราะห์งาน non-dev
-bda-nondev-write       documentation    เขียนเอกสาร/ข้อความ/สรุป
-bda-pm-log             pm-log           สร้าง PM daily/project log
-bda-pm-status          pm-status        สรุป project status
-bda-pm-risk            pm-risk          สรุป risk/blocker
-bda-pm-followup        pm-followup      ติดตาม next step
-bda-pm-requirement     pm-requirement   สรุป requirement
-bda-pm-standup         pm-standup       standup/team update
+bda-dev       dev      งาน dev/code/debug/review/test แบบ targeted
+bda-nondev    nondev   งานเอกสาร/สรุป/วิเคราะห์/operation
+bda-pm        pm       งาน PM/status/risk/requirement เฉพาะ PM/lead
 ```
+
+Use `work_type` for detail, for example `debug`, `review`, `test`, `implementation`, `document`, `pm-status`, `risk`, or `requirement`. Legacy names such as `bda-dev-debug` and `bda-pm-status` are still accepted by the CLI for migration, but they should not be shown in Hermes employee help.
 
 ## Fallback for Non-BDA Gateway AI
 
 If the staff member uses another AI provider, the CLI still sends work events to BDA:
 
 ```bash
-bda start --project "Project" --task "write customer summary" --command bda-nondev-write --ai-provider claude --ai-model "subscription" --used-bda-gateway false
+bda start --project "Project" --task "write customer summary" --command bda-nondev --work-type documentation --ai-provider claude --ai-model "subscription" --used-bda-gateway false
 bda stop --status done --outcome "summary drafted and reviewed"
 ```
 

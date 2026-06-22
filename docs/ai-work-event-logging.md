@@ -93,9 +93,9 @@ If `BDA_WORK_LOG_URL` is not configured, the helper prints a dry-run event inste
 The recommended user workflow is:
 
 ```bash
-bda start --project "Project Name" --task "short useful task" --command bda-dev-debug
+bda start --project "Project Name" --task "short useful task" --command bda-dev --work-type debug
 bda help
-bda event --command bda-dev-review --task "review result" --status done
+bda event --command bda-dev --work-type review --task "review result" --status done
 bda stop --status done --outcome "what changed" --next-step "what happens next"
 ```
 
@@ -117,9 +117,9 @@ Model:
 During an active session, staff can write commands as:
 
 ```text
-bda-dev-debug: debug login error
-bda-nondev-explore: summarize meeting notes
-bda-pm-status: summarize project status for lead
+bda-dev: debug login error
+bda-nondev: summarize meeting notes
+bda-pm: summarize project status for lead
 ```
 
 The AI or local helper must turn each useful command into a work event. If the staff member uses a non-BDA AI provider, `used_bda_gateway=false` is valid, but the event should still be sent through the BDA work-event endpoint or queued locally.
@@ -160,7 +160,7 @@ Run the session CLI:
 
 ```bash
 npm run bda -- help
-npm run bda -- start --project "Project Name" --task "fix login validation bug" --command bda-dev-debug --dry-run
+npm run bda -- start --project "Project Name" --task "fix login validation bug" --command bda-dev --work-type debug --dry-run
 ```
 
 ## Groups

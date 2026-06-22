@@ -35,13 +35,14 @@ function run(args, options = {}) {
 
 const help = run(["help"]);
 assert.match(help.stdout, /bda start/);
-assert.match(help.stdout, /bda-dev-debug/);
-assert.match(help.stdout, /bda-session\/0\.10\.3/);
+assert.match(help.stdout, /bda-dev/);
+assert.doesNotMatch(help.stdout, /bda-dev-plan-execute/);
+assert.match(help.stdout, /bda-session\/0\.10\.4/);
 
 const version = run(["version"]);
 const versionJson = JSON.parse(version.stdout);
 assert.equal(versionJson.ok, true);
-assert.equal(versionJson.cli_version, "0.10.3");
+assert.equal(versionJson.cli_version, "0.10.4");
 
 const start = run([
   "start",
@@ -53,7 +54,8 @@ const start = run([
 const startJson = JSON.parse(start.stdout);
 assert.equal(startJson.ok, true);
 assert.equal(startJson.session.employee_code, "BDA999");
-assert.equal(startJson.session.command, "bda-dev-debug");
+assert.equal(startJson.session.command, "bda-dev");
+assert.equal(startJson.session.work_type, "debug");
 assert.equal(startJson.send_result.dry_run, true);
 const activeSessionId = startJson.session.session_id;
 
@@ -64,7 +66,7 @@ const duplicateStart = run([
   "start",
   "--project", "BDA-InnoHub",
   "--task", "new task should not overwrite active session",
-  "--command", "bda-dev-debug",
+  "--command", "bda-dev",
   "--dry-run",
 ], { expectFailure: true });
 const duplicateStartJson = JSON.parse(duplicateStart.stderr);
@@ -82,7 +84,8 @@ const event = run([
   "--dry-run",
 ]);
 const eventJson = JSON.parse(event.stdout);
-assert.equal(eventJson.event.command, "bda-dev-review");
+assert.equal(eventJson.event.command, "bda-dev");
+assert.equal(eventJson.event.work_type, "review");
 assert.equal(eventJson.event.session_id, activeSessionId);
 
 const stop = run([

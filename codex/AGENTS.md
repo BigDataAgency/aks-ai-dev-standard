@@ -31,7 +31,8 @@ Codex uses this file as agent instruction; it does not use Claude Code slash com
 - การคุยเล่น ทดลอง tool ครั้งแรก หรือคำถามทั่วไปไม่ต้องบังคับ metadata
 - ถ้าผู้ใช้พิมพ์ `bda start` ให้ draft metadata ก่อนแล้วถามให้ผู้ใช้ตรวจ/แก้ ได้แก่ `project`, `task_summary`, `command`, `work_type`, `employee_code`, `employee_group`, `ai_provider`, `ai_model`, และ `used_bda_gateway`; อย่าเริ่มงานจริงจนกว่าจะยืนยัน metadata สำคัญ
 - สำหรับ Hermes/local model ให้ใช้ metadata confirmation แบบสั้นเท่านั้น; อย่า paste standard ยาวหรือ JSON ก้อนใหญ่ถ้าไม่จำเป็น
-- ระหว่าง active session ให้รับคำสั่งรูปแบบ `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, `bda-pm-status: <prompt>` แล้ว map เป็น work event ของ command นั้น
+- ระหว่าง active session ให้รับคำสั่งรูปแบบ `bda-dev: <prompt>`, `bda-nondev: <prompt>`, `bda-pm: <prompt>` แล้ว map เป็น work event ของ command นั้น
+- เก็บรายละเอียดงานใน `work_type` เช่น `debug`, `review`, `document`, `pm-status`, หรือ `risk`; อย่าโชว์ command catalog ย่อยยาวใน local/Hermes context
 - ถ้าผู้ใช้พิมพ์ `bda help` ให้สรุป command catalog จาก `docs/bda-session-cli.md`
 - ถ้าผู้ใช้พิมพ์ `bda stop` ให้สรุป outcome/status/blocker/next step แล้วส่งหรือเตรียม stop event โดยต้องใช้ session_id/project/task เดิมจาก active `bda start`; ห้ามเดา session ใหม่
 - เมื่อมีการใช้ command เช่น `fix-bug`, `review-change`, `build-feature`, `write-document`, `test-report`, หรือ PM command ให้เก็บอย่างน้อย: `employee_code`, `employee_group`, `command`, `task_summary`, `work_type`, `project`, `tool`, `ai_model`, `status`, `outcome`, `tokens` ถ้ามี, และ `duration_ms` ถ้ามี

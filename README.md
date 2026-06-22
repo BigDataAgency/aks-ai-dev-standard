@@ -1,6 +1,6 @@
 # BDA AI Dev Standard
 
-Version: `0.10.2`
+Version: `0.10.4`
 License: MIT
 
 มาตรฐานกลางสำหรับการทำงานร่วมกับ AI ในงานพัฒนา ซ่อมบั๊ก ตรวจโค้ด เขียนเอกสาร งาน Obsidian งาน Performance และงานติดตามทีมของ BDA
@@ -11,7 +11,7 @@ License: MIT
 
 BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
-- Current version: `0.10.2`
+- Current version: `0.10.4`
 - ดูประวัติการเปลี่ยนแปลงที่ `CHANGELOG.md`
 - เลข version หลักอยู่ใน `VERSION`
 - ทุก update สำคัญต้องเปลี่ยน version ใน repo นี้ก่อน rollout
@@ -99,13 +99,13 @@ See:
 Recommended session flow:
 
 ```bash
-bda start --project "Project Name" --task "fix login validation bug" --command bda-dev-debug
+bda start --project "Project Name" --task "fix login validation bug" --command bda-dev --work-type debug
 bda help
-bda event --command bda-dev-review --task "review login fix" --status done
+bda event --command bda-dev --work-type review --task "review login fix" --status done
 bda stop --status done --outcome "login validation fixed" --next-step "deploy staging"
 ```
 
-When a staff member types `bda start` in AI chat, the AI should draft the metadata first, ask the staff member to confirm or edit it, and only then continue the work. During an active session, staff can write commands as `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, or `bda-pm-status: <prompt>`.
+When a staff member types `bda start` in AI chat, the AI should draft the metadata first, ask the staff member to confirm or edit it, and only then continue the work. During an active session, staff can write commands as `bda-dev: <prompt>`, `bda-nondev: <prompt>`, or `bda-pm: <prompt>`. Specific activity belongs in `work_type` such as `debug`, `review`, `document`, `pm-status`, or `risk`; do not expose the old long command list to staff.
 
 See `docs/bda-session-cli.md`.
 

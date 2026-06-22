@@ -29,7 +29,7 @@
 - คุยทั่วไปไม่ต้อง log
 - เมื่อพิมพ์ bda start ให้ร่าง project/task/command/work_type/employee_code/group/model ให้ตรวจ ไม่ต้องให้กรอก JSON
 - หลังยืนยัน ให้ถือว่า session นี้ active และใช้ session_id เดิมจนกว่าจะ bda stop
-- ระหว่าง session ถ้าพิมพ์ bda-dev-*, bda-nondev-*, bda-pm-* ให้ทำงานและส่ง/เตรียม work event
+- ระหว่าง session ถ้าพิมพ์ bda-dev, bda-nondev, หรือ bda-pm ให้ทำงานและส่ง/เตรียม work event โดยเก็บรายละเอียดไว้ใน work_type
 - bda help แสดง command ที่ใช้ได้แบบสั้น
 - bda stop สรุป outcome/status/blocker/next step แล้วปิด session เดิมเท่านั้น
 - ถ้างานยาว/หลายไฟล์/ภาพ ให้บอกให้แตกงาน ใช้ model context ใหญ่ หรือใช้ vision tool ก่อน
@@ -80,7 +80,8 @@ Adapter notes: Claude Code ใช้ slash commands เฉพาะ interactive 
 - ใช้ private config เช่น `~/.bda-skills/config.json` หรือ env vars `BDA_WORK_LOG_URL`, `BDA_AI_ROUTER_API_KEY`
 - ถ้าผู้ใช้พิมพ์ `bda start` ใน chat ให้ AI draft metadata ที่จำเป็น เช่น project, task_summary, command, work_type, employee_code, employee_group, ai_provider/model, used_bda_gateway แล้วให้ผู้ใช้ตรวจ/แก้ก่อนเริ่ม
 - ถ้าผู้ใช้พิมพ์ `bda help` ให้สรุป command catalog ที่ใช้ได้
-- ระหว่าง session ให้ผู้ใช้สั่งงานแบบ `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, หรือ `bda-pm-status: <prompt>` ได้ และ AI ต้องส่ง/เตรียม work event ของ command นั้น
+- ระหว่าง session ให้ผู้ใช้สั่งงานแบบ `bda-dev: <prompt>`, `bda-nondev: <prompt>`, หรือ `bda-pm: <prompt>` ได้ และ AI ต้องส่ง/เตรียม work event ของ command นั้น
+- เก็บรายละเอียดเช่น `debug`, `review`, `document`, `pm-status`, `risk` ใน `work_type`; อย่าโชว์ command ย่อยยาว ๆ ใน Hermes/local prompt
 - ถ้าผู้ใช้พิมพ์ `bda stop` ต้องอ้างอิง session_id/project/task เดิมจาก `bda start`; ห้ามเดา metadata ใหม่จนกลายเป็นคนละ session
 - ถ้าผู้ใช้ใช้ AI ตัวอื่นที่ไม่ใช่ BDA Gateway ให้ยังใช้ `bda start/stop` เพื่อส่ง event กลับ BDA; ถ้าส่ง endpoint ไม่ได้ให้บันทึก outbox และแจ้ง limitation
 

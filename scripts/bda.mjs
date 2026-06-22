@@ -6,26 +6,32 @@ import path from "node:path";
 import readline from "node:readline/promises";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.10.3";
+const SESSION_VERSION = "bda-session/0.10.4";
 
 const COMMANDS = [
-  ["bda-dev-debug", "debug", "แก้บั๊ก / ไล่ error / หาสาเหตุ"],
-  ["bda-dev-review", "review", "review code / PR / design risk"],
-  ["bda-dev-tdd", "test", "เขียน test ก่อนแก้หรือเพิ่ม feature"],
-  ["bda-dev-plan-discuss", "plan", "คุย scope และทางเลือกก่อนทำ"],
-  ["bda-dev-plan-create", "plan", "สร้างแผนงาน"],
-  ["bda-dev-plan-execute", "implementation", "ทำงานตามแผน"],
-  ["bda-dev-plan-review", "review", "ตรวจแผน/ผลลัพธ์"],
-  ["bda-dev-plan-verify", "verification", "ตรวจผล/หลักฐาน"],
-  ["bda-nondev-explore", "explore", "ค้น/สรุป/วิเคราะห์งาน non-dev"],
-  ["bda-nondev-write", "documentation", "เขียนเอกสาร/ข้อความ/สรุป"],
-  ["bda-pm-log", "pm-log", "สร้าง PM daily/project log"],
-  ["bda-pm-status", "pm-status", "สรุป project status"],
-  ["bda-pm-risk", "pm-risk", "สรุป risk/blocker"],
-  ["bda-pm-followup", "pm-followup", "ติดตาม next step"],
-  ["bda-pm-requirement", "pm-requirement", "สรุป requirement"],
-  ["bda-pm-standup", "pm-standup", "standup/team update"],
+  ["bda-dev", "dev", "งาน dev/code/debug/review/test แบบ targeted"],
+  ["bda-nondev", "nondev", "งานเอกสาร/สรุป/วิเคราะห์/operation"],
+  ["bda-pm", "pm", "งาน PM/status/risk/requirement เฉพาะ PM/lead"],
 ];
+
+const LEGACY_COMMANDS = new Map([
+  ["bda-dev-debug", ["bda-dev", "debug"]],
+  ["bda-dev-review", ["bda-dev", "review"]],
+  ["bda-dev-tdd", ["bda-dev", "test"]],
+  ["bda-dev-plan-discuss", ["bda-dev", "plan"]],
+  ["bda-dev-plan-create", ["bda-dev", "plan"]],
+  ["bda-dev-plan-execute", ["bda-dev", "implementation"]],
+  ["bda-dev-plan-review", ["bda-dev", "review"]],
+  ["bda-dev-plan-verify", ["bda-dev", "verification"]],
+  ["bda-nondev-explore", ["bda-nondev", "explore"]],
+  ["bda-nondev-write", ["bda-nondev", "documentation"]],
+  ["bda-pm-log", ["bda-pm", "pm-log"]],
+  ["bda-pm-status", ["bda-pm", "pm-status"]],
+  ["bda-pm-risk", ["bda-pm", "pm-risk"]],
+  ["bda-pm-followup", ["bda-pm", "pm-followup"]],
+  ["bda-pm-requirement", ["bda-pm", "pm-requirement"]],
+  ["bda-pm-standup", ["bda-pm", "pm-standup"]],
+]);
 
 function parseArgs(argv) {
   const out = { _: [] };
@@ -106,12 +112,15 @@ function slug(value) {
 
 function inferWorkType(command, fallback = "ai-work") {
   const normalized = String(command || "").replace(/^\//, "");
+  if (LEGACY_COMMANDS.has(normalized)) return LEGACY_COMMANDS.get(normalized)[1];
   const found = COMMANDS.find(([name]) => name === normalized);
   return found ? found[1] : fallback;
 }
 
 function normalizeCommand(command) {
-  return String(command || "").trim().replace(/^\//, "");
+  const normalized = String(command || "").trim().replace(/^\//, "");
+  if (LEGACY_COMMANDS.has(normalized)) return LEGACY_COMMANDS.get(normalized)[0];
+  return normalized;
 }
 
 function buildSessionId(employeeCode, project, command) {
@@ -208,7 +217,8 @@ async function sendEvent(config, event, args) {
 function baseEvent(config, args, session = {}) {
   const employeeCode = args.employee_code || envOrConfig(["BDA_EMPLOYEE_CODE"], config, ["employee_code"]);
   const employeeGroup = args.employee_group || envOrConfig(["BDA_EMPLOYEE_GROUP"], config, ["employee_group", "group"]);
-  const command = normalizeCommand(args.command || session.command || "bda-nondev-explore");
+  const rawCommand = args.command || session.command || "bda-nondev";
+  const command = normalizeCommand(rawCommand);
   const project = args.project || session.project || envOrConfig(["BDA_PROJECT"], config, ["project_name"], "BDA-General");
   const taskSummary = args.task || args.task_summary || session.task_summary || "";
   return {
@@ -219,7 +229,7 @@ function baseEvent(config, args, session = {}) {
     command,
     task_summary: taskSummary,
     session_id: args.session_id || session.session_id || buildSessionId(employeeCode, project, command),
-    work_type: args.work_type || session.work_type || inferWorkType(command),
+    work_type: args.work_type || (args.command ? inferWorkType(args.command) : session.work_type) || inferWorkType(rawCommand),
     status: args.status || "started",
     ai_provider: args.ai_provider || session.ai_provider || envOrConfig(["BDA_AI_PROVIDER"], config, ["ai_provider"]),
     ai_model: args.ai_model || session.ai_model || envOrConfig(["BDA_AI_MODEL"], config, ["ai_model"]),
@@ -295,14 +305,14 @@ Flow:
   bda stop    ปิด session และส่ง status=done/blocked/failed
 
 Examples:
-  bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev-debug
-  bda event --command bda-dev-review --task "review login fix" --status done
+  bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev --work-type debug
+  bda event --command bda-dev --work-type review --task "review login fix" --status done
   bda stop --status done --outcome "fixed login validation" --next-step "deploy to staging"
 
 Prompt style in AI chat:
-  bda-dev-debug: debug login error
-  bda-nondev-explore: สรุป requirement จาก meeting note
-  bda-pm-status: สรุป project status วันนี้
+  bda-dev: debug login error
+  bda-nondev: สรุป requirement จาก meeting note
+  bda-pm: สรุป project status วันนี้
 
 Available commands:`);
   for (const [name, workType, desc] of COMMANDS) {
@@ -332,7 +342,7 @@ async function start(config, args) {
   await askMissing(args, [
     ["project", "Project"],
     ["task", "Task summary"],
-    ["command", "Command เช่น bda-dev-debug / bda-nondev-explore / bda-pm-status"],
+    ["command", "Command เช่น bda-dev / bda-nondev / bda-pm"],
   ]);
   const event = baseEvent(config, { ...args, status: "started" });
   const missing = missingFields(event);

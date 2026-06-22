@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SANDBOX = Path("/tmp/bda-ai-dev-standard-smoke")
-EXPECTED_VERSION = "0.10.2"
+EXPECTED_VERSION = "0.10.4"
 
 REQUIRED_SECTIONS = [
     "BDA Standard files used",
@@ -209,7 +209,7 @@ def validate_bda_session_cli() -> None:
         "codex/AGENTS.md",
         "prompts/general-ai/start-here.md",
     ]:
-        assert_contains_all(rel, ["bda start", "bda stop", "bda help", "bda-dev-debug", "bda-nondev-explore", "bda-pm-status"])
+        assert_contains_all(rel, ["bda start", "bda stop", "bda help", "bda-dev", "bda-nondev", "bda-pm"])
 
     assert_contains_all("package.json", ['"bda": "scripts/bda.mjs"', '"test:bda-session"'])
     assert_contains_all("scripts/bda.mjs", ["bda start", "bda event", "bda stop", "outbox", "BDA_AI_WORK_EVENT_URL"])

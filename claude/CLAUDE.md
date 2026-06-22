@@ -79,7 +79,8 @@ Feedback นี้ไม่ใช่ performance review, score, KPI, daily perfo
 - ถ้าผู้ใช้พิมพ์ `bda start` ให้ถามกลับ/เติม draft metadata ให้ตรวจ ได้แก่ `project`, `task_summary`, `command`, `work_type`, `employee_code`, `employee_group`, `ai_provider`, `ai_model`, และ `used_bda_gateway`
 - สำหรับ Hermes/local model ให้ใช้ metadata confirmation แบบสั้นเท่านั้น; อย่า paste standard ยาวหรือ JSON ก้อนใหญ่ถ้าไม่จำเป็น
 - ถ้าผู้ใช้พิมพ์ `bda help` ให้แสดง command catalog แบบสั้นจาก `docs/bda-session-cli.md`
-- ระหว่าง session ให้รับรูปแบบ `bda-dev-debug: <prompt>`, `bda-nondev-explore: <prompt>`, หรือ `bda-pm-status: <prompt>` แล้วส่ง event ของ command นั้น
+- ระหว่าง session ให้รับรูปแบบ `bda-dev: <prompt>`, `bda-nondev: <prompt>`, หรือ `bda-pm: <prompt>` แล้วส่ง event ของ command นั้น
+- เก็บรายละเอียดงานใน `work_type` เช่น `debug`, `review`, `document`, `pm-status`, หรือ `risk`; อย่าโชว์ command catalog ย่อยยาวใน local/Hermes context
 - ถ้าผู้ใช้พิมพ์ `bda stop` ให้สรุป outcome/status/blocker/next step และส่ง stop event โดยต้องใช้ session_id/project/task เดิมจาก active `bda start`; ห้ามเดา session ใหม่
 - ถ้าเป็นงาน dev/nondev/PM lead เช่น `/fix-bug`, `/review-change`, `/write-document`, `/test-report`, `/pm-log`, `/pm-status`, `/pm-risk` ต้องมี metadata: `employee_code`, `employee_group`, `command`, `task_summary`, `work_type`, `project`, `tool`, `ai_model`, `status`, และผลลัพธ์งาน
 - ห้าม hardcode production endpoint, API key, employee key, หรือ private IP ใน public repo; ให้ตั้งผ่าน env/config หรือ private rollout package เท่านั้น
