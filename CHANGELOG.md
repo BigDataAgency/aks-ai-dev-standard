@@ -8,6 +8,12 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.10] - 2026-06-22
+
+### Added
+
+- Added `bda/kimi-k2.7-code-paid-cloud` to Hermes config as a paid cloud model backed by Kimi/Moonshot, with a 262K context declaration. The model remains opt-in and is not the default.
+
 ## [0.10.9] - 2026-06-22
 
 ### Fixed
