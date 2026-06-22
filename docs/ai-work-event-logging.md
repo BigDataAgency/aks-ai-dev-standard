@@ -95,6 +95,7 @@ The recommended user workflow is:
 ```bash
 bda start --project "Project Name" --task "short useful task" --command bda-dev --work-type debug
 bda help
+bda update
 bda event --command bda-dev --work-type review --task "review result" --status done
 bda stop --status done --outcome "what changed" --next-step "what happens next"
 ```

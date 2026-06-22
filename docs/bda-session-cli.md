@@ -66,6 +66,16 @@ Show current session:
 bda current
 ```
 
+Update BDA AI Dev Standard without reinstalling the full employee pack:
+
+```bash
+bda update
+```
+
+`bda update` refreshes the local standard repo from `main` using git and overwrites local edits in `~/.bda-ai-dev-standard`. This is intentional for employee machines; the standard is centrally managed. Restart Hermes Desktop after the update if it is open.
+
+Important: `bda update` in v0.10.5 updates command/session behavior first. Hermes provider/model config also needs a config-update flow so old model aliases do not remain visible in Desktop. Do not assume model catalog cleanup is complete unless config has been rewritten and Hermes restarted.
+
 ## How AI Should React to `bda start`
 
 When a staff member types `bda start` inside an AI chat, the AI must not continue blindly. The AI should draft the metadata and ask the staff member to confirm or edit:

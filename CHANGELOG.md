@@ -8,6 +8,22 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.5] - 2026-06-22
+
+### Added
+
+- Added `bda update` so employee machines can refresh BDA AI Dev Standard without receiving a new full installer zip.
+- Added dry-run smoke coverage for `bda update`.
+
+### Changed
+
+- `bda update` uses git fetch/reset/clean on the local standard repo, so dirty local edits from older installers do not block standard updates.
+- Documented update-only rollout as the default path for command/session fixes after the first install.
+
+### Known Gap
+
+- `bda update` v0.10.5 updates the standard/CLI only. A follow-up config updater is still required to rewrite Hermes Desktop provider/model config, remove old model aliases, and stop stale model catalog issues such as old `qwen3-coder`, old `qwen3.6-35b`, or bad default/compression model choices.
+
 ## [0.10.4] - 2026-06-22
 
 ### Changed

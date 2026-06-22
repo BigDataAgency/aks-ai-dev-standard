@@ -1,6 +1,6 @@
 # BDA AI Dev Standard
 
-Version: `0.10.4`
+Version: `0.10.5`
 License: MIT
 
 มาตรฐานกลางสำหรับการทำงานร่วมกับ AI ในงานพัฒนา ซ่อมบั๊ก ตรวจโค้ด เขียนเอกสาร งาน Obsidian งาน Performance และงานติดตามทีมของ BDA
@@ -11,7 +11,7 @@ License: MIT
 
 BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
-- Current version: `0.10.4`
+- Current version: `0.10.5`
 - ดูประวัติการเปลี่ยนแปลงที่ `CHANGELOG.md`
 - เลข version หลักอยู่ใน `VERSION`
 - ทุก update สำคัญต้องเปลี่ยน version ใน repo นี้ก่อน rollout
@@ -101,9 +101,12 @@ Recommended session flow:
 ```bash
 bda start --project "Project Name" --task "fix login validation bug" --command bda-dev --work-type debug
 bda help
+bda update
 bda event --command bda-dev --work-type review --task "review login fix" --status done
 bda stop --status done --outcome "login validation fixed" --next-step "deploy staging"
 ```
+
+หลังติดตั้งครั้งแรกแล้ว ให้ใช้ `bda update` สำหรับ standard/command/session fixes แทนการแจก zip เต็มทุกครั้ง. ถ้าเป็นการเปลี่ยน Hermes provider/model catalog เช่นลบ alias เก่า หรือเปลี่ยน default/compression model ต้องใช้ update config flow เพิ่มเติม; อย่าปล่อย model เก่าค้างใน Desktop config.
 
 When a staff member types `bda start` in AI chat, the AI should draft the metadata first, ask the staff member to confirm or edit it, and only then continue the work. During an active session, staff can write commands as `bda-dev: <prompt>`, `bda-nondev: <prompt>`, or `bda-pm: <prompt>`. Specific activity belongs in `work_type` such as `debug`, `review`, `document`, `pm-status`, or `risk`; do not expose the old long command list to staff.
 

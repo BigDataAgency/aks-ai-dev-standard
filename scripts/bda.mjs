@@ -4,9 +4,11 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import readline from "node:readline/promises";
+import { execFileSync } from "node:child_process";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.10.4";
+const SESSION_VERSION = "bda-session/0.10.5";
+const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 
 const COMMANDS = [
   ["bda-dev", "dev", "งาน dev/code/debug/review/test แบบ targeted"],
@@ -294,6 +296,72 @@ function printVersion() {
   }, null, 2));
 }
 
+function commandExists(command) {
+  try {
+    execFileSync(command, ["--version"], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function repoRoot() {
+  return path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+}
+
+function updateStandard(args) {
+  const standardDir = path.resolve(process.env.BDA_AI_DEV_STANDARD_DIR || repoRoot());
+  const beforeVersion = fs.existsSync(path.join(standardDir, "VERSION"))
+    ? fs.readFileSync(path.join(standardDir, "VERSION"), "utf8").trim()
+    : "unknown";
+  const hasGitRepo = fs.existsSync(path.join(standardDir, ".git"));
+  const dryRun = boolValue(args.dry_run);
+
+  if (!commandExists("git")) {
+    console.error(JSON.stringify({
+      ok: false,
+      error: "git is required for bda update",
+      hint: "Install git once, or run the latest BDA hotfix installer one last time.",
+      standard_dir: standardDir,
+    }, null, 2));
+    process.exit(2);
+  }
+
+  const commands = hasGitRepo
+    ? [
+        ["git", ["-C", standardDir, "fetch", "--depth", "1", "origin", "main"]],
+        ["git", ["-C", standardDir, "reset", "--hard", "origin/main"]],
+        ["git", ["-C", standardDir, "clean", "-fd"]],
+      ]
+    : [
+        ["rm", ["-rf", standardDir]],
+        ["git", ["clone", "--depth", "1", STANDARD_REPO_URL, standardDir]],
+      ];
+
+  if (!dryRun) {
+    for (const [command, commandArgs] of commands) {
+      execFileSync(command, commandArgs, { stdio: "inherit" });
+    }
+  }
+
+  const afterVersion = dryRun
+    ? beforeVersion
+    : (fs.existsSync(path.join(standardDir, "VERSION"))
+        ? fs.readFileSync(path.join(standardDir, "VERSION"), "utf8").trim()
+        : "unknown");
+
+  console.log(JSON.stringify({
+    ok: true,
+    action: "update",
+    dry_run: dryRun,
+    standard_dir: standardDir,
+    before_version: beforeVersion,
+    after_version: afterVersion,
+    used_git_repo: hasGitRepo,
+    note: "Restart Hermes Desktop after update if it is open. Full Hermes provider/model config rewrite will be handled by a future bda update --config.",
+  }, null, 2));
+}
+
 function printHelp() {
   console.log(`BDA AI Dev CLI ${SESSION_VERSION}
 
@@ -301,11 +369,13 @@ Flow:
   bda start   เริ่ม session งานจริง และส่ง status=started
   bda help    ดู command ที่ใช้ได้
   bda version แสดง version ของ CLI/session format
+  bda update  อัปเดต BDA AI Dev Standard โดยไม่ต้องแจก zip ใหม่
   bda event   ส่ง event ระหว่าง session เช่น command ย่อย/งานย่อย
   bda stop    ปิด session และส่ง status=done/blocked/failed
 
 Examples:
   bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev --work-type debug
+  bda update
   bda event --command bda-dev --work-type review --task "review login fix" --status done
   bda stop --status done --outcome "fixed login validation" --next-step "deploy to staging"
 
@@ -437,6 +507,7 @@ async function main() {
   const config = loadConfig();
   if (subcommand === "help" || subcommand === "--help" || subcommand === "-h") return printHelp();
   if (subcommand === "version" || subcommand === "--version" || subcommand === "-v") return printVersion();
+  if (subcommand === "update") return updateStandard(args);
   if (subcommand === "start") return start(config, args);
   if (subcommand === "event") return event(config, args);
   if (subcommand === "stop") return stop(config, args);
