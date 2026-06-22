@@ -8,6 +8,13 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.14] - 2026-06-22
+
+### Changed
+
+- Renamed employee-facing local models to their real model lanes: `bda/qwable-27b-local` and `bda/qwythos-9b-local`.
+- Removed local model auto-routing from the employee-facing config so testing a selected model is direct.
+
 ## [0.10.13] - 2026-06-22
 
 ### Fixed
