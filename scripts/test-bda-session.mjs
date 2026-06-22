@@ -36,6 +36,12 @@ function run(args, options = {}) {
 const help = run(["help"]);
 assert.match(help.stdout, /bda start/);
 assert.match(help.stdout, /bda-dev-debug/);
+assert.match(help.stdout, /bda-session\/0\.10\.3/);
+
+const version = run(["version"]);
+const versionJson = JSON.parse(version.stdout);
+assert.equal(versionJson.ok, true);
+assert.equal(versionJson.cli_version, "0.10.3");
 
 const start = run([
   "start",

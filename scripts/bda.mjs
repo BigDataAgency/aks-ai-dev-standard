@@ -275,12 +275,22 @@ function archiveSupersededSession(config, session, replacementSessionId) {
   return filePath;
 }
 
+function printVersion() {
+  console.log(JSON.stringify({
+    ok: true,
+    name: "bda-ai-dev-standard",
+    session_version: SESSION_VERSION,
+    cli_version: SESSION_VERSION.replace(/^bda-session\//, ""),
+  }, null, 2));
+}
+
 function printHelp() {
-  console.log(`BDA AI Dev CLI
+  console.log(`BDA AI Dev CLI ${SESSION_VERSION}
 
 Flow:
   bda start   เริ่ม session งานจริง และส่ง status=started
   bda help    ดู command ที่ใช้ได้
+  bda version แสดง version ของ CLI/session format
   bda event   ส่ง event ระหว่าง session เช่น command ย่อย/งานย่อย
   bda stop    ปิด session และส่ง status=done/blocked/failed
 
@@ -416,6 +426,7 @@ async function main() {
   const subcommand = args._[0] || "help";
   const config = loadConfig();
   if (subcommand === "help" || subcommand === "--help" || subcommand === "-h") return printHelp();
+  if (subcommand === "version" || subcommand === "--version" || subcommand === "-v") return printVersion();
   if (subcommand === "start") return start(config, args);
   if (subcommand === "event") return event(config, args);
   if (subcommand === "stop") return stop(config, args);
