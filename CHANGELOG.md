@@ -8,11 +8,19 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.9] - 2026-06-22
+
+### Fixed
+
+- Restored `bda/gpt-oss-20b-local` in Hermes model config as an intentional optional model.
+- Declared a Hermes-visible `context_length: 65536` for GPT-OSS so Hermes Agent initialization does not fail the 64K minimum check. Treat GPT-OSS as a short-context/test lane until gateway serving is validated for longer work.
+
 ## [0.10.8] - 2026-06-22
 
 ### Fixed
 
 - Removed `bda/gpt-oss-20b-local` from Hermes model config because its 32K context is below Hermes Agent's 64K minimum and can prevent agent initialization.
+- Superseded by 0.10.9, which restores GPT-OSS with a Hermes-safe context declaration.
 
 ## [0.10.7] - 2026-06-22
 
