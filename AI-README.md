@@ -79,7 +79,9 @@ Adapter notes: Claude Code ใช้ slash commands เฉพาะ interactive 
 - ห้าม hardcode production endpoint/key ใน repo นี้
 - ใช้ private config เช่น `~/.bda-skills/config.json` หรือ env vars `BDA_WORK_LOG_URL`, `BDA_AI_ROUTER_API_KEY`
 - ถ้าผู้ใช้พิมพ์ `bda start` ใน chat ให้ AI draft metadata ที่จำเป็น เช่น project, task_summary, command, work_type, employee_code, employee_group, ai_provider/model, used_bda_gateway แล้วให้ผู้ใช้ตรวจ/แก้ก่อนเริ่ม
+- หลังผู้ใช้ยืนยัน `bda start` ต้องรัน CLI จริงผ่าน terminal/tool; ห้ามแค่ตอบว่าเปิด session แล้วหรือพิมพ์ JSON เฉย ๆ
 - ถ้าผู้ใช้พิมพ์ `bda help` ให้สรุป command catalog ที่ใช้ได้
+- `bda help`, `bda version`, และ `bda update` เป็น utility commands ไม่ใช่ work session; ห้ามสร้าง session/event ใหม่จากคำสั่งเหล่านี้
 - ระหว่าง session ให้ผู้ใช้สั่งงานแบบ `bda-dev: <prompt>`, `bda-nondev: <prompt>`, หรือ `bda-pm: <prompt>` ได้ และ AI ต้องส่ง/เตรียม work event ของ command นั้น
 - เก็บรายละเอียดเช่น `debug`, `review`, `document`, `pm-status`, `risk` ใน `work_type`; อย่าโชว์ command ย่อยยาว ๆ ใน Hermes/local prompt
 - ถ้าผู้ใช้พิมพ์ `bda stop` ต้องอ้างอิง session_id/project/task เดิมจาก `bda start`; ห้ามเดา metadata ใหม่จนกลายเป็นคนละ session

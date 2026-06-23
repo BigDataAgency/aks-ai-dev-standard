@@ -76,6 +76,35 @@ bda update
 
 Important: `bda update` in v0.10.15 updates command/session behavior, cleans Hermes BDA provider/model config, and keeps the supported local models by their real names plus paid cloud models: `bda/qwable-27b-local`, `bda/qwythos-9b-local`, DeepSeek, Qwen3.7, GLM 5.1, and MiniMax M3. Restart Hermes Desktop after the update so the model picker reloads without the legacy BDA group. If Hermes still shows two BDA groups, close Hermes, run `bda config-clean`, and open Hermes again.
 
+## Model Change Runbook
+
+When production model names change, do not keep old aliases in any active layer. A partial cleanup can make employees see the new model in Hermes but still get `HTTP 401 key not allowed to access model`.
+
+Required checklist:
+
+1. Update LiteLLM runtime config on A40: `/home/maripae/bda-ai-router/litellm_config.yaml`.
+2. Update model permissions in LiteLLM DB:
+   - `"LiteLLM_TeamTable".models`
+   - `"LiteLLM_VerificationToken".models`
+3. Update metadata-gate model catalog:
+   - `BDA_PUBLIC_MODEL_IDS` in `docker-compose.yml`
+   - default `PUBLIC_MODEL_IDS` in `metadata_gateway/app.py`
+   - any routing/context constants that still point to old names
+4. Update this standard package:
+   - `scripts/bda.mjs`
+   - tests that assert Hermes model lists
+   - docs that name supported production models
+5. Restart/recreate services:
+   - `docker compose restart litellm`
+   - `docker compose up -d --build --force-recreate metadata-gate`
+6. Verify both model endpoints show the same clean list:
+   - `http://127.0.0.1:18080/v1/models`
+   - `http://127.0.0.1:14000/v1/models`
+7. Smoke test each new local model with a real chat completion. Treat 401 as permission drift and 500 as worker/runtime failure.
+8. Have employees run `bda update`, fully restart Hermes Desktop, and use `bda config-clean` if old model names remain in the picker.
+
+Rule of thumb: deleting a model means deleting it from runtime config, DB permissions, public catalog, client config templates, and client caches in the same rollout.
+
 ## How AI Should React to `bda start`
 
 When a staff member types `bda start` inside an AI chat, the AI must not continue blindly. The AI should draft the metadata and ask the staff member to confirm or edit:
@@ -133,6 +162,28 @@ Next step:
 ```
 
 The AI must not invent a new project, task, employee, or session id during stop. If it is unsure which session is active, ask the staff member to confirm instead of sending a mismatched stop event.
+
+Important for Hermes/tool agents: after the staff member confirms `bda start`, the AI must execute the real CLI command through the available terminal/tool. It is not enough to print metadata or say the session is open. Coverage only trusts work events sent by `bda.mjs`/the work-event endpoint.
+
+Good behavior:
+
+```text
+Ran: node ~/.bda-ai-dev-standard/scripts/bda.mjs start --project ... --task ... --command bda-dev --work-type debug
+```
+
+Bad behavior:
+
+```text
+เปิด BDA session แล้วครับ
+{ "session_id": "...", "status": "active" }
+```
+
+For non-session commands, run or answer them as utilities, not as work sessions:
+
+- `bda help` should show the command help.
+- `bda version` should run the version command.
+- `bda update` should run the update command.
+- None of these should create a new BDA work session.
 
 ## Context and Vision Limits
 

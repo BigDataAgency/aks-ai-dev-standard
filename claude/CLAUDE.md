@@ -77,8 +77,10 @@ Feedback นี้ไม่ใช่ performance review, score, KPI, daily perfo
 - ใช้ `bda start`, `bda event`, และ `bda stop` จาก `scripts/bda.mjs` เป็น default; ใช้ `scripts/bda-work-event.mjs` สำหรับ one-off event
 - คุยทั่วไป ทดลองถามครั้งแรก หรือ setup tool ยังไม่ต้องบังคับ metadata
 - ถ้าผู้ใช้พิมพ์ `bda start` ให้ถามกลับ/เติม draft metadata ให้ตรวจ ได้แก่ `project`, `task_summary`, `command`, `work_type`, `employee_code`, `employee_group`, `ai_provider`, `ai_model`, และ `used_bda_gateway`
+- หลังผู้ใช้ยืนยัน `bda start` ต้องรัน CLI จริงผ่าน terminal/tool; ห้ามแค่ตอบว่าเปิด session แล้วหรือพิมพ์ JSON เฉย ๆ
 - สำหรับ Hermes/local model ให้ใช้ metadata confirmation แบบสั้นเท่านั้น; อย่า paste standard ยาวหรือ JSON ก้อนใหญ่ถ้าไม่จำเป็น
 - ถ้าผู้ใช้พิมพ์ `bda help` ให้แสดง command catalog แบบสั้นจาก `docs/bda-session-cli.md`
+- `bda help`, `bda version`, และ `bda update` เป็น utility commands ไม่ใช่ work session; ห้ามสร้าง session/event ใหม่จากคำสั่งเหล่านี้
 - ระหว่าง session ให้รับรูปแบบ `bda-dev: <prompt>`, `bda-nondev: <prompt>`, หรือ `bda-pm: <prompt>` แล้วส่ง event ของ command นั้น
 - เก็บรายละเอียดงานใน `work_type` เช่น `debug`, `review`, `document`, `pm-status`, หรือ `risk`; อย่าโชว์ command catalog ย่อยยาวใน local/Hermes context
 - ถ้าผู้ใช้พิมพ์ `bda stop` ให้สรุป outcome/status/blocker/next step และส่ง stop event โดยต้องใช้ session_id/project/task เดิมจาก active `bda start`; ห้ามเดา session ใหม่
