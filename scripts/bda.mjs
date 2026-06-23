@@ -503,7 +503,7 @@ function cleanHermesConfigWithUpdatedScript(standardDir, gatewayModels = FALLBAC
       // Fall back to this process' cleaner below.
     }
   }
-  return cleanHermesConfig({ dryRun: false });
+  return cleanHermesConfig({ dryRun: false, models: gatewayModels });
 }
 
 function topLevelKey(line) {
