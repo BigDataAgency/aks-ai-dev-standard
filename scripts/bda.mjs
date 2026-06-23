@@ -7,9 +7,22 @@ import readline from "node:readline/promises";
 import { execFileSync } from "node:child_process";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.10.15";
+const SESSION_VERSION = "bda-session/0.10.16";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
+const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
+const FALLBACK_BDA_MODELS = [
+  "bda/auto-default-local",
+  "bda/free-fast-local",
+  "bda/qwen3.6-local",
+  "bda/deepseek-fast-paid-cloud",
+  "bda/deepseek-paid-cloud",
+  "bda/minimax-m3-paid-cloud",
+  "bda/qwen3.7-plus-paid-cloud",
+  "bda/qwen3.7-max-paid-cloud",
+  "bda/glm-5.1-paid-cloud",
+];
 const MAC_HERMES_APP_SUPPORT = path.join(os.homedir(), "Library", "Application Support", "Hermes");
+const THCLAWS_CONFIG_DIR = path.join(os.homedir(), ".config", "thclaws");
 const HERMES_CONFIG_PATHS = Array.from(new Set([
   path.join(os.homedir(), ".hermes", "config.yaml"),
   path.join(MAC_HERMES_APP_SUPPORT, "config.yaml"),
@@ -45,44 +58,53 @@ const HERMES_CACHE_PATHS = [
   process.env.APPDATA ? path.join(process.env.APPDATA, "Hermes", "cache", "model_catalog.json") : "",
 ].filter(Boolean);
 
-const BDA_HERMES_CONFIG_BLOCK = `model:
+function bdaModelContextLength(model) {
+  if (model.includes("qwen3.7") || model.includes("minimax")) return 262144;
+  if (model.includes("deepseek") || model.includes("glm")) return 131072;
+  if (model.includes("qwen3.6")) return 65536;
+  return 65536;
+}
+
+function bdaModelMaxOutput(model) {
+  if (model.includes("qwen3.6")) return 2048;
+  return 8192;
+}
+
+function buildHermesBdaConfigBlock(models = FALLBACK_BDA_MODELS) {
+  const uniqueModels = [...new Set(models)].filter((model) => model.startsWith("bda/"));
+  const defaultModel = uniqueModels.includes("bda/auto-default-local")
+    ? "bda/auto-default-local"
+    : uniqueModels[0] || "bda/auto-default-local";
+  const compressionModel = uniqueModels.includes("bda/qwen3.6-local")
+    ? "bda/qwen3.6-local"
+    : defaultModel;
+  const modelEntries = uniqueModels
+    .map((model) => `      ${model}:\n        context_length: ${bdaModelContextLength(model)}`)
+    .join("\n");
+  return `model:
   provider: bda
-  default: bda/qwable-27b-local
-  context_length: 131072
+  default: ${defaultModel}
+  context_length: ${bdaModelContextLength(defaultModel)}
   max_tokens: 8192
-  compression_model: bda/qwythos-9b-local
-  auxiliary_compression_model: bda/qwythos-9b-local
+  compression_model: ${compressionModel}
+  auxiliary_compression_model: ${compressionModel}
 auxiliary:
   compression:
     provider: bda
-    model: bda/qwythos-9b-local
-    context_length: 262144
+    model: ${compressionModel}
+    context_length: ${bdaModelContextLength(compressionModel)}
 providers:
   bda:
     name: BDA AI Gateway
-    api: https://ai.bda.co.th/v1
+    api: ${BDA_GATEWAY_BASE_URL}
     key_env: BDA_AI_ROUTER_API_KEY
     transport: openai_chat
-    default_model: bda/qwable-27b-local
+    default_model: ${defaultModel}
     discover_models: false
     models:
-      bda/qwythos-9b-local:
-        context_length: 262144
-      bda/qwable-27b-local:
-        context_length: 131072
-      bda/deepseek-fast-paid-cloud:
-        context_length: 131072
-      bda/deepseek-paid-cloud:
-        context_length: 131072
-      bda/qwen3.7-plus-paid-cloud:
-        context_length: 1000000
-      bda/qwen3.7-max-paid-cloud:
-        context_length: 1000000
-      bda/glm-5.1-paid-cloud:
-        context_length: 131072
-      bda/minimax-m3-paid-cloud:
-        context_length: 131072
+${modelEntries}
 `;
+}
 
 const COMMANDS = [
   ["bda-dev", "dev", "งาน dev/code/debug/review/test แบบ targeted"],
@@ -165,6 +187,29 @@ function envOrConfig(envNames, config, keys, fallback = "") {
     if (config[key]) return String(config[key]);
   }
   return fallback;
+}
+
+async function fetchBdaGatewayModels(config = {}) {
+  const apiKey = envOrConfig(
+    ["BDA_AI_ROUTER_API_KEY", "OPENAI_COMPAT_API_KEY", "BDA_WORK_EVENT_API_KEY"],
+    config,
+    ["api_key", "work_event_api_key"],
+  );
+  if (!apiKey || String(apiKey).includes("test")) return FALLBACK_BDA_MODELS;
+  try {
+    const response = await fetch(`${BDA_GATEWAY_BASE_URL}/models`, {
+      headers: { authorization: `Bearer ${apiKey}` },
+      signal: AbortSignal.timeout(7000),
+    });
+    if (!response.ok) return FALLBACK_BDA_MODELS;
+    const payload = await response.json();
+    const models = Array.isArray(payload.data)
+      ? payload.data.map((row) => row && row.id).filter((id) => typeof id === "string" && id.startsWith("bda/"))
+      : [];
+    return models.length ? models : FALLBACK_BDA_MODELS;
+  } catch {
+    return FALLBACK_BDA_MODELS;
+  }
 }
 
 function boolValue(value) {
@@ -383,7 +428,7 @@ function repoRoot() {
   return path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 }
 
-function updateStandard(args) {
+async function updateStandard(args, config = {}) {
   const standardDir = path.resolve(process.env.BDA_AI_DEV_STANDARD_DIR || repoRoot());
   const beforeVersion = fs.existsSync(path.join(standardDir, "VERSION"))
     ? fs.readFileSync(path.join(standardDir, "VERSION"), "utf8").trim()
@@ -424,7 +469,11 @@ function updateStandard(args) {
         ? fs.readFileSync(path.join(standardDir, "VERSION"), "utf8").trim()
         : "unknown");
 
-  const configResult = dryRun ? cleanHermesConfig({ dryRun: true }) : cleanHermesConfigWithUpdatedScript(standardDir);
+  const gatewayModels = await fetchBdaGatewayModels(config);
+  const configResult = dryRun
+    ? cleanHermesConfig({ dryRun: true, models: gatewayModels })
+    : cleanHermesConfigWithUpdatedScript(standardDir, gatewayModels);
+  const thclawsResult = syncThclawsCatalogue(gatewayModels, { dryRun });
 
   console.log(JSON.stringify({
     ok: true,
@@ -434,18 +483,20 @@ function updateStandard(args) {
     before_version: beforeVersion,
     after_version: afterVersion,
     used_git_repo: hasGitRepo,
+    gateway_models: gatewayModels,
     hermes_config: configResult,
+    thclaws_config: thclawsResult,
     note: "Restart Hermes Desktop after update if it is open. Hermes BDA provider/model config has been cleaned so only the BDA AI Gateway group remains.",
   }, null, 2));
 }
 
-function cleanHermesConfigWithUpdatedScript(standardDir) {
+function cleanHermesConfigWithUpdatedScript(standardDir, gatewayModels = FALLBACK_BDA_MODELS) {
   const updatedScript = path.join(standardDir, "scripts", "bda.mjs");
   if (fs.existsSync(updatedScript) && path.resolve(updatedScript) !== path.resolve(new URL(import.meta.url).pathname)) {
     try {
       const raw = execFileSync(process.execPath, [updatedScript, "config-clean"], {
         encoding: "utf8",
-        env: { ...process.env, BDA_UPDATE_POST_CLEAN: "1" },
+        env: { ...process.env, BDA_UPDATE_POST_CLEAN: "1", BDA_GATEWAY_MODELS_JSON: JSON.stringify(gatewayModels) },
       });
       const parsed = JSON.parse(raw);
       if (parsed && parsed.hermes_config) return parsed.hermes_config;
@@ -481,7 +532,7 @@ function removeTopLevelBlocks(yamlText, keys) {
 
 function removeLegacyAgentCommandCatalog(yamlText) {
   return yamlText
-    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.10.15")
+    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.10.16")
     .replace(/During an active session, treat bda-dev-\*, bda-nondev-\*, and bda-pm-\* prefixes as real BDA work commands and send\/prepare bda event\./g,
       "During an active session, use only the compact BDA commands: bda-dev, bda-nondev, and bda-pm. Send/prepare bda event for meaningful subtasks.")
     .replace(/Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup\./g,
@@ -495,16 +546,25 @@ function collectBdaModelNames(yamlText) {
   return [...names].sort();
 }
 
-function normalizeHermesBdaConfig(yamlText) {
+function normalizeHermesBdaConfig(yamlText, models = FALLBACK_BDA_MODELS) {
   let next = removeTopLevelBlocks(yamlText, new Set(["model", "auxiliary", "providers", "custom_providers"]));
   next = removeLegacyAgentCommandCatalog(next);
   next = next.replace(/^\s+$/gm, "");
   next = next.replace(/\n{3,}/g, "\n\n").trimStart();
-  const merged = `${BDA_HERMES_CONFIG_BLOCK}${next.trim() ? `\n${next}` : ""}\n`;
+  const merged = `${buildHermesBdaConfigBlock(models)}${next.trim() ? `\n${next}` : ""}\n`;
   return merged;
 }
 
-function cleanHermesConfig({ dryRun = false } = {}) {
+function modelsFromEnvOverride() {
+  try {
+    const parsed = JSON.parse(process.env.BDA_GATEWAY_MODELS_JSON || "[]");
+    return Array.isArray(parsed) && parsed.length ? parsed : FALLBACK_BDA_MODELS;
+  } catch {
+    return FALLBACK_BDA_MODELS;
+  }
+}
+
+function cleanHermesConfig({ dryRun = false, models = modelsFromEnvOverride() } = {}) {
   const result = {
     config_paths: HERMES_CONFIG_PATHS.map((configPath) => ({
       config_path: configPath,
@@ -521,7 +581,7 @@ function cleanHermesConfig({ dryRun = false } = {}) {
   for (const entry of result.config_paths) {
     if (!entry.exists) continue;
     const before = fs.readFileSync(entry.config_path, "utf8");
-    const after = normalizeHermesBdaConfig(before);
+    const after = normalizeHermesBdaConfig(before, models);
     entry.before_models = collectBdaModelNames(before);
     entry.after_models = collectBdaModelNames(after);
     entry.changed = before !== after;
@@ -542,17 +602,65 @@ function cleanHermesConfig({ dryRun = false } = {}) {
   return result;
 }
 
-function printConfigStatus() {
-  const result = cleanHermesConfig({ dryRun: true });
-  console.log(JSON.stringify({ ok: true, action: "config-status", hermes_config: result }, null, 2));
+function syncThclawsCatalogue(models = FALLBACK_BDA_MODELS, { dryRun = false } = {}) {
+  const installed = fs.existsSync(THCLAWS_CONFIG_DIR)
+    || fs.existsSync(path.join(os.homedir(), "bin", "thclaws"))
+    || fs.existsSync("/Applications/thclaws.app");
+  const filePath = path.join(THCLAWS_CONFIG_DIR, "model_catalogue.json");
+  const result = {
+    installed,
+    changed: false,
+    catalogue_path: filePath,
+    models: models.map((model) => `oai/${model}`),
+  };
+  if (!installed) return result;
+  const modelEntries = {};
+  const aliases = {};
+  for (const model of models) {
+    if (!model.startsWith("bda/")) continue;
+    const thclawsModel = `oai/${model}`;
+    modelEntries[thclawsModel] = {
+      context: bdaModelContextLength(model),
+      maxOutput: bdaModelMaxOutput(model),
+      source: "BDA Gateway /v1/models",
+      chat: true,
+    };
+    aliases[model] = thclawsModel;
+  }
+  const catalogue = {
+    schema: 4,
+    source: "BDA Gateway /v1/models live sync",
+    providers: { "openai-compat": { models: modelEntries } },
+    aliases,
+    fallback: 65536,
+  };
+  const next = JSON.stringify(catalogue, null, 2) + "\n";
+  const before = fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
+  result.changed = before !== next;
+  if (result.changed && !dryRun) {
+    ensureDir(path.dirname(filePath));
+    fs.writeFileSync(filePath, next);
+  }
+  return result;
 }
 
-function printConfigClean() {
-  const result = cleanHermesConfig({ dryRun: false });
+async function printConfigStatus(config = {}) {
+  const models = await fetchBdaGatewayModels(config);
+  const result = cleanHermesConfig({ dryRun: true, models });
+  const thclaws = syncThclawsCatalogue(models, { dryRun: true });
+  console.log(JSON.stringify({ ok: true, action: "config-status", gateway_models: models, hermes_config: result, thclaws_config: thclaws }, null, 2));
+}
+
+async function printConfigClean(config = {}) {
+  const models = await fetchBdaGatewayModels(config);
+  const result = cleanHermesConfig({ dryRun: false, models });
+  const thclaws = syncThclawsCatalogue(models, { dryRun: false });
   console.log(JSON.stringify({
     ok: true,
     action: "config-clean",
+    gateway_models: models,
     hermes_config: result,
+    thclaws_config: thclaws,
     note: "Restart Hermes Desktop after cleaning config/cache.",
   }, null, 2));
 }
@@ -725,9 +833,9 @@ async function main() {
   const config = loadConfig();
   if (subcommand === "help" || subcommand === "--help" || subcommand === "-h") return printHelp();
   if (subcommand === "version" || subcommand === "--version" || subcommand === "-v") return printVersion();
-  if (subcommand === "update") return updateStandard(args);
-  if (subcommand === "config-status") return printConfigStatus();
-  if (subcommand === "config-clean") return printConfigClean();
+  if (subcommand === "update") return updateStandard(args, config);
+  if (subcommand === "config-status") return printConfigStatus(config);
+  if (subcommand === "config-clean") return printConfigClean(config);
   if (subcommand === "start") return start(config, args);
   if (subcommand === "event") return event(config, args);
   if (subcommand === "stop") return stop(config, args);

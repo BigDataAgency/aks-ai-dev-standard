@@ -8,6 +8,14 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.16] - 2026-06-23
+
+### Fixed
+
+- `bda update`, `bda config-clean`, and `bda config-status` now read the current BDA Gateway `/v1/models` list before rewriting Hermes config, instead of using a hard-coded model list.
+- Synced thClaws `openai-compat` model catalogue from BDA Gateway when thClaws is installed, so pilot users do not see stale hand-written model rows.
+- Removed legacy `qwable/qwythos`, GPT-OSS, and Gemma entries from the generated Hermes config when the Gateway no longer publishes them.
+
 ## [0.10.15] - 2026-06-23
 
 ### Fixed
