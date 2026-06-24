@@ -389,6 +389,12 @@ function redactedEvent(event) {
   return clone;
 }
 
+function authFingerprint(value) {
+  const token = String(value || "").trim();
+  if (!token) return "";
+  return crypto.createHash("sha256").update(token).digest("hex").slice(0, 16);
+}
+
 function outboxPath(config) {
   return path.join(configDir(config), "outbox", `${new Date().toISOString().slice(0, 10)}.jsonl`);
 }
@@ -743,9 +749,12 @@ function syncHermesEnv(config = {}, { dryRun = false } = {}) {
       changed: false,
       backup_path: "",
       wrote_key: Boolean(apiKey),
+      before_fingerprint: authFingerprint(readDotEnv(envPath).BDA_AI_ROUTER_API_KEY),
+      after_fingerprint: authFingerprint(apiKey),
     })),
     changed: false,
     wrote_key: Boolean(apiKey),
+    expected_fingerprint: authFingerprint(apiKey),
   };
   for (const entry of result.env_paths) {
     const before = fs.existsSync(entry.env_path) ? fs.readFileSync(entry.env_path, "utf8") : "";
