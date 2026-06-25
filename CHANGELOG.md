@@ -8,6 +8,12 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.19] - 2026-06-25
+
+### Fixed
+
+- `bda update`, `bda config-clean`, and `bda config-status` now keep required BDA compatibility models such as `bda/deepseek-fast-paid-cloud` and `bda/deepseek-paid-cloud` even if the live gateway `/v1/models` response is temporarily missing them. This prevents Hermes config from losing nondev/paid compatibility models during gateway rollout changes.
+
 ## [0.10.18] - 2026-06-24
 
 ### Fixed

@@ -8,12 +8,21 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.10.18";
+const SESSION_VERSION = "bda-session/0.10.19";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
 const FALLBACK_BDA_MODELS = [
   "bda/qwable-27b-local",
   "bda/qwythos-9b-local",
+  "bda/deepseek-fast-paid-cloud",
+  "bda/deepseek-paid-cloud",
+  "bda/minimax-m3-paid-cloud",
+  "bda/qwen3.7-plus-paid-cloud",
+  "bda/qwen3.7-max-paid-cloud",
+  "bda/glm-5.1-paid-cloud",
+];
+const REQUIRED_COMPATIBILITY_BDA_MODELS = [
+  "bda/dev",
   "bda/deepseek-fast-paid-cloud",
   "bda/deepseek-paid-cloud",
   "bda/minimax-m3-paid-cloud",
@@ -319,10 +328,19 @@ async function fetchBdaGatewayModels(config = {}) {
     const models = Array.isArray(payload.data)
       ? payload.data.map((row) => row && row.id).filter((id) => typeof id === "string" && id.startsWith("bda/"))
       : [];
-    return models.length ? models : FALLBACK_BDA_MODELS;
+    return models.length ? mergeBdaGatewayModels(models) : FALLBACK_BDA_MODELS;
   } catch {
     return FALLBACK_BDA_MODELS;
   }
+}
+
+function mergeBdaGatewayModels(models = []) {
+  const merged = [];
+  for (const model of [...models, ...REQUIRED_COMPATIBILITY_BDA_MODELS]) {
+    if (typeof model !== "string" || !model.startsWith("bda/")) continue;
+    if (!merged.includes(model)) merged.push(model);
+  }
+  return merged.length ? merged : FALLBACK_BDA_MODELS;
 }
 
 function boolValue(value) {
@@ -650,7 +668,7 @@ function removeTopLevelBlocks(yamlText, keys) {
 
 function removeLegacyAgentCommandCatalog(yamlText) {
   return yamlText
-    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.10.18")
+    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.10.19")
     .replace(/During an active session, treat bda-dev-\*, bda-nondev-\*, and bda-pm-\* prefixes as real BDA work commands and send\/prepare bda event\./g,
       "During an active session, use only the compact BDA commands: bda-dev, bda-nondev, and bda-pm. Send/prepare bda event for meaningful subtasks.")
     .replace(/Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup\./g,
@@ -884,6 +902,10 @@ Prompt style in AI chat:
   bda-dev: debug login error
   bda-nondev: สรุป requirement จาก meeting note
   bda-pm: สรุป project status วันนี้
+
+Model policy:
+  bda/dev เป็น gateway หลักที่พนักงานทุกกลุ่มใช้ได้เมื่อทำงานกับ AI Gateway
+  bda-nondev เป็น command metadata สำหรับงานเอกสาร/สรุป ไม่ใช่การล็อคไม่ให้ใช้ bda/dev
 
 Available commands:`);
   for (const [name, workType, desc] of COMMANDS) {

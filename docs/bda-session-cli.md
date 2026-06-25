@@ -205,6 +205,8 @@ bda-pm        pm       งาน PM/status/risk/requirement เฉพาะ PM/l
 
 Use `work_type` for detail, for example `debug`, `review`, `test`, `implementation`, `document`, `pm-status`, `risk`, or `requirement`. Legacy names such as `bda-dev-debug` and `bda-pm-status` are still accepted by the CLI for migration, but they should not be shown in Hermes employee help.
 
+`bda/dev` is the main AI Gateway model and can be used by staff from every employee group when they need BDA Gateway support. `bda-nondev` is metadata for document, summary, analysis, and operation work; it is not a model access lock.
+
 ## Fallback for Non-BDA Gateway AI
 
 If the staff member uses another AI provider, the CLI still sends work events to BDA:
