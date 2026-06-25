@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.10.19";
+const SESSION_VERSION = "bda-session/0.10.20";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
 const FALLBACK_BDA_MODELS = [
@@ -294,11 +294,20 @@ function loadConfig() {
 }
 
 function configDir(config) {
-  return path.resolve(config.config_dir || path.join(process.cwd(), ".bda-skills"));
+  return path.resolve(config.config_dir || path.join(os.homedir(), ".bda-skills"));
 }
 
 function sessionPath(config) {
   return path.resolve(config.session_file || path.join(configDir(config), "current-session.json"));
+}
+
+function legacySessionPaths(config) {
+  const primary = sessionPath(config);
+  return Array.from(new Set([
+    path.join(process.cwd(), ".bda-skills", "current-session.json"),
+    path.join(repoRoot(), ".bda-skills", "current-session.json"),
+  ].map((filePath) => path.resolve(filePath))))
+    .filter((filePath) => filePath !== primary);
 }
 
 function envOrConfig(envNames, config, keys, fallback = "") {
@@ -514,7 +523,28 @@ function saveSession(config, session) {
 }
 
 function readSession(config) {
-  return readJson(sessionPath(config));
+  const primaryPath = sessionPath(config);
+  const primary = readJson(primaryPath);
+  if (primary.session_id) return primary;
+  for (const legacyPath of legacySessionPaths(config)) {
+    const legacy = readJson(legacyPath);
+    if (!legacy.session_id) continue;
+    ensureDir(path.dirname(primaryPath));
+    fs.writeFileSync(primaryPath, JSON.stringify(legacy, null, 2) + "\n");
+    try {
+      fs.renameSync(legacyPath, `${legacyPath}.migrated-${Date.now()}`);
+    } catch {}
+    return legacy;
+  }
+  return primary;
+}
+
+function removeLegacySessionFiles(config) {
+  for (const legacyPath of legacySessionPaths(config)) {
+    try {
+      fs.unlinkSync(legacyPath);
+    } catch {}
+  }
 }
 
 function archiveSession(config, session) {
@@ -525,6 +555,7 @@ function archiveSession(config, session) {
   try {
     fs.unlinkSync(sessionPath(config));
   } catch {}
+  removeLegacySessionFiles(config);
   return filePath;
 }
 
@@ -668,7 +699,7 @@ function removeTopLevelBlocks(yamlText, keys) {
 
 function removeLegacyAgentCommandCatalog(yamlText) {
   return yamlText
-    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.10.19")
+    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.10.20")
     .replace(/During an active session, treat bda-dev-\*, bda-nondev-\*, and bda-pm-\* prefixes as real BDA work commands and send\/prepare bda event\./g,
       "During an active session, use only the compact BDA commands: bda-dev, bda-nondev, and bda-pm. Send/prepare bda event for meaningful subtasks.")
     .replace(/Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup\./g,

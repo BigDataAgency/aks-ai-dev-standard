@@ -8,6 +8,13 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.10.20] - 2026-06-25
+
+### Fixed
+
+- `bda start`, `bda current`, and `bda stop` now use `~/.bda-skills/current-session.json` by default instead of the current working directory. This prevents duplicate active sessions when Hermes starts a session from inside the standard repo but staff run `bda current` from their home or project directory.
+- `bda current` now migrates an active legacy session file from `./.bda-skills/current-session.json` or the installed standard repo into `~/.bda-skills/current-session.json`, then renames the legacy file so later commands see one active session consistently.
+
 ## [0.10.19] - 2026-06-25
 
 ### Fixed

@@ -67,7 +67,7 @@ const help = run(["help"]);
 assert.match(help.stdout, /bda start/);
 assert.match(help.stdout, /bda-dev/);
 assert.doesNotMatch(help.stdout, /bda-dev-plan-execute/);
-assert.match(help.stdout, /bda-session\/0\.10\.19/);
+assert.match(help.stdout, /bda-session\/0\.10\.20/);
 assert.match(help.stdout, /bda update/);
 assert.match(help.stdout, /bda config-status/);
 assert.match(help.stdout, /bda config-clean/);
@@ -75,7 +75,7 @@ assert.match(help.stdout, /bda config-clean/);
 const version = run(["version"]);
 const versionJson = JSON.parse(version.stdout);
 assert.equal(versionJson.ok, true);
-assert.equal(versionJson.cli_version, "0.10.19");
+assert.equal(versionJson.cli_version, "0.10.20");
 
 const updateDryRun = run(["update", "--dry-run"]);
 const updateJson = JSON.parse(updateDryRun.stdout);
@@ -125,6 +125,7 @@ const start = run([
 ]);
 const startJson = JSON.parse(start.stdout);
 assert.equal(startJson.ok, true);
+assert.equal(startJson.session_file, path.join(home, ".bda-skills", "current-session.json"));
 assert.equal(startJson.session.employee_code, "BDA999");
 assert.equal(startJson.session.command, "bda-dev");
 assert.equal(startJson.session.work_type, "debug");
@@ -161,6 +162,49 @@ assert.equal(hermesStartJson.send_result.reason, "dry-run requested");
 
 const current = run(["current"]);
 assert.equal(JSON.parse(current.stdout).active, true);
+
+const legacyHome = path.join(temp, "legacy-home");
+const legacyWork = path.join(temp, "legacy-work");
+fs.mkdirSync(path.join(legacyHome, ".bda-skills"), { recursive: true });
+fs.mkdirSync(path.join(legacyWork, ".bda-skills"), { recursive: true });
+fs.writeFileSync(path.join(legacyHome, ".bda-skills", "config.json"), JSON.stringify({
+  employee_code: "BDA555",
+  employee_group: "dev",
+  work_event_url: "https://example.com/bda/work-events",
+  api_key: "sk-test-redacted",
+}, null, 2));
+const legacySession = {
+  version: "bda-session/0.10.19",
+  employee_code: "BDA555",
+  employee_group: "dev",
+  project: "LegacyPath",
+  tool: "hermes-desktop-agent",
+  command: "bda-dev",
+  task_summary: "legacy session path",
+  session_id: "legacy-session-path-test",
+  work_type: "debug",
+  status: "active",
+  started_at: new Date().toISOString(),
+  events: [],
+};
+const legacyFile = path.join(legacyWork, ".bda-skills", "current-session.json");
+const canonicalLegacyFile = path.join(legacyHome, ".bda-skills", "current-session.json");
+fs.writeFileSync(legacyFile, JSON.stringify(legacySession, null, 2) + "\n");
+const migratedCurrent = run(["current"], { home: legacyHome, work: legacyWork });
+const migratedCurrentJson = JSON.parse(migratedCurrent.stdout);
+assert.equal(migratedCurrentJson.active, true);
+assert.equal(migratedCurrentJson.session.session_id, "legacy-session-path-test");
+assert.equal(migratedCurrentJson.session_file, canonicalLegacyFile);
+assert.equal(fs.existsSync(canonicalLegacyFile), true);
+assert.equal(fs.existsSync(legacyFile), false);
+const migratedDuplicateStart = run([
+  "start",
+  "--project", "LegacyPath",
+  "--task", "should not duplicate migrated session",
+  "--command", "bda-dev",
+  "--dry-run",
+], { home: legacyHome, work: legacyWork, expectFailure: true });
+assert.match(JSON.parse(migratedDuplicateStart.stderr).error, /Active BDA session already exists/);
 
 const duplicateStart = run([
   "start",
