@@ -320,6 +320,7 @@ workload เบากว่า แต่ต้องคุม context:
 - Session path/config mismatch
 - Hermes stream/network stalls
 - LiteLLM pool imbalance across local nodes
+- Internal node aliases can pass key permissions but fail team permissions if only `LiteLLM_VerificationToken.models` is patched
 - GPU appears full but admin cannot identify owner
 - 400/502 retry loop
 - Free cloud fallback rate limit causing slow/error storm
@@ -333,3 +334,63 @@ workload เบากว่า แต่ต้องคุม context:
 - Should admin suggest behavior feedback automatically every 5 minutes from route logs?
 - Should non-dev default to paid/subscription for long writing while dev gets local priority?
 
+## 2026-06-25 Permission Lesson: Key Is Not Enough
+
+When `bda/dev` was split into internal node aliases, the first hotfix patched `LiteLLM_VerificationToken.models` so employee keys could call:
+
+- `bda/dev-a40-1-local`
+- `bda/dev-a40-2-local`
+
+The rollout still produced `HTTP 401 team_model_access_denied` because LiteLLM also checks `LiteLLM_TeamTable.models`. The real rule is:
+
+> Any hidden model alias selected by the gateway must be allowed by every active LiteLLM permission layer, not only the API key.
+
+Product implication:
+
+- Public UX can stay simple: employees choose `bda/dev`.
+- Internal routing can be explicit: gateway chooses A40 server 1 or server 2.
+- Permission provisioning must expand `bda/dev` into its hidden internal aliases for keys and teams.
+- Admin diagnostics must distinguish `key_model_access_denied` from `team_model_access_denied`.
+
+Reusable artifact:
+
+- `docs/litellm-dev-node-alias-permissions.md`
+- `scripts/litellm-sync-dev-node-alias-permissions.sql`
+- `scripts/litellm-sync-staff-model-permissions.sql`
+
+## 2026-06-25 Permission Lesson: Behavior Guidance Is Not A Hard Lock
+
+Non-dev and PM users originally had keys that allowed only:
+
+- `bda/deepseek-fast-paid-cloud`
+- `bda/deepseek-paid-cloud`
+
+That matched the old behavioral preference, but failed after hybrid routing because the gateway could route a request to `bda/qwen3.7-plus-paid-cloud` or to local A40 aliases. Staff saw:
+
+```text
+HTTP 401 key_model_access_denied
+Tried to access bda/qwen3.7-plus-paid-cloud
+```
+
+The corrected product rule:
+
+- Internal BDA staff keys should include the full production model set that the gateway may choose.
+- Usage discipline should be taught through `bda help`, Admin A40 feedback, and route comments.
+- Do not encode behavior guidance as a model permission block unless the gateway is guaranteed never to route that user to the blocked model.
+
+## 2026-06-27 Nondev Lane Lesson: Command Metadata And Model Alias Are Different Things
+
+The team added `bda/nondev` as a real Gateway model alias for document, summary, analysis, and operation work. It is separate from the `bda-nondev` command metadata.
+
+Production intent:
+
+- `bda/dev` remains the main local-first work model for code/debug/review implementation.
+- `bda/nondev` is the nondev/document lane backed by OpenRouter DeepSeek v4 Flash.
+- Existing DeepSeek API aliases (`bda/deepseek-fast-paid-cloud`, `bda/deepseek-paid-cloud`) can remain available until their direct DeepSeek credit is exhausted, then be retired.
+- `bda/nondev` should use OpenRouter reasoning exclusion when possible so clients do not have to replay provider-specific `reasoning_content` on the next turn.
+
+Operational requirements:
+
+- Add `bda/nondev` to public `/v1/models`, Hermes generated config, URL prefetch model allow list, and LiteLLM staff team/key permissions together.
+- When adding a new public model alias, update `scripts/litellm-sync-staff-model-permissions.sql` in the same change. Otherwise nondev/PM staff may see `HTTP 401 key_model_access_denied` even though the model appears in the picker.
+- Keep behavior guidance separate from permission. Staff may be told to prefer `bda/nondev` for nondev work, but internal staff permissions should still include the production fallback set the gateway can route to.

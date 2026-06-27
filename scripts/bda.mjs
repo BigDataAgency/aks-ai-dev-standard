@@ -14,8 +14,10 @@ const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
 const FALLBACK_BDA_MODELS = [
   "bda/qwable-27b-local",
   "bda/qwythos-9b-local",
+  "bda/nondev",
   "bda/deepseek-fast-paid-cloud",
   "bda/deepseek-paid-cloud",
+  "bda/deepseek-v4-pro-paid-cloud",
   "bda/minimax-m3-paid-cloud",
   "bda/qwen3.7-plus-paid-cloud",
   "bda/qwen3.7-max-paid-cloud",
@@ -23,8 +25,10 @@ const FALLBACK_BDA_MODELS = [
 ];
 const REQUIRED_COMPATIBILITY_BDA_MODELS = [
   "bda/dev",
+  "bda/nondev",
   "bda/deepseek-fast-paid-cloud",
   "bda/deepseek-paid-cloud",
+  "bda/deepseek-v4-pro-paid-cloud",
   "bda/minimax-m3-paid-cloud",
   "bda/qwen3.7-plus-paid-cloud",
   "bda/qwen3.7-max-paid-cloud",
@@ -946,6 +950,7 @@ Prompt style in AI chat:
 
 Model policy:
   bda/dev เป็น gateway หลักที่พนักงานทุกกลุ่มใช้ได้เมื่อทำงานกับ AI Gateway
+  bda/nondev เป็น model สำหรับงานเอกสาร/สรุป/วิเคราะห์ทั่วไป ผ่าน OpenRouter DeepSeek v4 Flash
   bda-nondev เป็น command metadata สำหรับงานเอกสาร/สรุป ไม่ใช่การล็อคไม่ให้ใช้ bda/dev
 
 Available commands:`);

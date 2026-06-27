@@ -13,11 +13,19 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 ### Fixed
 
 - Synced local session ids from the gateway response when the server deduplicates a repeated `bda start`, preventing duplicate admin sessions and split spend tracking.
+- Documented the LiteLLM key/team permission chain for hidden A40 node aliases and added an idempotent SQL sync script for `bda/dev-a40-1-local` / `bda/dev-a40-2-local`.
+- Added an internal staff permission sync script so non-dev/PM keys are not left on a DeepSeek-only allow list when hybrid routing sends them to Qwen paid fallback or A40 aliases.
 
 ### Added
 
+- Added `bda/nondev` to the BDA Gateway model catalog as the employee-facing nondev/document/summary lane, backed by OpenRouter DeepSeek v4 Flash.
 - Added `docs/local-llm-product-learning-log.md` to preserve product lessons from Local LLM/A40/hybrid rollout incidents and usage patterns.
 - Kept the public repo as the source of truth for `bda help` and `bda update` guidance while carrying forward the 0.10.x hotfix line.
+
+### Changed
+
+- `bda update` / `bda config-clean` now preserve `bda/nondev` and `bda/deepseek-v4-pro-paid-cloud` in generated Hermes model lists.
+- The internal staff LiteLLM permission sync now includes `bda/nondev` and `bda/deepseek-v4-pro-paid-cloud` so nondev/PM staff do not hit 401 after model catalog changes.
 
 ## [0.10.20] - 2026-06-25
 

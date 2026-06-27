@@ -118,6 +118,7 @@ assert.ok(updateJson.hermes_config.config_paths[0].before_models.includes("bda/q
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3-coder"));
 assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwable-27b-local"));
 assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwythos-9b-local"));
+assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/nondev"));
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/auto-default-local"));
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/free-fast-local"));
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3.6-local"));
@@ -125,11 +126,12 @@ assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/d
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/nondev-local"));
 assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/deepseek-fast-paid-cloud"));
 assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/deepseek-paid-cloud"));
+assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/deepseek-v4-pro-paid-cloud"));
 assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3.7-plus-paid-cloud"));
 assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3.7-max-paid-cloud"));
 assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/glm-5.1-paid-cloud"));
 assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/minimax-m3-paid-cloud"));
-assert.equal(updateJson.hermes_config.config_paths[0].after_models.length, 8);
+assert.equal(updateJson.hermes_config.config_paths[0].after_models.length, 10);
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/gemma-4-26b-a4b-local"));
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/gpt-oss-20b-local"));
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/kimi-k2.7-code-paid-cloud"));

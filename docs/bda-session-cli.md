@@ -86,6 +86,8 @@ Required checklist:
 2. Update model permissions in LiteLLM DB:
    - `"LiteLLM_TeamTable".models`
    - `"LiteLLM_VerificationToken".models`
+   - If `bda/dev` is internally rewritten to hidden node aliases, run the idempotent sync in `scripts/litellm-sync-dev-node-alias-permissions.sql` and verify both missing counts are `0`. See `docs/litellm-dev-node-alias-permissions.md`.
+   - If internal BDA non-dev/PM users can be routed to `bda/dev` or paid fallback, run `scripts/litellm-sync-staff-model-permissions.sql`. Old DeepSeek-only non-dev keys will otherwise fail with `HTTP 401 key_model_access_denied` when gateway routes to Qwen paid or A40 aliases.
 3. Update metadata-gate model catalog:
    - `BDA_PUBLIC_MODEL_IDS` in `docker-compose.yml`
    - default `PUBLIC_MODEL_IDS` in `metadata_gateway/app.py`
@@ -104,6 +106,10 @@ Required checklist:
 8. Have employees run `bda update`, fully restart Hermes Desktop, and use `bda config-clean` if old model names remain in the picker.
 
 Rule of thumb: deleting a model means deleting it from runtime config, DB permissions, public catalog, client config templates, and client caches in the same rollout.
+
+Extra rule for node-aware A40 routing: `bda/dev` can stay as the only employee-facing model, but the internal aliases selected by metadata-gate must be allowed in every LiteLLM permission layer. LiteLLM checks the rewritten model name. A setup where keys allow `bda/dev-a40-1-local` but teams do not will still fail with `HTTP 401 team_model_access_denied`.
+
+Extra rule for internal staff access: behavior guidance and access policy are separate. We can tell non-dev/PM to avoid local A40 unless needed, but their keys must still include every model the gateway may choose on their behalf. Otherwise a valid staff request can fail after routing, even though the employee selected an allowed model in Hermes.
 
 ## How AI Should React to `bda start`
 
