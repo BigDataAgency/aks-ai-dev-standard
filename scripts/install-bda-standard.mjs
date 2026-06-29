@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-const VERSION = "installer/0.11.5";
+const VERSION = "installer/0.11.6";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
 
@@ -211,7 +211,11 @@ function installHermesConfig(standardPath, dryRun) {
   if (dryRun) return { skipped: false, dry_run: true };
   const bdaScript = path.join(standardPath, "scripts", "bda.mjs");
   const configClean = run(process.execPath, [bdaScript, "config-clean"], { encoding: "utf8" });
-  return JSON.parse(configClean);
+  const lightMode = run(process.execPath, [bdaScript, "hermes-light-mode", "--yes"], { encoding: "utf8" });
+  return {
+    config_clean: JSON.parse(configClean),
+    light_mode: JSON.parse(lightMode),
+  };
 }
 
 function runDoctor(standardPath, dryRun) {
@@ -239,6 +243,7 @@ Notes:
   - Do not commit private config files.
   - Installer writes ~/.bda-skills/config.json and bda wrappers.
   - Installer runs config-clean and doctor after setup.
+  - Installer runs hermes-light-mode to archive unused Hermes skill cache.
   - Use bda update after this; do not reinstall unless lead asks.
 `);
 }

@@ -23,6 +23,7 @@ Every employee installer must provide a real self-healing path:
 bda doctor
 bda doctor --fix
 bda update
+bda hermes-light-mode --yes
 ```
 
 From 0.11.5 onward, `bda update` and `bda doctor` also report `event_kind: bda_inventory` to the work-event backend when configured. Grafana/AdminA40 should read that latest inventory record for the current installed CLI/standard version. Installer package version remains useful for rollout audit only; it is not the current version after an employee runs `bda update`.
@@ -46,6 +47,14 @@ From 0.11.5 onward, `bda update` and `bda doctor` also report `event_kind: bda_i
 - preserve `~/.hermes/.env`
 - preserve `~/.bda-skills/config.json`
 - leave the machine ready to open Hermes as a fresh New session
+
+`bda hermes-light-mode --yes` must:
+
+- archive unused Hermes skill cache entries
+- preserve the `bda-ai-dev-standard` skill metadata when present
+- archive `.skills_prompt_snapshot.json` so Hermes rebuilds a smaller prompt snapshot
+- preserve Hermes app, `config.yaml`, `.env`, BDA employee config, and chat/state storage
+- never move whole Hermes app/profile roots
 
 ## Do Not Move Whole App Folders In Normal Fixes
 

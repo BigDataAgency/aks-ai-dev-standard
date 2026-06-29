@@ -13,6 +13,7 @@ The installer must:
 - make `bda update` available
 - make `bda doctor` and `bda doctor --fix` available
 - clean Hermes model/config cache
+- archive unused Hermes skill cache so prompts do not preload a large unused skill catalogue
 - avoid deleting or moving the Hermes app/profile root
 - print a self-check report employees can send to lead/admin
 
@@ -104,6 +105,7 @@ Use:
 bda update
 bda doctor
 bda doctor --fix
+bda hermes-light-mode --yes
 bda help
 ```
 
@@ -138,6 +140,7 @@ For each employee:
 - `bda update` works
 - `bda doctor` works and does not print API key or prompt body
 - `bda config-clean` works
+- `bda hermes-light-mode --yes` works and keeps Hermes app/config/key intact
 - Hermes Desktop restarts and sees BDA models
 - a short test prompt stays small, for example `2K/65K`, not `40K+`
 

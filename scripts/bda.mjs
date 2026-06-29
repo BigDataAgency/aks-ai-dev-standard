@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.11.5";
+const SESSION_VERSION = "bda-session/0.11.6";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
 const FALLBACK_BDA_MODELS = [
@@ -114,6 +114,21 @@ const HERMES_STATE_ROOTS = Array.from(new Set([
 const HERMES_STATE_WARN_BYTES = 100 * 1024 * 1024;
 const HERMES_STATE_CRITICAL_BYTES = 500 * 1024 * 1024;
 const HERMES_REQUEST_DUMP_WARN_BYTES = 5 * 1024 * 1024;
+const HERMES_SKILL_DIRS = Array.from(new Set([
+  path.join(os.homedir(), ".hermes", "skills"),
+  process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "hermes", "skills") : "",
+  process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Hermes", "skills") : "",
+  process.env.APPDATA ? path.join(process.env.APPDATA, "hermes", "skills") : "",
+  process.env.APPDATA ? path.join(process.env.APPDATA, "Hermes", "skills") : "",
+].filter(Boolean)));
+const HERMES_SKILL_SNAPSHOT_PATHS = Array.from(new Set([
+  path.join(os.homedir(), ".hermes", ".skills_prompt_snapshot.json"),
+  process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "hermes", ".skills_prompt_snapshot.json") : "",
+  process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Hermes", ".skills_prompt_snapshot.json") : "",
+  process.env.APPDATA ? path.join(process.env.APPDATA, "hermes", ".skills_prompt_snapshot.json") : "",
+  process.env.APPDATA ? path.join(process.env.APPDATA, "Hermes", ".skills_prompt_snapshot.json") : "",
+].filter(Boolean)));
+const HERMES_SKILL_KEEP_NAMES = new Set(["bda-ai-dev-standard"]);
 const FORBIDDEN_HERMES_ARCHIVE_PATHS = Array.from(new Set([
   ...HERMES_STATE_ROOTS,
   "/Applications/Hermes.app",
@@ -805,7 +820,7 @@ function removeTopLevelBlocks(yamlText, keys) {
 
 function removeLegacyAgentCommandCatalog(yamlText) {
   return yamlText
-    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.11.5")
+    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.11.6")
     .replace(/During an active session, treat bda-dev-\*, bda-nondev-\*, and bda-pm-\* prefixes as real BDA work commands and send\/prepare bda event\./g,
       "During an active session, use only the compact BDA commands: bda-dev, bda-nondev, and bda-pm. Send/prepare bda event for meaningful subtasks.")
     .replace(/Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup\./g,
@@ -883,6 +898,18 @@ function safeBackupName(filePath) {
     .replace(/^_+/, "");
 }
 
+function movePathToBackup(filePath, backupDir, result, dryRun) {
+  const backupPath = path.join(backupDir, safeBackupName(filePath));
+  result.moved.push({ from: filePath, to: backupPath });
+  if (dryRun) return;
+  try {
+    ensureDir(path.dirname(backupPath));
+    fs.renameSync(filePath, backupPath);
+  } catch (error) {
+    result.errors.push({ path: filePath, error: error.message });
+  }
+}
+
 function isForbiddenHermesArchivePath(filePath) {
   return FORBIDDEN_HERMES_ARCHIVE_PATHS.includes(path.resolve(filePath));
 }
@@ -911,16 +938,59 @@ function moveHermesState(config = {}, { dryRun = false } = {}) {
       result.missing.push(statePath);
       continue;
     }
-    const backupPath = path.join(backupDir, safeBackupName(statePath));
-    result.moved.push({ from: statePath, to: backupPath });
-    if (dryRun) continue;
+    movePathToBackup(statePath, backupDir, result, dryRun);
+  }
+  return result;
+}
+
+function pruneHermesSkills(config = {}, { dryRun = false } = {}) {
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const backupDir = path.join(configDir(config), "hermes-light-mode-backups", stamp);
+  const result = {
+    backup_dir: backupDir,
+    keep_names: [...HERMES_SKILL_KEEP_NAMES],
+    moved: [],
+    kept: [],
+    missing: [],
+    skipped_for_safety: [],
+    errors: [],
+    dry_run: dryRun,
+  };
+
+  for (const skillDir of HERMES_SKILL_DIRS) {
+    if (!fs.existsSync(skillDir)) {
+      result.missing.push(skillDir);
+      continue;
+    }
+    if (isForbiddenHermesArchivePath(skillDir)) {
+      result.skipped_for_safety.push({ path: skillDir, reason: "Refusing to archive whole Hermes app/profile root." });
+      continue;
+    }
+    let entries = [];
     try {
-      ensureDir(path.dirname(backupPath));
-      fs.renameSync(statePath, backupPath);
+      entries = fs.readdirSync(skillDir, { withFileTypes: true });
     } catch (error) {
-      result.errors.push({ path: statePath, error: error.message });
+      result.errors.push({ path: skillDir, error: error.message });
+      continue;
+    }
+    for (const entry of entries) {
+      const entryPath = path.join(skillDir, entry.name);
+      if (HERMES_SKILL_KEEP_NAMES.has(entry.name)) {
+        result.kept.push(entryPath);
+        continue;
+      }
+      movePathToBackup(entryPath, backupDir, result, dryRun);
     }
   }
+
+  for (const snapshotPath of HERMES_SKILL_SNAPSHOT_PATHS) {
+    if (!fs.existsSync(snapshotPath)) {
+      result.missing.push(snapshotPath);
+      continue;
+    }
+    movePathToBackup(snapshotPath, backupDir, result, dryRun);
+  }
+
   return result;
 }
 
@@ -999,6 +1069,22 @@ function requestDumpSummary(rootPath) {
   return summary;
 }
 
+function skillSummary(rootPath) {
+  const summary = { path: rootPath, exists: fs.existsSync(rootPath), entries: 0, bytes: 0, kept_recommended: [...HERMES_SKILL_KEEP_NAMES] };
+  if (!summary.exists) return summary;
+  try {
+    for (const name of fs.readdirSync(rootPath)) {
+      const entryPath = path.join(rootPath, name);
+      const stats = fs.statSync(entryPath);
+      summary.entries += 1;
+      summary.bytes += stats.isDirectory() ? directorySize(entryPath, { maxEntries: 200 }).bytes : stats.size;
+    }
+  } catch (error) {
+    summary.error = error.message;
+  }
+  return summary;
+}
+
 function buildDoctorReport(config = {}, fixResult = null) {
   const session = readSession(config);
   const configFiles = {
@@ -1019,8 +1105,10 @@ function buildDoctorReport(config = {}, fixResult = null) {
     return info;
   }).filter((entry) => entry.exists);
   const requestDumps = HERMES_STATE_ROOTS.map(requestDumpSummary).filter((entry) => entry.exists);
+  const hermesSkills = HERMES_SKILL_DIRS.map(skillSummary).filter((entry) => entry.exists);
   const totalHermesBytes = hermesState.reduce((sum, entry) => sum + (entry.bytes || 0), 0);
   const totalDumpBytes = requestDumps.reduce((sum, entry) => sum + (entry.bytes || 0), 0);
+  const totalSkillEntries = hermesSkills.reduce((sum, entry) => sum + (entry.entries || 0), 0);
   const warnings = [
     "Do not paste request_dump_*.json, state.db, state.db-wal, .env, auth.json, or config files into AI chat.",
     "bda current only checks BDA CLI session, not hidden Hermes chat/context state.",
@@ -1036,6 +1124,9 @@ function buildDoctorReport(config = {}, fixResult = null) {
   }
   if (totalDumpBytes >= HERMES_REQUEST_DUMP_WARN_BYTES) {
     issues.push({ code: "large_request_dumps", message: "Hermes request dumps are large; they usually indicate repeated large-context failures.", bytes: totalDumpBytes, action: "Close Hermes and run bda doctor --fix." });
+  }
+  if (totalSkillEntries > HERMES_SKILL_KEEP_NAMES.size + 3) {
+    warnings.push(`Hermes has ${totalSkillEntries} skill entries. Run bda hermes-light-mode --yes to archive unused skill cache and keep only BDA standard skill metadata.`);
   }
   return {
     ok: issues.length === 0,
@@ -1053,6 +1144,7 @@ function buildDoctorReport(config = {}, fixResult = null) {
     hermes_state_total_bytes: totalHermesBytes,
     request_dumps: requestDumps,
     request_dump_total_bytes: totalDumpBytes,
+    hermes_skills: hermesSkills,
     issues,
     warnings,
     fix_result: fixResult,
@@ -1094,6 +1186,21 @@ async function printHermesReset(config = {}, args = {}) {
     note: "Close Hermes Desktop before running this command. This archives Hermes chat/session state only; config.yaml, .env, and API keys are kept. Open Hermes again and start a fresh chat after reset.",
   }, null, 2));
   if (stateResult.errors.length) process.exit(1);
+}
+
+function printHermesLightMode(config = {}, args = {}) {
+  const dryRun = boolValue(args.dry_run) || !(boolValue(args.yes) || boolValue(args.force));
+  const result = pruneHermesSkills(config, { dryRun });
+  console.log(JSON.stringify({
+    ok: result.errors.length === 0,
+    action: "hermes-light-mode",
+    dry_run: dryRun,
+    hermes_skills: result,
+    note: dryRun
+      ? "Dry run only. Re-run with: bda hermes-light-mode --yes"
+      : "Archived unused Hermes skill cache/snapshots. Restart Hermes Desktop and open a New session.",
+  }, null, 2));
+  if (result.errors.length) process.exit(1);
 }
 
 function syncHermesEnv(config = {}, { dryRun = false } = {}) {
@@ -1256,6 +1363,7 @@ TERMINAL COMMANDS
   bda config-clean rewrite Hermes provider/model config และล้าง model cache ทันที
   bda hermes-reset recovery ขั้นสูง: archive Hermes chat/session state เฉพาะจุด ไม่ลบ app/key/config
   bda hermes-clean-context --yes alias ของ hermes-reset สำหรับ installer/เครื่องที่ใช้ชื่อเดิม
+  bda hermes-light-mode --yes archive skill cache ที่ไม่ใช้ ให้ Hermes prompt เบาลง
 
 Terminal examples:
   bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev --work-type debug
@@ -1266,6 +1374,7 @@ Terminal examples:
   bda doctor --fix
   bda hermes-reset
   bda hermes-clean-context --yes
+  bda hermes-light-mode --yes
   bda event --command bda-dev --work-type review --task "review login fix" --status done
 
 CHAT-ONLY PROMPT PREFIXES
@@ -1426,6 +1535,7 @@ async function main() {
   if (subcommand === "doctor") return printDoctor(config, args);
   if (subcommand === "hermes-reset") return printHermesReset(config, args);
   if (subcommand === "hermes-clean-context") return printHermesReset(config, args);
+  if (subcommand === "hermes-light-mode") return printHermesLightMode(config, args);
   if (subcommand === "start") return start(config, args);
   if (subcommand === "event") return event(config, args);
   if (subcommand === "stop") return stop(config, args);

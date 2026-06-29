@@ -8,6 +8,17 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.11.6] - 2026-06-29
+
+### Added
+
+- Added `bda hermes-light-mode --yes` to archive unused Hermes skill cache and prompt snapshots while keeping the BDA standard skill metadata, app, keys, config, and chat state intact.
+- The employee installer now runs Hermes light mode after config cleanup so new installs do not carry a large unused skill catalogue into every request.
+
+### Changed
+
+- `bda doctor` now reports Hermes skill cache summary and recommends light mode when the local skill catalogue is larger than the BDA standard needs.
+
 ## [0.11.5] - 2026-06-29
 
 ### Added
