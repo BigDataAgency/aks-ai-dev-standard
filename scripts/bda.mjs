@@ -1017,6 +1017,7 @@ Flow:
   bda config-status  ตรวจ Hermes provider/model config ที่ bda update จะ rewrite
   bda config-clean   rewrite Hermes provider/model config และล้าง model cache ทันที
   bda hermes-reset   archive Hermes chat/session state ที่ทำให้ context เก่าติดมา โดยไม่ลบ key/config
+  bda hermes-clean-context --yes  alias ของ hermes-reset สำหรับเครื่องที่ใช้ชื่อคำสั่งเดิม
   bda event   ส่ง event ระหว่าง session เช่น command ย่อย/งานย่อย
   bda stop    ปิด session และส่ง status=done/blocked/failed
 
@@ -1024,6 +1025,7 @@ Examples:
   bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev --work-type debug
   bda update
   bda hermes-reset
+  bda hermes-clean-context --yes
   bda event --command bda-dev --work-type review --task "review login fix" --status done
   bda stop --status done --outcome "fixed login validation" --next-step "deploy to staging"
 
@@ -1175,6 +1177,7 @@ async function main() {
   if (subcommand === "config-status") return printConfigStatus(config);
   if (subcommand === "config-clean") return printConfigClean(config);
   if (subcommand === "hermes-reset") return printHermesReset(config, args);
+  if (subcommand === "hermes-clean-context") return printHermesReset(config, args);
   if (subcommand === "start") return start(config, args);
   if (subcommand === "event") return event(config, args);
   if (subcommand === "stop") return stop(config, args);

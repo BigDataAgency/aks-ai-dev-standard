@@ -103,6 +103,7 @@ assert.match(help.stdout, /bda update/);
 assert.match(help.stdout, /bda config-status/);
 assert.match(help.stdout, /bda config-clean/);
 assert.match(help.stdout, /bda hermes-reset/);
+assert.match(help.stdout, /bda hermes-clean-context --yes/);
 
 const version = run(["version"]);
 const versionJson = JSON.parse(version.stdout);
@@ -168,6 +169,12 @@ assert.equal(fs.existsSync(path.join(home, ".hermes", "state.db")), false);
 assert.equal(fs.existsSync(path.join(home, ".hermes", "sessions")), false);
 assert.equal(fs.existsSync(path.join(home, ".hermes", "config.yaml")), true);
 assert.ok(hermesResetJson.hermes_state.moved.some((entry) => entry.from.endsWith(path.join(".hermes", "state.db"))));
+fs.writeFileSync(path.join(home, ".hermes", "state.db"), "stale state again\n");
+const hermesCleanContext = run(["hermes-clean-context", "--yes"]);
+const hermesCleanContextJson = JSON.parse(hermesCleanContext.stdout);
+assert.equal(hermesCleanContextJson.ok, true);
+assert.equal(hermesCleanContextJson.action, "hermes-reset");
+assert.equal(fs.existsSync(path.join(home, ".hermes", "state.db")), false);
 
 const start = run([
   "start",
