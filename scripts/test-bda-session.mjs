@@ -64,6 +64,19 @@ function run(args, options = {}) {
   return result;
 }
 
+function runInstaller(args, options = {}) {
+  const runHome = options.home || home;
+  const runWork = options.work || work;
+  const result = spawnSync("node", [path.join(repo, "scripts/install-bda-standard.mjs"), ...args], {
+    cwd: runWork,
+    env: { ...process.env, HOME: runHome, USERPROFILE: runHome },
+    text: true,
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  return result;
+}
+
 function runAsync(args, options = {}) {
   const runHome = options.home || home;
   const runWork = options.work || work;
@@ -98,7 +111,7 @@ const help = run(["help"]);
 assert.match(help.stdout, /bda start/);
 assert.match(help.stdout, /bda-dev/);
 assert.doesNotMatch(help.stdout, /bda-dev-plan-execute/);
-assert.match(help.stdout, /bda-session\/0\.11\.3/);
+assert.match(help.stdout, /bda-session\/0\.11\.4/);
 assert.match(help.stdout, /TERMINAL COMMANDS/);
 assert.match(help.stdout, /CHAT-ONLY PROMPT PREFIXES/);
 assert.match(help.stdout, /ถ้าพิมพ์ใน terminal ให้ใช้ bda start \/ bda event \/ bda stop แทน/);
@@ -112,7 +125,27 @@ assert.match(help.stdout, /bda hermes-clean-context --yes/);
 const version = run(["version"]);
 const versionJson = JSON.parse(version.stdout);
 assert.equal(versionJson.ok, true);
-assert.equal(versionJson.cli_version, "0.11.3");
+assert.equal(versionJson.cli_version, "0.11.4");
+
+const privateInstallerConfigPath = path.join(temp, "installer-private-config.json");
+fs.writeFileSync(privateInstallerConfigPath, JSON.stringify({
+  employee_code: "BDA999",
+  employee_group: "dev",
+  api_key: "sk-installer-secret",
+  ai_model: "bda/dev",
+}, null, 2));
+const installerDryRun = runInstaller([
+  "--private-config", privateInstallerConfigPath,
+  "--standard-dir", path.join(temp, "standard-target"),
+  "--dry-run",
+]);
+const installerDryRunJson = JSON.parse(installerDryRun.stdout);
+assert.equal(installerDryRunJson.action, "install-bda-standard");
+assert.equal(installerDryRunJson.installer_version, "installer/0.11.4");
+assert.equal(installerDryRunJson.dry_run, true);
+assert.equal(installerDryRunJson.config.employee_code, "BDA999");
+assert.match(installerDryRunJson.config.api_key, /^sha256:/);
+assert.doesNotMatch(installerDryRun.stdout, /sk-installer-secret/);
 
 const updateDryRun = run(["update", "--dry-run"]);
 const updateJson = JSON.parse(updateDryRun.stdout);

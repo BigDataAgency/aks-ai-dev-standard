@@ -1,6 +1,6 @@
 # BDA AI Dev Standard
 
-Version: `0.11.3`
+Version: `0.11.4`
 License: MIT
 
 มาตรฐานกลางสำหรับการทำงานร่วมกับ AI ในงานพัฒนา ซ่อมบั๊ก ตรวจโค้ด เขียนเอกสาร งาน Obsidian งาน Performance และงานติดตามทีมของ BDA
@@ -11,7 +11,7 @@ License: MIT
 
 BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
-- Current version: `0.11.3`
+- Current version: `0.11.4`
 - ดูประวัติการเปลี่ยนแปลงที่ `CHANGELOG.md`
 - เลข version หลักอยู่ใน `VERSION`
 - ทุก update สำคัญต้องเปลี่ยน version ใน repo นี้ก่อน rollout
@@ -98,6 +98,7 @@ See:
 
 - `docs/ai-work-event-logging.md`
 - `docs/tool-setup-hermes-windsurf-ide.md`
+- `docs/employee-installer-rollout.md`
 - `scripts/bda-work-event.mjs`
 
 Recommended session flow:

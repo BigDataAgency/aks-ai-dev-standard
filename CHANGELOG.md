@@ -8,6 +8,13 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.11.4] - 2026-06-29
+
+### Added
+
+- Added `scripts/install-bda-standard.mjs`, a cross-platform employee installer that installs the latest standard, writes private employee config from an external file, updates `bda` wrappers, cleans Hermes model config, and runs `bda doctor`.
+- Added installer safeguards so public code never embeds employee keys and installer output redacts API keys by fingerprint.
+
 ## [0.11.3] - 2026-06-29
 
 ### Fixed
