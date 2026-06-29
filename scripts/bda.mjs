@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.11.2";
+const SESSION_VERSION = "bda-session/0.11.3";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
 const FALLBACK_BDA_MODELS = [
@@ -754,7 +754,7 @@ function removeTopLevelBlocks(yamlText, keys) {
 
 function removeLegacyAgentCommandCatalog(yamlText) {
   return yamlText
-    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.11.2")
+    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.11.3")
     .replace(/During an active session, treat bda-dev-\*, bda-nondev-\*, and bda-pm-\* prefixes as real BDA work commands and send\/prepare bda event\./g,
       "During an active session, use only the compact BDA commands: bda-dev, bda-nondev, and bda-pm. Send/prepare bda event for meaningful subtasks.")
     .replace(/Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup\./g,
@@ -1180,40 +1180,53 @@ function unusedLegacyModelCleanerForReference(yamlText) {
 function printHelp() {
   console.log(`BDA AI Dev CLI ${SESSION_VERSION}
 
-Flow:
-  bda start   เริ่ม session งานจริง และส่ง status=started
-  bda help    ดู command ที่ใช้ได้
-  bda version แสดง version ของ CLI/session format
-  bda update  อัปเดต BDA AI Dev Standard โดยไม่ต้องแจก zip ใหม่
-  bda config-status  ตรวจ Hermes provider/model config ที่ bda update จะ rewrite
-  bda config-clean   rewrite Hermes provider/model config และล้าง model cache ทันที
-  bda doctor  ตรวจ config/session/Hermes hidden context และใช้ bda doctor --fix เพื่อ archive state ที่เสี่ยง
-  bda hermes-reset   archive Hermes chat/session state ที่ทำให้ context เก่าติดมา โดยไม่ลบ key/config
-  bda hermes-clean-context --yes  alias ของ hermes-reset สำหรับเครื่องที่ใช้ชื่อคำสั่งเดิม
-  bda event   ส่ง event ระหว่าง session เช่น command ย่อย/งานย่อย
-  bda stop    ปิด session และส่ง status=done/blocked/failed
+TERMINAL COMMANDS
+  คำสั่งกลุ่มนี้พิมพ์ใน PowerShell / Terminal / Hermes terminal ได้จริง:
 
-Examples:
+  bda start        เริ่ม session งานจริง และส่ง status=started
+  bda current      ดู session ปัจจุบันจากไฟล์ BDA CLI
+  bda stop         ปิด session และส่ง status=done/blocked/failed
+  bda event        ส่ง event ระหว่าง session เช่น command ย่อย/งานย่อย
+  bda help         ดู command และกติกาสั้น ๆ
+  bda version      แสดง version ของ CLI/session format
+  bda update       อัปเดต BDA AI Dev Standard โดยไม่ต้องลง installer ใหม่
+  bda doctor       ตรวจ config/session/Hermes hidden context โดยไม่เปิดเผย key/prompt
+  bda doctor --fix archive Hermes state ที่เสี่ยง โดยไม่ลบ key/config/app
+  bda config-status ตรวจ Hermes provider/model config ที่ bda update จะ rewrite
+  bda config-clean rewrite Hermes provider/model config และล้าง model cache ทันที
+  bda hermes-reset recovery ขั้นสูง: archive Hermes chat/session state เฉพาะจุด ไม่ลบ app/key/config
+  bda hermes-clean-context --yes alias ของ hermes-reset สำหรับ installer/เครื่องที่ใช้ชื่อเดิม
+
+Terminal examples:
   bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev --work-type debug
+  bda current
+  bda stop --status done --outcome "login validation fixed" --next-step "deploy staging"
   bda update
   bda doctor
   bda doctor --fix
   bda hermes-reset
   bda hermes-clean-context --yes
   bda event --command bda-dev --work-type review --task "review login fix" --status done
-  bda stop --status done --outcome "fixed login validation" --next-step "deploy to staging"
 
-Prompt style in AI chat:
+CHAT-ONLY PROMPT PREFIXES
+  ข้อความกลุ่มนี้พิมพ์ในช่อง chat ของ AI เท่านั้น ไม่ใช่ terminal command:
+
   bda-dev: debug login error
   bda-nondev: สรุป requirement จาก meeting note
   bda-pm: สรุป project status วันนี้
+
+  ถ้าพิมพ์ใน terminal ให้ใช้ bda start / bda event / bda stop แทน
 
 Model policy:
   bda/dev เป็น gateway หลักที่พนักงานทุกกลุ่มใช้ได้เมื่อทำงานกับ AI Gateway
   bda/nondev เป็น model สำหรับงานเอกสาร/สรุป/วิเคราะห์ทั่วไป ผ่าน OpenRouter DeepSeek v4 Flash
   bda-nondev เป็น command metadata สำหรับงานเอกสาร/สรุป ไม่ใช่การล็อคไม่ให้ใช้ bda/dev
 
-Available commands:`);
+COMMAND METADATA VALUES
+  ค่า command ด้านล่างใช้ใส่ใน --command หรือใช้เป็น chat prefix ได้
+  ตัวอย่าง terminal: bda event --command bda-dev --work-type review --task "review login fix" --status done
+
+Available command metadata:`);
   for (const [name, workType, desc] of COMMANDS) {
     console.log(`  ${name.padEnd(24)} ${workType.padEnd(15)} ${desc}`);
   }

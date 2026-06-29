@@ -8,6 +8,12 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.11.3] - 2026-06-29
+
+### Fixed
+
+- Clarified `bda help` so employees can clearly separate terminal commands from chat-only prompt prefixes and model names.
+
 ## [0.11.2] - 2026-06-29
 
 ### Added
