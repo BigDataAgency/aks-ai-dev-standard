@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.11.1";
+const SESSION_VERSION = "bda-session/0.11.2";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
 const FALLBACK_BDA_MODELS = [
@@ -102,6 +102,18 @@ const HERMES_STATE_PATHS = Array.from(new Set([
   process.env.APPDATA ? path.join(process.env.APPDATA, "Hermes", "Session Storage") : "",
   process.env.APPDATA ? path.join(process.env.APPDATA, "Hermes", "Local Storage") : "",
 ].filter(Boolean)));
+const HERMES_STATE_ROOTS = Array.from(new Set([
+  path.join(os.homedir(), ".hermes"),
+  MAC_HERMES_APP_SUPPORT,
+  path.join(os.homedir(), "Library", "Application Support", "hermes"),
+  process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "hermes") : "",
+  process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Hermes") : "",
+  process.env.APPDATA ? path.join(process.env.APPDATA, "hermes") : "",
+  process.env.APPDATA ? path.join(process.env.APPDATA, "Hermes") : "",
+].filter(Boolean)));
+const HERMES_STATE_WARN_BYTES = 100 * 1024 * 1024;
+const HERMES_STATE_CRITICAL_BYTES = 500 * 1024 * 1024;
+const HERMES_REQUEST_DUMP_WARN_BYTES = 5 * 1024 * 1024;
 
 function bdaModelContextLength(model) {
   if (model.includes("qwen3.7") || model.includes("minimax")) return 262144;
@@ -737,7 +749,7 @@ function removeTopLevelBlocks(yamlText, keys) {
 
 function removeLegacyAgentCommandCatalog(yamlText) {
   return yamlText
-    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.11.1")
+    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard v0.11.2")
     .replace(/During an active session, treat bda-dev-\*, bda-nondev-\*, and bda-pm-\* prefixes as real BDA work commands and send\/prepare bda event\./g,
       "During an active session, use only the compact BDA commands: bda-dev, bda-nondev, and bda-pm. Send/prepare bda event for meaningful subtasks.")
     .replace(/Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup\./g,
@@ -842,6 +854,148 @@ function moveHermesState(config = {}, { dryRun = false } = {}) {
     }
   }
   return result;
+}
+
+function pathInfo(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) {
+      return { path: filePath, exists: false, type: "missing", bytes: 0, modified_at: "" };
+    }
+    const stats = fs.statSync(filePath);
+    return {
+      path: filePath,
+      exists: true,
+      type: stats.isDirectory() ? "dir" : "file",
+      bytes: stats.size,
+      modified_at: stats.mtime.toISOString(),
+    };
+  } catch (error) {
+    return { path: filePath, exists: false, type: "error", bytes: 0, modified_at: "", error: error.message };
+  }
+}
+
+function directorySize(rootPath, { maxEntries = 50000 } = {}) {
+  const result = { bytes: 0, files: 0, dirs: 0, truncated: false, errors: [] };
+  function walk(currentPath) {
+    if (result.truncated) return;
+    let stats;
+    try {
+      stats = fs.statSync(currentPath);
+    } catch (error) {
+      result.errors.push({ path: currentPath, error: error.message });
+      return;
+    }
+    result.bytes += stats.size;
+    if (!stats.isDirectory()) {
+      result.files += 1;
+      return;
+    }
+    result.dirs += 1;
+    let entries = [];
+    try {
+      entries = fs.readdirSync(currentPath);
+    } catch (error) {
+      result.errors.push({ path: currentPath, error: error.message });
+      return;
+    }
+    for (const entry of entries) {
+      if (result.files + result.dirs >= maxEntries) {
+        result.truncated = true;
+        return;
+      }
+      walk(path.join(currentPath, entry));
+    }
+  }
+  if (fs.existsSync(rootPath)) walk(rootPath);
+  return result;
+}
+
+function requestDumpSummary(rootPath) {
+  const sessionsDir = path.join(rootPath, "sessions");
+  const summary = { path: sessionsDir, exists: fs.existsSync(sessionsDir), count: 0, bytes: 0, largest: [] };
+  if (!summary.exists) return summary;
+  try {
+    for (const name of fs.readdirSync(sessionsDir)) {
+      if (!/^request_dump_.*\.json$/.test(name)) continue;
+      const filePath = path.join(sessionsDir, name);
+      const stats = fs.statSync(filePath);
+      summary.count += 1;
+      summary.bytes += stats.size;
+      summary.largest.push({ path: filePath, bytes: stats.size, modified_at: stats.mtime.toISOString() });
+    }
+  } catch (error) {
+    summary.error = error.message;
+  }
+  summary.largest.sort((a, b) => b.bytes - a.bytes);
+  summary.largest = summary.largest.slice(0, 5);
+  return summary;
+}
+
+function buildDoctorReport(config = {}, fixResult = null) {
+  const session = readSession(config);
+  const configFiles = {
+    bda_config: pathInfo(path.join(configDir(config), "config.json")),
+    hermes_config: pathInfo(path.join(os.homedir(), ".hermes", "config.yaml")),
+    hermes_env: { ...pathInfo(path.join(os.homedir(), ".hermes", ".env")), note: "content not printed" },
+  };
+  const hermesState = HERMES_STATE_ROOTS.map((rootPath) => {
+    const info = pathInfo(rootPath);
+    if (info.exists && info.type === "dir") {
+      const size = directorySize(rootPath);
+      info.bytes = size.bytes;
+      info.files = size.files;
+      info.dirs = size.dirs;
+      info.truncated = size.truncated;
+      if (size.errors.length) info.errors = size.errors.slice(0, 5);
+    }
+    return info;
+  }).filter((entry) => entry.exists);
+  const requestDumps = HERMES_STATE_ROOTS.map(requestDumpSummary).filter((entry) => entry.exists);
+  const totalHermesBytes = hermesState.reduce((sum, entry) => sum + (entry.bytes || 0), 0);
+  const totalDumpBytes = requestDumps.reduce((sum, entry) => sum + (entry.bytes || 0), 0);
+  const warnings = [
+    "Do not paste request_dump_*.json, state.db, state.db-wal, .env, auth.json, or config files into AI chat.",
+    "bda current only checks BDA CLI session, not hidden Hermes chat/context state.",
+  ];
+  const issues = [];
+  if (!configFiles.bda_config.exists) issues.push({ code: "missing_bda_config", message: "Missing ~/.bda-skills/config.json." });
+  if (!configFiles.hermes_config.exists) issues.push({ code: "missing_hermes_config", message: "Missing ~/.hermes/config.yaml." });
+  if (!configFiles.hermes_env.exists) issues.push({ code: "missing_hermes_env", message: "Missing ~/.hermes/.env." });
+  if (totalHermesBytes >= HERMES_STATE_CRITICAL_BYTES) {
+    issues.push({ code: "hermes_state_critical", message: "Hermes hidden state is very large and can carry stale context into new requests.", bytes: totalHermesBytes, action: "Close Hermes and run bda doctor --fix." });
+  } else if (totalHermesBytes >= HERMES_STATE_WARN_BYTES) {
+    warnings.push(`Hermes hidden state is large (${totalHermesBytes} bytes). Run bda doctor --fix if context leaks or paid usage spikes.`);
+  }
+  if (totalDumpBytes >= HERMES_REQUEST_DUMP_WARN_BYTES) {
+    issues.push({ code: "large_request_dumps", message: "Hermes request dumps are large; they usually indicate repeated large-context failures.", bytes: totalDumpBytes, action: "Close Hermes and run bda doctor --fix." });
+  }
+  return {
+    ok: issues.length === 0,
+    action: "doctor",
+    version: SESSION_VERSION,
+    bda_cli_version: SESSION_VERSION.replace(/^bda-session\//, ""),
+    platform: process.platform,
+    employee_code: config.employee_code || "",
+    employee_group: config.employee_group || "",
+    ai_model: config.ai_model || "",
+    active_bda_session: Boolean(session.session_id),
+    session_file: sessionPath(config),
+    config_files: configFiles,
+    hermes_state: hermesState,
+    hermes_state_total_bytes: totalHermesBytes,
+    request_dumps: requestDumps,
+    request_dump_total_bytes: totalDumpBytes,
+    issues,
+    warnings,
+    fix_result: fixResult,
+  };
+}
+
+function printDoctor(config = {}, args = {}) {
+  const shouldFix = boolValue(args.fix) || boolValue(args.yes);
+  let fixResult = null;
+  if (shouldFix) fixResult = moveHermesState(config, { dryRun: false });
+  console.log(JSON.stringify(buildDoctorReport(config, fixResult), null, 2));
 }
 
 async function printHermesReset(config = {}, args = {}) {
@@ -1016,6 +1170,7 @@ Flow:
   bda update  อัปเดต BDA AI Dev Standard โดยไม่ต้องแจก zip ใหม่
   bda config-status  ตรวจ Hermes provider/model config ที่ bda update จะ rewrite
   bda config-clean   rewrite Hermes provider/model config และล้าง model cache ทันที
+  bda doctor  ตรวจ config/session/Hermes hidden context และใช้ bda doctor --fix เพื่อ archive state ที่เสี่ยง
   bda hermes-reset   archive Hermes chat/session state ที่ทำให้ context เก่าติดมา โดยไม่ลบ key/config
   bda hermes-clean-context --yes  alias ของ hermes-reset สำหรับเครื่องที่ใช้ชื่อคำสั่งเดิม
   bda event   ส่ง event ระหว่าง session เช่น command ย่อย/งานย่อย
@@ -1024,6 +1179,8 @@ Flow:
 Examples:
   bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev --work-type debug
   bda update
+  bda doctor
+  bda doctor --fix
   bda hermes-reset
   bda hermes-clean-context --yes
   bda event --command bda-dev --work-type review --task "review login fix" --status done
@@ -1176,6 +1333,7 @@ async function main() {
   if (subcommand === "update") return updateStandard(args, config);
   if (subcommand === "config-status") return printConfigStatus(config);
   if (subcommand === "config-clean") return printConfigClean(config);
+  if (subcommand === "doctor") return printDoctor(config, args);
   if (subcommand === "hermes-reset") return printHermesReset(config, args);
   if (subcommand === "hermes-clean-context") return printHermesReset(config, args);
   if (subcommand === "start") return start(config, args);

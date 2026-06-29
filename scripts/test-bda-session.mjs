@@ -98,17 +98,18 @@ const help = run(["help"]);
 assert.match(help.stdout, /bda start/);
 assert.match(help.stdout, /bda-dev/);
 assert.doesNotMatch(help.stdout, /bda-dev-plan-execute/);
-assert.match(help.stdout, /bda-session\/0\.11\.1/);
+assert.match(help.stdout, /bda-session\/0\.11\.2/);
 assert.match(help.stdout, /bda update/);
 assert.match(help.stdout, /bda config-status/);
 assert.match(help.stdout, /bda config-clean/);
+assert.match(help.stdout, /bda doctor/);
 assert.match(help.stdout, /bda hermes-reset/);
 assert.match(help.stdout, /bda hermes-clean-context --yes/);
 
 const version = run(["version"]);
 const versionJson = JSON.parse(version.stdout);
 assert.equal(versionJson.ok, true);
-assert.equal(versionJson.cli_version, "0.11.1");
+assert.equal(versionJson.cli_version, "0.11.2");
 
 const updateDryRun = run(["update", "--dry-run"]);
 const updateJson = JSON.parse(updateDryRun.stdout);
@@ -156,6 +157,12 @@ fs.mkdirSync(path.join(home, ".hermes", "pastes"), { recursive: true });
 fs.writeFileSync(path.join(home, ".hermes", "sessions", "request_dump_test.json"), "{}\n");
 fs.writeFileSync(path.join(home, ".hermes", "pastes", "paste_1.txt"), "large stale paste\n");
 fs.writeFileSync(path.join(home, ".hermes", "state.db"), "stale state\n");
+const doctor = run(["doctor"]);
+const doctorJson = JSON.parse(doctor.stdout);
+assert.equal(doctorJson.action, "doctor");
+assert.equal(doctorJson.active_bda_session, false);
+assert.ok(doctorJson.hermes_state_total_bytes > 0);
+assert.ok(doctorJson.request_dumps.some((entry) => entry.count === 1));
 const hermesResetDryRun = run(["hermes-reset", "--dry-run"]);
 const hermesResetDryRunJson = JSON.parse(hermesResetDryRun.stdout);
 assert.equal(hermesResetDryRunJson.ok, true);
@@ -175,6 +182,12 @@ const hermesCleanContextJson = JSON.parse(hermesCleanContext.stdout);
 assert.equal(hermesCleanContextJson.ok, true);
 assert.equal(hermesCleanContextJson.action, "hermes-reset");
 assert.equal(fs.existsSync(path.join(home, ".hermes", "state.db")), false);
+fs.writeFileSync(path.join(home, ".hermes", "state.db"), "stale state via doctor\n");
+const doctorFix = run(["doctor", "--fix"]);
+const doctorFixJson = JSON.parse(doctorFix.stdout);
+assert.equal(doctorFixJson.action, "doctor");
+assert.equal(fs.existsSync(path.join(home, ".hermes", "state.db")), false);
+assert.equal(fs.existsSync(path.join(home, ".hermes", "config.yaml")), true);
 
 const start = run([
   "start",

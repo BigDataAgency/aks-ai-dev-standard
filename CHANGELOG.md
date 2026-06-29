@@ -8,6 +8,19 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.11.2] - 2026-06-29
+
+### Added
+
+- Added `bda doctor` so employees can inspect BDA config, active session state, Hermes hidden context size, and local request dumps without exposing keys or prompt content.
+- Added `bda doctor --fix`, `bda hermes-reset`, and `bda hermes-clean-context --yes` to archive stale Hermes state safely while preserving `config.yaml`, `.env`, and BDA employee config.
+- Added Hermes state diagnostics for `~/.hermes`, macOS Application Support paths, Windows LocalAppData/Roaming paths, request dump counts, and large-context warning thresholds.
+
+### Fixed
+
+- Prevented repeats of the Earn/Non incident where `bda current` was inactive but Hermes still carried large hidden chat/tool context into new `bda/dev` requests.
+- Standardized the cleanup command names used by the safe-context installer and the public standard CLI to reduce command drift during rollout.
+
 ## [0.11.1] - 2026-06-25
 
 ### Fixed
