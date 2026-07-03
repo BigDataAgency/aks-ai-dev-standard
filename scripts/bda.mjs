@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 const DEFAULT_URL = "https://example.com/bda/work-events";
 const SESSION_VERSION = "bda-session/0.11.6";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
-const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
+const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
 const FALLBACK_BDA_MODELS = [
   "bda/qwable-27b-local",
   "bda/qwythos-9b-local",

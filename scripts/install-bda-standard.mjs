@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const VERSION = "installer/0.11.6";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
-const BDA_GATEWAY_BASE_URL = "https://ai.bda.co.th/v1";
+const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
 
 function parseArgs(argv) {
   const args = {};

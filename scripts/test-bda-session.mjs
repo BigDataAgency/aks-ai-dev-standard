@@ -28,7 +28,7 @@ fs.writeFileSync(path.join(home, ".hermes", "config.yaml"), `model:
 providers:
   bda:
     name: BDA AI Gateway
-    api: https://ai.bda.co.th/v1
+    api: https://ai-local.scmc.digital/v1
     key_env: BDA_AI_ROUTER_API_KEY
     models:
       bda/qwen3-coder:
@@ -39,7 +39,7 @@ providers:
         context_length: 262144
 custom_providers:
   - name: bda-router
-    base_url: https://ai.bda.co.th/v1
+    base_url: https://ai-local.scmc.digital/v1
 agent:
   system_prompt: |
     You are running with BDA AI Dev Standard v0.10.3.
