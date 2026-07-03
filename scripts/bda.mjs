@@ -1180,6 +1180,40 @@ function gatewayDomainSanity(config = {}) {
   };
 }
 
+function fixStaleGatewayDomains(config = {}, { dryRun = false } = {}) {
+  const newHost = new URL(BDA_GATEWAY_BASE_URL).host;
+  const candidateFiles = Array.from(new Set([
+    path.join(configDir(config), "config.json"),
+    ...HERMES_CONFIG_PATHS,
+  ]));
+  const result = { new_host: newHost, fixed: [], unchanged: [], dry_run: dryRun, errors: [] };
+  for (const filePath of candidateFiles) {
+    if (!filePath || !fs.existsSync(filePath)) continue;
+    try {
+      const before = fs.readFileSync(filePath, "utf8");
+      let after = before;
+      for (const domain of DEAD_GATEWAY_DOMAINS) {
+        after = after.split(domain).join(newHost);
+      }
+      if (after === before) {
+        result.unchanged.push(filePath);
+        continue;
+      }
+      let backupPath = "";
+      if (!dryRun) {
+        const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+        backupPath = `${filePath}.bak-${stamp}`;
+        fs.copyFileSync(filePath, backupPath);
+        fs.writeFileSync(filePath, after);
+      }
+      result.fixed.push({ path: filePath, backup_path: backupPath });
+    } catch (error) {
+      result.errors.push({ path: filePath, error: error.message });
+    }
+  }
+  return result;
+}
+
 function buildDoctorReport(config = {}, fixResult = null) {
   const session = readSession(config);
   const configFiles = {
@@ -1229,7 +1263,7 @@ function buildDoctorReport(config = {}, fixResult = null) {
       code: "stale_gateway_domain",
       message: `Config still references a dead gateway domain (${DEAD_GATEWAY_DOMAINS.join(", ")}). Requests to it will fail.`,
       files: gatewayDomain.stale_domain_files,
-      action: "From the standard repo run: git pull then node scripts/install-bda-standard.mjs --private-config <your config json>, then restart Hermes.",
+      action: "Run: bda update, then bda doctor --fix (rewrites BDA_AI_ROUTER_BASE_URL/BDA_WORK_LOG_URL to the current gateway), then restart Hermes.",
     });
   }
   if (largestSessionTokens >= HERMES_SESSION_CRITICAL_TOKENS) {
@@ -1278,7 +1312,11 @@ function buildDoctorReport(config = {}, fixResult = null) {
 async function printDoctor(config = {}, args = {}) {
   const shouldFix = boolValue(args.fix) || boolValue(args.yes);
   let fixResult = null;
-  if (shouldFix) fixResult = moveHermesState(config, { dryRun: false });
+  if (shouldFix) {
+    fixResult = moveHermesState(config, { dryRun: false });
+    fixResult.gateway_env_sync = syncHermesEnv(config, { dryRun: false });
+    fixResult.gateway_domain_fix = fixStaleGatewayDomains(config, { dryRun: false });
+  }
   const report = buildDoctorReport(config, fixResult);
   report.inventory_send_result = await sendInventoryEvent(config, args, {
     source: "bda doctor",

@@ -15,6 +15,7 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - `bda doctor` now scans Hermes session bloat: session count, total size, and the top 3 largest sessions with estimated token size. Warns at ~30k tokens and raises an issue at ~80k tokens with the action "Open a New session in Hermes" — answering "why are my prompts huge/slow" per machine.
 - `bda doctor` now reports `light_mode_applied` (whether `bda hermes-light-mode --yes` has been run, detected from non-BDA skill entries and prompt snapshots), so adoption is visible without asking anyone.
 - `bda doctor` now checks config files for stale/dead gateway domains and raises a `stale_gateway_domain` issue with the exact fix command when found.
+- `bda doctor --fix` now also rewrites `BDA_AI_ROUTER_BASE_URL` / `BDA_WORK_LOG_URL` in Hermes `.env` files to the current gateway (same safe merge + timestamped backup used by `bda hermes-reset`) and replaces dead gateway domains in `~/.bda-skills/config.json` and Hermes `config.yaml` (with timestamped backups), auto-resolving `stale_gateway_domain`. Employees who installed before the domain migration no longer need to re-run the installer — `bda update && bda doctor --fix` is enough.
 - The `bda_inventory` work event now carries `hermes_session_count`, `hermes_largest_session_est_tokens`, `hermes_skill_entries`, `light_mode_applied`, and `stale_gateway_domain`, so Grafana can show per-employee session bloat, light-mode adoption, and stale-domain machines fleet-wide on every `bda update` / `bda doctor`.
 
 ### Changed
