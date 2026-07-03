@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.11.6";
+const SESSION_VERSION = "bda-session/0.11.7";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
 const FALLBACK_BDA_MODELS = [
@@ -610,6 +610,11 @@ async function sendInventoryEvent(config, args = {}, data = {}) {
     hermes_state_total_bytes: numValue(data.hermes_state_total_bytes),
     request_dump_total_bytes: numValue(data.request_dump_total_bytes),
     gateway_models_count: numValue(data.gateway_models_count),
+    hermes_session_count: numValue(data.hermes_session_count),
+    hermes_largest_session_est_tokens: numValue(data.hermes_largest_session_est_tokens),
+    hermes_skill_entries: numValue(data.hermes_skill_entries),
+    light_mode_applied: data.light_mode_applied === undefined ? null : Boolean(data.light_mode_applied),
+    stale_gateway_domain: data.stale_gateway_domain === undefined ? null : Boolean(data.stale_gateway_domain),
     reported_at: new Date().toISOString(),
   };
   return sendEvent(config, event, args);
@@ -1085,6 +1090,96 @@ function skillSummary(rootPath) {
   return summary;
 }
 
+const HERMES_SESSION_WARN_TOKENS = 30000;
+const HERMES_SESSION_CRITICAL_TOKENS = 80000;
+const DEAD_GATEWAY_DOMAINS = ["ai.bda.co.th"];
+
+function estimateTokensFromBytes(bytes) {
+  return Math.round((bytes || 0) / 4);
+}
+
+function hermesSessionSummary() {
+  const sessionDirs = HERMES_STATE_PATHS.filter((statePath) => path.basename(statePath) === "sessions");
+  const summary = { dirs: [], count: 0, bytes: 0, largest: [], errors: [] };
+  for (const dir of sessionDirs) {
+    if (!fs.existsSync(dir)) continue;
+    summary.dirs.push(dir);
+    let entries = [];
+    try {
+      entries = fs.readdirSync(dir);
+    } catch (error) {
+      summary.errors.push({ path: dir, error: error.message });
+      continue;
+    }
+    for (const name of entries) {
+      if (/^request_dump_.*\.json$/.test(name)) continue;
+      const filePath = path.join(dir, name);
+      let stats;
+      try {
+        stats = fs.statSync(filePath);
+      } catch {
+        continue;
+      }
+      const bytes = stats.isDirectory() ? directorySize(filePath, { maxEntries: 500 }).bytes : stats.size;
+      summary.count += 1;
+      summary.bytes += bytes;
+      summary.largest.push({
+        path: filePath,
+        bytes,
+        est_tokens: estimateTokensFromBytes(bytes),
+        modified_at: stats.mtime.toISOString(),
+      });
+    }
+  }
+  summary.largest.sort((a, b) => b.bytes - a.bytes);
+  summary.largest = summary.largest.slice(0, 3);
+  return summary;
+}
+
+function hermesLightModeSummary() {
+  const summary = { applied: true, non_bda_entries: 0, sample_names: [] };
+  for (const skillDir of HERMES_SKILL_DIRS) {
+    if (!fs.existsSync(skillDir)) continue;
+    let entries = [];
+    try {
+      entries = fs.readdirSync(skillDir);
+    } catch {
+      continue;
+    }
+    for (const name of entries) {
+      if (HERMES_SKILL_KEEP_NAMES.has(name)) continue;
+      summary.applied = false;
+      summary.non_bda_entries += 1;
+      if (summary.sample_names.length < 5) summary.sample_names.push(name);
+    }
+  }
+  for (const snapshotPath of HERMES_SKILL_SNAPSHOT_PATHS) {
+    if (fs.existsSync(snapshotPath)) summary.applied = false;
+  }
+  return summary;
+}
+
+function gatewayDomainSanity(config = {}) {
+  const candidateFiles = Array.from(new Set([
+    path.join(configDir(config), "config.json"),
+    ...HERMES_CONFIG_PATHS,
+    ...HERMES_CONFIG_PATHS.map((configPath) => path.join(path.dirname(configPath), ".env")),
+  ]));
+  const staleFiles = [];
+  for (const filePath of candidateFiles) {
+    if (!filePath || !fs.existsSync(filePath)) continue;
+    try {
+      const content = fs.readFileSync(filePath, "utf8");
+      if (DEAD_GATEWAY_DOMAINS.some((domain) => content.includes(domain))) staleFiles.push(filePath);
+    } catch {}
+  }
+  return {
+    expected_base_url: BDA_GATEWAY_BASE_URL,
+    stale_domain_files: staleFiles,
+    stale_domain_found: staleFiles.length > 0,
+  };
+}
+
 function buildDoctorReport(config = {}, fixResult = null) {
   const session = readSession(config);
   const configFiles = {
@@ -1109,6 +1204,10 @@ function buildDoctorReport(config = {}, fixResult = null) {
   const totalHermesBytes = hermesState.reduce((sum, entry) => sum + (entry.bytes || 0), 0);
   const totalDumpBytes = requestDumps.reduce((sum, entry) => sum + (entry.bytes || 0), 0);
   const totalSkillEntries = hermesSkills.reduce((sum, entry) => sum + (entry.entries || 0), 0);
+  const hermesSessions = hermesSessionSummary();
+  const lightMode = hermesLightModeSummary();
+  const gatewayDomain = gatewayDomainSanity(config);
+  const largestSessionTokens = hermesSessions.largest.length ? hermesSessions.largest[0].est_tokens : 0;
   const warnings = [
     "Do not paste request_dump_*.json, state.db, state.db-wal, .env, auth.json, or config files into AI chat.",
     "bda current only checks BDA CLI session, not hidden Hermes chat/context state.",
@@ -1125,8 +1224,26 @@ function buildDoctorReport(config = {}, fixResult = null) {
   if (totalDumpBytes >= HERMES_REQUEST_DUMP_WARN_BYTES) {
     issues.push({ code: "large_request_dumps", message: "Hermes request dumps are large; they usually indicate repeated large-context failures.", bytes: totalDumpBytes, action: "Close Hermes and run bda doctor --fix." });
   }
-  if (totalSkillEntries > HERMES_SKILL_KEEP_NAMES.size + 3) {
-    warnings.push(`Hermes has ${totalSkillEntries} skill entries. Run bda hermes-light-mode --yes to archive unused skill cache and keep only BDA standard skill metadata.`);
+  if (gatewayDomain.stale_domain_found) {
+    issues.push({
+      code: "stale_gateway_domain",
+      message: `Config still references a dead gateway domain (${DEAD_GATEWAY_DOMAINS.join(", ")}). Requests to it will fail.`,
+      files: gatewayDomain.stale_domain_files,
+      action: "From the standard repo run: git pull then node scripts/install-bda-standard.mjs --private-config <your config json>, then restart Hermes.",
+    });
+  }
+  if (largestSessionTokens >= HERMES_SESSION_CRITICAL_TOKENS) {
+    issues.push({
+      code: "hermes_session_bloat",
+      message: `Largest Hermes session is ~${largestSessionTokens} tokens; every reply resends all of it and slows responses.`,
+      est_tokens: largestSessionTokens,
+      action: "Open a New session in Hermes for new tasks. Old sessions stay available.",
+    });
+  } else if (largestSessionTokens >= HERMES_SESSION_WARN_TOKENS) {
+    warnings.push(`Largest Hermes session is ~${largestSessionTokens} tokens. Open a New session in Hermes for new tasks to keep prompts small and fast.`);
+  }
+  if (!lightMode.applied) {
+    warnings.push(`Hermes light mode not applied (${lightMode.non_bda_entries} non-BDA skill entries). Run bda hermes-light-mode --yes to slim the base prompt.`);
   }
   return {
     ok: issues.length === 0,
@@ -1145,6 +1262,13 @@ function buildDoctorReport(config = {}, fixResult = null) {
     request_dumps: requestDumps,
     request_dump_total_bytes: totalDumpBytes,
     hermes_skills: hermesSkills,
+    hermes_skill_entries: totalSkillEntries,
+    hermes_sessions: hermesSessions,
+    hermes_session_count: hermesSessions.count,
+    hermes_largest_session_est_tokens: largestSessionTokens,
+    light_mode_applied: lightMode.applied,
+    light_mode: lightMode,
+    gateway_domain: gatewayDomain,
     issues,
     warnings,
     fix_result: fixResult,
@@ -1163,6 +1287,11 @@ async function printDoctor(config = {}, args = {}) {
     doctor_issue_count: report.issues.length,
     hermes_state_total_bytes: report.hermes_state_total_bytes,
     request_dump_total_bytes: report.request_dump_total_bytes,
+    hermes_session_count: report.hermes_session_count,
+    hermes_largest_session_est_tokens: report.hermes_largest_session_est_tokens,
+    hermes_skill_entries: report.hermes_skill_entries,
+    light_mode_applied: report.light_mode_applied,
+    stale_gateway_domain: report.gateway_domain.stale_domain_found,
   });
   console.log(JSON.stringify(report, null, 2));
 }
