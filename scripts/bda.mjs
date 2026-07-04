@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.11.7";
+const SESSION_VERSION = "bda-session/0.11.8";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
 const FALLBACK_BDA_MODELS = [
@@ -1185,6 +1185,8 @@ function fixStaleGatewayDomains(config = {}, { dryRun = false } = {}) {
   const candidateFiles = Array.from(new Set([
     path.join(configDir(config), "config.json"),
     ...HERMES_CONFIG_PATHS,
+    ...HERMES_ENV_PATHS,
+    ...HERMES_CONFIG_PATHS.map((configPath) => path.join(path.dirname(configPath), ".env")),
   ]));
   const result = { new_host: newHost, fixed: [], unchanged: [], dry_run: dryRun, errors: [] };
   for (const filePath of candidateFiles) {
@@ -1379,6 +1381,7 @@ function syncHermesEnv(config = {}, { dryRun = false } = {}) {
   const values = {
     BDA_AI_ROUTER_BASE_URL: BDA_GATEWAY_BASE_URL,
     BDA_WORK_LOG_URL: workEventUrlFromBaseUrl(BDA_GATEWAY_BASE_URL),
+    BDA_AI_WORK_EVENT_URL: workEventUrlFromBaseUrl(BDA_GATEWAY_BASE_URL),
     BDA_AI_ROUTER_API_KEY: apiKey,
     BDA_USED_BDA_GATEWAY: apiKey ? "true" : "",
     BDA_AI_PROVIDER: apiKey ? "bda-gateway" : "",

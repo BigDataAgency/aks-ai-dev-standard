@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SANDBOX = Path("/tmp/bda-ai-dev-standard-smoke")
-EXPECTED_VERSION = "0.11.7"
+EXPECTED_VERSION = "0.11.8"
 
 REQUIRED_SECTIONS = [
     "BDA Standard files used",

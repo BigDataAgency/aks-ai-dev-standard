@@ -8,6 +8,12 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.11.8] - 2026-07-04
+
+### Fixed
+
+- Fixed `bda doctor --fix` leaving machines on the dead gateway domain: legacy `.env` files from older installers contain `BDA_AI_WORK_EVENT_URL`, which the CLI reads **before** `BDA_WORK_LOG_URL` — so even after 0.11.7's `--fix` rewrote the new keys, work events (`bda start` send_result, `bda_inventory`) still went to the dead domain and failed with `fetch failed`. `--fix` now rewrites `BDA_AI_WORK_EVENT_URL` too, and the dead-domain sweep also covers all Hermes `.env` locations (macOS + Windows AppData variants) so no legacy variable can keep pointing at a dead gateway. Fleet events from 2026-07-03 showed 10 machines stuck `stale_gateway_domain: true` after `--fix`; this releases them with the same `bda update && bda doctor --fix`.
+
 ## [0.11.7] - 2026-07-03
 
 ### Added
