@@ -359,8 +359,8 @@ If Claude Code is routed through the BDA gateway, its usage should be counted by
 Codex รุ่นใหม่ (≥0.142) ใช้ Responses API เท่านั้น — config `~/.codex/config.toml`:
 
 ```toml
-# ใส่เป็น profile — อย่าตั้ง default! (Codex Desktop อ่านไฟล์เดียวกัน จะพังเพราะ GUI ไม่มี env var)
-[profiles.bda]
+# ⚠️ ห้ามใส่ใน ~/.codex/config.toml เป็น default (Codex Desktop อ่านไฟล์เดียวกัน จะพัง)
+# ให้สร้างเป็นไฟล์ profile แยก: ~/.codex/bda.config.toml แล้วเรียกด้วย --profile bda
 model = "bda/dev-codex"
 model_provider = "bda"
 
