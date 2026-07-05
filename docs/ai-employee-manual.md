@@ -51,3 +51,4 @@
 - Claude Code CLI: `CLAUDE_CONFIG_DIR` ใหม่ + `ANTHROPIC_BASE_URL` + `ANTHROPIC_API_KEY` (แก้ 401 key เก่าค้าง)
 - อย่าตั้ง max_tokens ต่ำ (<2000) — ได้คำตอบว่าง
 - Claude Code session ยาวกิน token quota เร็วมาก (ส่ง context ซ้ำทุก turn) — ปิด session ที่ไม่ใช้, เจอ "หายไป/ไม่ตอบ" ให้รอ 1 นาที (429) แล้วลองใหม่
+- Desktop เก็บ process ต่อ conversation ไว้จนกว่าจะปิด (idle ~100-340MB/บทสนทนา — ปกติ ไม่ใช่ค้าง) → เลิกใช้แล้วปิด conversation/แอป จะได้ไม่กิน RAM สะสม
