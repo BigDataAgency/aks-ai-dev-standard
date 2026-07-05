@@ -258,13 +258,17 @@ export BDA_AI_ROUTER_BASE_URL="https://example.com/v1"
 export BDA_AI_ROUTER_API_KEY="personal employee key"
 ```
 
-## Cline: ตั้ง Context Window เอง (สำคัญ — ไม่ตั้ง = ติด 128k)
+## Cline: ตั้งค่าอัตโนมัติด้วย script เดียว (แนะนำ — ไม่ต้องกดอะไรเอง)
 
-Cline โหมด OpenAI Compatible ไม่อ่าน context_window จาก gateway — ใช้ค่า manual ที่ default 128k:
+Cline ไม่อ่าน context window จาก gateway (default 128k) — รัน script นี้ครั้งเดียว (หรือให้ installer รันให้):
 
-1. Cline Settings → API Configuration → กาง **ADVANCED**
-2. **Context Window Size** = `262144` / **Max Output Tokens** = `16384`
-3. Start New Task ใหม่ถึงจะเห็นผล (task เก่าล็อกค่าเดิม)
+```bash
+./scripts/setup-cline-bda.sh    # ตั้ง base URL สะอาด + bda/dev + ctx 262144 + maxTokens 16384
+```
+
+- เขียนที่ `~/.cline/data/globalState.json` (backup อัตโนมัติ), ไม่แตะ API key (ตั้งใน UI ครั้งแรกครั้งเดียว)
+- ปิด/เปิด editor แล้ว Start New Task → แถบ context = 256.0k
+- ตั้งมือ (fallback): Settings → API Configuration → ADVANCED → Context Window `262144`, Max Output `16384`
 
 ## VS Code With Roo Code Or Cline
 

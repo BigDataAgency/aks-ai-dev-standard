@@ -1,0 +1,48 @@
+#!/bin/bash
+# setup-cline-bda.sh — ตั้งค่า Cline ให้ตรง BDA gateway แบบอัตโนมัติ (ศูนย์คลิก)
+# ทำอะไร: เขียน ~/.cline/data/globalState.json → base URL สะอาด, model bda/dev,
+#          contextWindow 262144 + maxTokens 16384 (ไม่ตั้ง = Cline ใช้ default 128k)
+# ใช้: ./scripts/setup-cline-bda.sh   (ควรปิด VS Code/Devin/Windsurf ก่อน แล้วเปิดใหม่หลังรัน)
+# หมายเหตุ: ไม่แตะ secrets.json (API key ผู้ใช้ตั้งใน UI ครั้งแรกครั้งเดียว)
+set -euo pipefail
+
+STATE="$HOME/.cline/data/globalState.json"
+BASE_URL="${BDA_AI_ROUTER_BASE_URL:-https://ai-local.scmc.digital/v1}"
+MODEL="${BDA_CLINE_MODEL:-bda/dev}"
+CTX="${BDA_CLINE_CONTEXT_WINDOW:-262144}"
+MAXTOK="${BDA_CLINE_MAX_TOKENS:-16384}"
+
+if pgrep -f "Visual Studio Code|Devin|Windsurf" >/dev/null 2>&1; then
+  echo "⚠️  มี editor เปิดอยู่ — ค่าอาจถูกเขียนทับ แนะนำปิดก่อนรัน (จะทำต่อใน 3 วิ...)"
+  sleep 3
+fi
+
+mkdir -p "$(dirname "$STATE")"
+[ -f "$STATE" ] || echo '{}' > "$STATE"
+TS=$(date -u +%Y%m%dT%H%M%SZ)
+cp "$STATE" "$STATE.bak-$TS"
+
+STATE="$STATE" BASE_URL="$BASE_URL" MODEL="$MODEL" CTX="$CTX" MAXTOK="$MAXTOK" python3 - <<'PY'
+import json, os
+
+p = os.environ["STATE"]
+d = json.load(open(p))
+info = {
+    "maxTokens": int(os.environ["MAXTOK"]),
+    "contextWindow": int(os.environ["CTX"]),
+    "supportsImages": False,
+    "supportsPromptCache": False,
+    "inputPrice": 0,
+    "outputPrice": 0,
+    "description": "BDA local fleet (Qwen3.6) via ai gateway",
+}
+d["openAiBaseUrl"] = os.environ["BASE_URL"].strip()          # strip กัน \t/space จาก copy-paste
+for mode in ("planMode", "actMode"):
+    d[f"{mode}ApiProvider"] = "openai"
+    d[f"{mode}OpenAiModelId"] = os.environ["MODEL"]
+    d[f"{mode}OpenAiModelInfo"] = info
+json.dump(d, open(p, "w"), ensure_ascii=False, indent=2)
+print(f"✅ Cline config updated: model={os.environ['MODEL']} ctx={os.environ['CTX']} maxTokens={os.environ['MAXTOK']}")
+print(f"   backup: {p}.bak-*")
+print("   ▶ ปิด/เปิด editor ใหม่ แล้ว Start New Task — แถบ context จะแสดง 256.0k")
+PY
