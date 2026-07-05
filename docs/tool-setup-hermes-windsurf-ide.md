@@ -258,6 +258,14 @@ export BDA_AI_ROUTER_BASE_URL="https://example.com/v1"
 export BDA_AI_ROUTER_API_KEY="personal employee key"
 ```
 
+## Cline: ตั้ง Context Window เอง (สำคัญ — ไม่ตั้ง = ติด 128k)
+
+Cline โหมด OpenAI Compatible ไม่อ่าน context_window จาก gateway — ใช้ค่า manual ที่ default 128k:
+
+1. Cline Settings → API Configuration → กาง **ADVANCED**
+2. **Context Window Size** = `262144` / **Max Output Tokens** = `16384`
+3. Start New Task ใหม่ถึงจะเห็นผล (task เก่าล็อกค่าเดิม)
+
 ## VS Code With Roo Code Or Cline
 
 Use this if the team prefers agent-style coding inside VS Code.
