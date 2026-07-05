@@ -359,6 +359,8 @@ If Claude Code is routed through the BDA gateway, its usage should be counted by
 Codex รุ่นใหม่ (≥0.142) ใช้ Responses API เท่านั้น — config `~/.codex/config.toml`:
 
 ```toml
+# ใส่เป็น profile — อย่าตั้ง default! (Codex Desktop อ่านไฟล์เดียวกัน จะพังเพราะ GUI ไม่มี env var)
+[profiles.bda]
 model = "bda/dev-codex"
 model_provider = "bda"
 
@@ -370,7 +372,7 @@ wire_api = "responses"
 ```
 
 - copy `codex/AGENTS.md` จาก repo นี้ไปเป็น `AGENTS.md` ที่ root ของโปรเจกต์ (codex จะทำตาม BDA standard + รายงานตาราง)
-- ใช้ในสคริปต์/CI: `codex exec --skip-git-repo-check --sandbox workspace-write "<งาน>" </dev/null` — **ต้องมี `</dev/null`** ไม่งั้นค้างรอ stdin
+- ใช้ในสคริปต์/CI: `codex exec --profile bda --skip-git-repo-check --sandbox workspace-write "<งาน>" </dev/null` — **ต้องมี `</dev/null`** ไม่งั้นค้างรอ stdin
 - model `bda/dev-codex` เท่านั้น (route พิเศษรองรับ Responses API) — `bda/dev` ใช้กับ codex ไม่ได้
 
 ## Local Config File
