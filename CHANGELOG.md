@@ -8,6 +8,13 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.12.1] - 2026-07-05
+
+แก้ความถูกต้องของตัวอย่างในคู่มือ (หลักฐานใหม่จากการ verify ซ้ำคืนเดียวกัน):
+
+- เคส "อ้าง commit 4 ไฟล์แต่ dir ว่าง" ที่เคยจัดเป็นการแต่งรายงาน — ตรวจซ้ำทั้งเครื่องพบว่า **AI ทำงานเสร็จจริง (test 10/10 + commit ตรงตามคำอ้าง) แต่ผิดโฟลเดอร์ (cwd drift)** → แยกเป็น 2 พฤติกรรมในคู่มือ: โม้จริง (test 0 ตัวแต่บอก complete — เคสจริงอีกอัน) vs งานหลุดตำแหน่ง
+- เพิ่มคำแนะนำ: ระบุ path เต็มในโจทย์ + `find` หาผลงานก่อนสรุปว่า AI โม้
+
 ## [0.12.0] - 2026-07-05
 
 เพิ่ม/อัปเดตจากการทดสอบวัดผลจริง (eval + endurance, คืน 2026-07-05) — เตรียมพร้อมพนักงานใช้เช้า 2026-07-06:
