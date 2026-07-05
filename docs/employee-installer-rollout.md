@@ -42,7 +42,7 @@ Optional fields:
 
 ```json
 {
-  "work_event_url": "https://ai.bda.co.th/bda/work-events",
+  "work_event_url": "https://ai-local.scmc.digital/bda/work-events",
   "ai_provider": "bda-gateway",
   "tool": "hermes-desktop-agent"
 }

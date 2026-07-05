@@ -11,6 +11,7 @@ Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
 1. ถ้ามี Obsidian context manifest (`00-Agent-Context.md` หรือ `.bda/obsidian-context.md`) ให้อ่านก่อนเริ่ม และเตรียม session/evidence note ตาม context; ถ้าไม่มีและงานต้องผูกกับ Obsidian ให้ใช้ `commands/init.md`
 2. ยืนยัน expected behavior และ success criteria
+2.5 **ประเมิน scope ก่อนลงมือ (กติกาจากผลวัดจริง 2026-07-05)**: ถ้างานใหญ่กว่า 1 service/module/endpoint ให้แตกเป็นชิ้นเล็กแล้วทำทีละชิ้นให้ test ผ่านก่อนไปต่อ — โจทย์ใหญ่เปิดกว้างมีอัตราจบจริง 0/8; ห้ามพยายามสร้างทั้งระบบในรอบเดียว
 3. สำรวจ pattern เดิม
 4. implement แบบ minimum correct change ตาม pattern เดิม
 5. ห้ามเพิ่ม speculative abstraction/config/dependency/feature หรือ unrelated refactor/format churn
@@ -20,6 +21,8 @@ Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 9. อัปเดต Obsidian session/evidence note ด้วย feature summary, files changed, testcase/evidence, commands run, และข้อจำกัด ถ้ามี context
 
 Output ที่ต้องส่ง: feature summary พร้อม success criteria, files, evidence mapping, และ Obsidian note ที่อัปเดตถ้ามี context
+
+**Verification gate (บังคับ)**: ห้ามใช้คำว่า เสร็จ/complete/production-ready ถ้าไม่ได้แปะผลรัน test จริง (คำสั่ง+ผลลัพธ์) และผล `git log --oneline -3` ในรายงาน — เคยพบ AI รายงานว่า commit แล้วทั้งที่ไม่มีไฟล์จริง
 
 Output ที่ต้องส่งต้องมีหัวข้อ: BDA Standard files used, Pipeline trace, Commands run, Verification / Evidence, Limitations / Risks / Next steps
 ```

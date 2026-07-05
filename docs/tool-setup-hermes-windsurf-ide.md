@@ -1,6 +1,8 @@
-# Tool Setup: Hermes, Windsurf, IDE
+# Tool Setup: Hermes, Claude Code, IDE
 
 This public document describes the generic setup. Real BDA endpoint and user keys must be provided through private rollout docs or local config.
+
+> **Updated 2026-07-05**: model IDs ปรับเป็นชุดปัจจุบัน (bda/dev, bda/nondev), Hermes เป็นเครื่องมือหลักแบบ agentic (ไม่ใช่แค่ discussion), เพิ่ม Claude Code setup จริง. เมื่อใช้ไม่ได้ให้ดู `docs/troubleshooting-ai-access.md` ก่อน. วิธีทำงานกับ AI ให้เสร็จจริง: `docs/ai-employee-manual.md`
 
 ## What Staff Need
 
@@ -26,10 +28,10 @@ BDA_WORK_LOG_URL=https://example.com/bda/work-events
 Use these model IDs unless private rollout docs say otherwise:
 
 ```text
-bda/fast   # fast Q&A, no URL prefetch
-bda/med    # reads public URLs through gateway prefetch
-bda/coder  # coding/review/debug/planning, use carefully because prompts can be heavier
-bda/glm    # GLM-5.1 cloud trial, reads URLs through gateway prefetch, 10 concurrent limit
+bda/dev      # งานโค้ด/แก้บั๊ก/planning — route อัตโนมัติเข้า node local (A40/GX10)
+bda/nondev   # ถาม-ตอบทั่วไป/เอกสาร (มี URL prefetch ผ่าน gateway)
+# งานใหญ่/ประวัติยาว/หลายไฟล์ → paid: bda/deepseek-v4-pro-paid-cloud, bda/qwen3.7-plus-paid-cloud ฯลฯ
+# สำหรับ Claude Code เท่านั้น: claude-sonnet-4-5 (Desktop default, ใช้ได้ปกติ) / claude-code-local (CLI)
 ```
 
 Hermes Desktop Agent should use the personal installer package. The installer sets a BDA local compatibility profile that disables heavy Hermes local tool schemas for `cli` and `desktop`, so the A40 Qwen3 Coder route fits the current context window.
@@ -75,7 +77,7 @@ BDA_META: {"project":"Project Name","tool":"hermes-desktop-agent","task_summary"
 
 ## Dev
 
-Use Hermes for discussion/analysis and IDE tools such as Windsurf, Cursor, Continue, or any OpenAI-compatible client for coding.
+**Hermes คือเครื่องมือหลัก** — เป็น agentic CLI เต็มตัว (เขียนไฟล์/รันคำสั่ง/ทำงานจบ loop ได้ ไม่ใช่แค่คุย): `hermes -z "<งาน>" --cli` ใช้คู่กับ bda commands เสมอ. Claude Code เป็นทางเลือกที่ทดสอบแล้วสำหรับงานโค้ด scope ชัด. IDE (Windsurf/Cursor/Continue) เป็นทางเสริมสำหรับคนที่ถนัด IDE.
 
 Generic IDE settings:
 
@@ -84,9 +86,8 @@ Provider: OpenAI Compatible
 Base URL: ${BDA_AI_ROUTER_BASE_URL}
 API Key: personal employee key
 Model:
-  bda/fast
-  bda/med
-  bda/coder
+  bda/dev
+  bda/nondev
 ```
 
 Real BDA work should use commands such as:
@@ -155,11 +156,9 @@ Steps:
 4. Set Base URL to `${BDA_AI_ROUTER_BASE_URL}`.
 5. Set API key to the employee personal API key.
 6. Add model IDs:
-   - `bda/fast`
-   - `bda/med`
-   - `bda/coder`
-   - `bda/glm`
-7. Use `bda/coder` for coding, review, bug fixing, and planning. Use `bda/glm` only when testing GLM-5.1 cloud behavior or when the local route is not enough.
+   - `bda/dev`
+   - `bda/nondev`
+7. Use `bda/dev` for coding, review, bug fixing, and planning. Use paid models (`bda/deepseek-v4-pro-paid-cloud` etc.) when the local route is not enough.
 
 ### Option B: Windsurf With Roo Code Or Continue
 
@@ -172,7 +171,7 @@ Steps:
 3. Configure the extension as OpenAI-compatible.
 4. Use Base URL `${BDA_AI_ROUTER_BASE_URL}`.
 5. Use the employee personal API key.
-6. Add model IDs `bda/fast`, `bda/med`, and `bda/coder`.
+6. Add model IDs `bda/dev` and `bda/nondev`.
 
 Metadata first line for real BDA work:
 
@@ -193,9 +192,8 @@ Steps:
 4. Enable Override OpenAI Base URL.
 5. Set Base URL to `${BDA_AI_ROUTER_BASE_URL}`.
 6. Add custom model names if Cursor asks:
-   - `bda/fast`
-   - `bda/med`
-   - `bda/coder`
+   - `bda/dev`
+   - `bda/nondev`
 7. Save and test with a small prompt.
 
 If Cursor sends a request to an endpoint not supported by the router, switch that workflow to Continue/Roo Code or ask the platform owner to add compatibility.
@@ -227,7 +225,7 @@ schema: v1
 models:
   - name: BDA Auto
     provider: openai
-    model: bda/auto
+    model: bda/dev
     apiBase: ${{ env.BDA_AI_ROUTER_BASE_URL }}
     apiKey: ${{ env.BDA_AI_ROUTER_API_KEY }}
     roles:
@@ -236,7 +234,7 @@ models:
       - apply
   - name: BDA Code Fast
     provider: openai
-    model: bda/qwen3-coder
+    model: bda/dev
     apiBase: ${{ env.BDA_AI_ROUTER_BASE_URL }}
     apiKey: ${{ env.BDA_AI_ROUTER_API_KEY }}
     roles:
@@ -244,7 +242,7 @@ models:
       - edit
   - name: BDA Code Good
     provider: openai
-    model: bda/qwen3-coder
+    model: bda/dev
     apiBase: ${{ env.BDA_AI_ROUTER_BASE_URL }}
     apiKey: ${{ env.BDA_AI_ROUTER_API_KEY }}
     roles:
@@ -270,7 +268,7 @@ Steps:
 2. Choose OpenAI-compatible provider.
 3. Base URL: `${BDA_AI_ROUTER_BASE_URL}`.
 4. API key: personal employee key.
-5. Model: `bda/auto` or `bda/qwen3-coder`.
+5. Model: `bda/dev`.
 6. Put BDA command and metadata in the first prompt for real work.
 
 Example prompt:
@@ -292,15 +290,24 @@ cp /path/to/bda-ai-dev-standard/claude/CLAUDE.md ./CLAUDE.md
 cp /path/to/bda-ai-dev-standard/claude/commands/*.md ./.claude/commands/
 ```
 
-Configure the gateway using the mechanism supported by the installed Claude Code build or organization wrapper. The private rollout docs should provide the real variable names if they differ.
+Configure the gateway (ค่าจริงดู rollout ส่วนตัว):
 
-Generic gateway settings:
+```bash
+# CLI / terminal (ใช้ config dir แยก กัน key เก่าค้าง — สาเหตุ 401 อันดับหนึ่ง)
+export CLAUDE_CONFIG_DIR="$HOME/.claude-bda"
+export ANTHROPIC_BASE_URL="<ROUTER_URL ไม่มี /v1 ต่อท้าย>"
+export ANTHROPIC_API_KEY="<personal employee key>"
+unset ANTHROPIC_AUTH_TOKEN
+```
+
+Model ที่ใช้ได้ (ทดสอบจริง 2026-07-05):
 
 ```text
-Gateway/Base URL: ${BDA_AI_ROUTER_BASE_URL}
-API Key/Auth Token: personal employee key
-Model: bda/fast or bda/qwen3-coder
+claude-sonnet-4-5   # Desktop/default — ใช้ได้ปกติ (server route เข้า node ที่รองรับให้แล้ว)
+claude-code-local   # CLI: claude -p "..." --model claude-code-local (route ตรง GX10)
 ```
+
+ถ้าเจอ `<function=...>` โผล่เป็นข้อความในคำตอบ = route ฝั่ง server เพี้ยน ให้แจ้ง admin ทันที (ดู troubleshooting)
 
 Common environment template:
 

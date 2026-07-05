@@ -8,6 +8,18 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.12.0] - 2026-07-05
+
+เพิ่ม/อัปเดตจากการทดสอบวัดผลจริง (eval + endurance, คืน 2026-07-05) — เตรียมพร้อมพนักงานใช้เช้า 2026-07-06:
+
+- **ใหม่ `docs/troubleshooting-ai-access.md`** — ตารางอาการ→สาเหตุ→วิธีแก้ (เข้าไม่ได้/401/ไม่ตอบ-429/คำตอบว่าง/`<function=` โผล่/AI โม้ว่าเสร็จ) ทุกข้อวินิจฉัยจากเหตุการณ์จริง
+- **ใหม่ `docs/ai-employee-manual.md`** — คู่มือทำงานกับ AI ให้เสร็จจริง: ซอยงานเล็ก (โจทย์ใหญ่ 0/8, โจทย์เล็กมีเขียวจริง), ห้ามเชื่อ "เสร็จ" จนเห็น test+git log, งานสำคัญรัน 2-3 รอบ (variance สูง), พฤติกรรมต้องระวัง 4 แบบที่เจอจริง
+- **`docs/tool-setup-hermes-windsurf-ide.md`** — model IDs ปัจจุบัน (bda/dev, bda/nondev แทน bda/fast/med/coder ที่เลิกใช้), Hermes = เครื่องมือหลัก agentic, Claude Code setup จริง (CLAUDE_CONFIG_DIR แยก แก้ 401; claude-sonnet-4-5 ใช้ได้ปกติหลังแก้ route ฝั่ง server)
+- **`commands/build-feature.md`** — เพิ่มขั้น "ประเมิน scope ก่อนลงมือ" + Verification gate บังคับแปะผล test จริงและ git log ก่อนบอกเสร็จ
+- **`docs/employee-installer-rollout.md`** — work_event_url ชี้ domain ปัจจุบัน (ตัวเก่าปิดแล้ว)
+
+Server-side ที่แก้คู่กัน (บันทึกไว้เพื่ออ้างอิง ไม่อยู่ใน repo นี้): route claude-sonnet-4-5 → GX10 เท่านั้น (ปิด gate anthropic lane rewrite — A40 leak tool format กับ request ใหญ่), ขยาย TPM dev keys 800k→1.5M กัน 429 จาก Claude Code session ยาว, ซ่อม scope key ที่ขาด
+
 ## [0.11.8] - 2026-07-04
 
 ### Fixed
