@@ -12,9 +12,11 @@ MODEL="${BDA_CLINE_MODEL:-bda/dev}"
 CTX="${BDA_CLINE_CONTEXT_WINDOW:-262144}"
 MAXTOK="${BDA_CLINE_MAX_TOKENS:-16384}"
 
-if pgrep -f "Visual Studio Code|Devin|Windsurf" >/dev/null 2>&1; then
-  echo "⚠️  มี editor เปิดอยู่ — ค่าอาจถูกเขียนทับ แนะนำปิดก่อนรัน (จะทำต่อใน 3 วิ...)"
-  sleep 3
+# Cline flush state ในหน่วยความจำทับไฟล์ตอนปิดแอป (พิสูจน์แล้ว 2026-07-06) → ต้องปิด editor ก่อน ไม่งั้นค่าหาย
+if pgrep -f "Visual Studio Code|Devin|Windsurf" >/dev/null 2>&1 && [ "${FORCE:-0}" != "1" ]; then
+  echo "❌ ต้องปิด VS Code / Devin / Windsurf ให้หมดก่อนรัน (Cmd+Q) — ไม่งั้น editor จะเขียนค่าเก่าทับตอนปิด"
+  echo "   ปิดแล้วรันใหม่ หรือ FORCE=1 ถ้ามั่นใจ"
+  exit 1
 fi
 
 mkdir -p "$(dirname "$STATE")"
