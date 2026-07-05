@@ -1,0 +1,3 @@
+{ "name": "s1-fix-test", "version": "1.0.0", "type": "module",
+  "scripts": { "test": "tsx --test test/kds.test.ts" },
+  "devDependencies": { "tsx": "^4.19.0", "typescript": "^5.6.0" } }

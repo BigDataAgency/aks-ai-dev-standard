@@ -8,6 +8,17 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.13.0] - 2026-07-06
+
+**ใหม่: `eval/` — AI eval harness กลางของทีม (v1)** สร้างจากบทเรียนคืน 2026-07-05→06 (เครื่องวัดเฉพาะกิจกล่าวหา AI ผิด 7 ครั้งในคืนเดียว):
+
+- `bin/run_eval.sh <tool> <scenario> [n]` — รัน n รอบ + verify อิสระ + jsonl + scoreboard
+- `bin/verify.sh` — fair cross-language verifier (detect python/node, ลง deps รวม pytest-asyncio, รันจาก cwd ที่ถูก, หา stray files ก่อนสรุปว่าโม้)
+- `bin/adapters/{hermes,claude,codex}.sh` — env ที่ถูกบังคับในโค้ด (</dev/null, CLAUDE_CONFIG_DIR แยก, claude-code-local)
+- `bin/scoreboard.py` — ตาราง pass/overclaim/leak/cwd-drift ต่อ tool×scenario
+- `scenarios/s1-fix-test` (deterministic bug seed) + `scenarios/s2-build-slice` (bounded build)
+- Self-tested ก่อน commit: claude × s2 = 14 tests ผ่าน end-to-end
+
 ## [0.12.1] - 2026-07-05
 
 แก้ความถูกต้องของตัวอย่างในคู่มือ (หลักฐานใหม่จากการ verify ซ้ำคืนเดียวกัน):
