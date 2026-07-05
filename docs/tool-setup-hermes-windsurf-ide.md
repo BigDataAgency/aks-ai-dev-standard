@@ -343,6 +343,25 @@ Recommended commands:
 
 If Claude Code is routed through the BDA gateway, its usage should be counted by the employee key like other gateway clients. If it is not routed through the gateway, still send work events through `scripts/bda-work-event.mjs`.
 
+## Codex CLI (validated 2026-07-06)
+
+Codex รุ่นใหม่ (≥0.142) ใช้ Responses API เท่านั้น — config `~/.codex/config.toml`:
+
+```toml
+model = "bda/dev-codex"
+model_provider = "bda"
+
+[model_providers.bda]
+name = "BDA Gateway"
+base_url = "${BDA_AI_ROUTER_BASE_URL}"   # ไม่มี /v1 ซ้ำถ้า base มีแล้ว — ใช้ค่าจาก rollout
+env_key = "BDA_AI_ROUTER_API_KEY"
+wire_api = "responses"
+```
+
+- copy `codex/AGENTS.md` จาก repo นี้ไปเป็น `AGENTS.md` ที่ root ของโปรเจกต์ (codex จะทำตาม BDA standard + รายงานตาราง)
+- ใช้ในสคริปต์/CI: `codex exec --skip-git-repo-check --sandbox workspace-write "<งาน>" </dev/null` — **ต้องมี `</dev/null`** ไม่งั้นค้างรอ stdin
+- model `bda/dev-codex` เท่านั้น (route พิเศษรองรับ Responses API) — `bda/dev` ใช้กับ codex ไม่ได้
+
 ## Local Config File
 
 Each employee may keep private config outside the repo:
