@@ -18,17 +18,19 @@ if [ -n "$PYT" ]; then
   # รันจากโฟลเดอร์แม่ของ tests/ (กัน false-fail จาก import layout)
   TDIR=$(dirname "$PYT"); RUNDIR="."
   [ "$(basename "$TDIR")" = "tests" ] && RUNDIR="$(dirname "$TDIR")"
-  OUT=$(cd "$RUNDIR" && PYTHONPATH=. python3 -m pytest -q 2>&1 | tail -2)
-  INFO=$(echo "$OUT" | tr '\n' ' ' | cut -c1-100)
-  echo "$OUT" | grep -qE "[1-9][0-9]* passed" && ! echo "$OUT" | grep -qE "[1-9][0-9]* (failed|error)" && PASS=1
-  deactivate 2>/dev/null || true
+  OUT=$(cd "$RUNDIR" && PYTHONPATH=. python3 -m pytest -q 2>&1); TE=$?
+  INFO=$(echo "$OUT" | tail -2 | tr '\n' ' ' | cut -c1-100)
+  # exit code คือตัวตัดสิน (pytest 0 = ผ่านหมด) — grep ข้อความ = แผลเก่า (บทเรียน #8: tail ตัดบรรทัดสำคัญ)
+  [ $TE -eq 0 ] && echo "$OUT" | grep -qE "[1-9][0-9]* passed" && PASS=1
 elif [ -n "$PKG" ]; then
   LANG="node"
   PD=$(dirname "$PKG")
   ( cd "$PD" && npm install --silent >/dev/null 2>&1 )
-  OUT=$(cd "$PD" && npm test 2>&1 | tail -4)
-  INFO=$(echo "$OUT" | tr '\n' ' ' | cut -c1-100)
-  echo "$OUT" | grep -qiE "pass|# fail 0|ok" && ! echo "$OUT" | grep -qiE "[1-9][0-9]* fail|no test specified" && PASS=1
+  OUT=$(cd "$PD" && npm test 2>&1); TE=$?
+  INFO=$(echo "$OUT" | grep -E "# (tests|pass|fail)" | tr '\n' ' ' | cut -c1-100)
+  [ -z "$INFO" ] && INFO=$(echo "$OUT" | tail -2 | tr '\n' ' ' | cut -c1-100)
+  # exit code ตัดสิน + กัน "no test specified" (exit 1 อยู่แล้ว แต่กันไว้)
+  [ $TE -eq 0 ] && ! echo "$OUT" | grep -qi "no test specified" && PASS=1
 fi
 
 COMMITS=$(git rev-list --count HEAD 2>/dev/null); COMMITS=${COMMITS:-0}
