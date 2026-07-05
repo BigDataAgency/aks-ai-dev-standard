@@ -62,7 +62,8 @@ Context: <ไฟล์/error/สิ่งที่คาดหวัง>
 | Claude Code 401 (ทั้งที่ key ถูก) | key เก่าจาก onboarding ค้างใน config เดิม override | `export CLAUDE_CONFIG_DIR=/tmp/claude-bda` (ใหม่) + `ANTHROPIC_BASE_URL=https://ai-local.scmc.digital` + `ANTHROPIC_API_KEY=<key พนักงาน>` |
 | คำตอบว่างเปล่า | max_tokens ต่ำ (<2000) + lane thinking กิน budget | อย่า hardcode max_tokens ต่ำ ปล่อย default หรือ ≥4000 |
 | AI ตอบเฉยๆ ไม่ทำงาน (งานจิ๋ว) | โมเดลคิดว่าง่ายพอทำในหัว ไม่เรียก tool | สั่งชัด "ใช้ tool เขียนไฟล์/รันคำสั่งจริง" |
-| Claude Code สร้างไฟล์ไม่เสร็จ หยุดกลางทาง | tool-format ของโมเดล local ไม่เข้ากับ Claude Code เต็มที่ | ใช้ **Hermes** แทนสำหรับงาน agentic (เชื่อถือได้กว่า) |
+| Claude Code CLI ทำ tool ไม่ได้ / หยุดกลางทาง / `<function=...>` โผล่เป็น text | ชื่อ model `claude-sonnet-4-5` ทำให้ gateway แปลง tool เพี้ยน (~2/5) | **Claude Code CLI: ใช้ `--model bda/dev-gx10-local`** (พิสูจน์แล้ว 5/5) ไม่ใช่ claude-sonnet-4-5 |
+| Claude Code **Desktop** ยังไม่เสถียร | Desktop บังคับชื่อ claude-* (เปลี่ยนไม่ได้) → ยัง ~2/5 | ใช้ **Hermes** หรือ **Claude Code CLI + bda/dev-gx10-local** แทนไปก่อน |
 
 ## Model ที่ควรเลือก
 - `bda/dev` — งานโค้ด/แก้บั๊ก/planning (route อัตโนมัติเข้า A40/GX10)
