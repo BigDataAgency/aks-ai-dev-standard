@@ -31,7 +31,7 @@ Use these model IDs unless private rollout docs say otherwise:
 bda/dev      # งานโค้ด/แก้บั๊ก/planning — route อัตโนมัติเข้า node local (A40/GX10)
 bda/nondev   # ถาม-ตอบทั่วไป/เอกสาร (มี URL prefetch ผ่าน gateway)
 # งานใหญ่/ประวัติยาว/หลายไฟล์ → paid: bda/deepseek-v4-pro-paid-cloud, bda/qwen3.7-plus-paid-cloud ฯลฯ
-# สำหรับ Claude Code เท่านั้น: claude-sonnet-4-5 (Desktop default, ใช้ได้ปกติ) / claude-code-local (CLI)
+# สำหรับ Claude Code เท่านั้น: claude-code-local (ชื่อเดียว ทั้ง Desktop และ CLI — claude-sonnet-4-5 ปลดแล้ว 2026-07-06)
 ```
 
 Hermes Desktop Agent should use the personal installer package. The installer sets a BDA local compatibility profile that disables heavy Hermes local tool schemas for `cli` and `desktop`, so the A40 Qwen3 Coder route fits the current context window.
@@ -303,8 +303,7 @@ unset ANTHROPIC_AUTH_TOKEN
 Model ที่ใช้ได้ (ทดสอบจริง 2026-07-05):
 
 ```text
-claude-sonnet-4-5   # Desktop/default — ใช้ได้ปกติ (server route เข้า node ที่รองรับให้แล้ว)
-claude-code-local   # CLI: claude -p "..." --model claude-code-local (route ตรง GX10)
+claude-code-local   # ชื่อเดียวสำหรับ Claude Code ทั้ง Desktop และ CLI (load-balance 3 nodes)
 ```
 
 ถ้าเจอ `<function=...>` โผล่เป็นข้อความในคำตอบ = route ฝั่ง server เพี้ยน ให้แจ้ง admin ทันที (ดู troubleshooting)

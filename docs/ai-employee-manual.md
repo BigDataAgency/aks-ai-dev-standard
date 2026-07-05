@@ -25,11 +25,11 @@
 | งาน | แนะนำ | เหตุผลจากข้อมูล |
 |---|---|---|
 | แก้บั๊กในโค้ดเดิม | **Hermes + `/fix-bug`** | 3/3 test ผ่าน + standard compliance 4.7/5 |
-| สร้าง service/module ใหม่ scope ชัด | **Claude Code** (Desktop ใช้ได้ปกติ; CLI: `--model claude-code-local`) หรือ Hermes + `/build-feature` | Claude 2/3 เขียวสะอาดบนงานเล็ก |
+| สร้าง service/module ใหม่ scope ชัด | **Claude Code** (Desktop+CLI ตั้ง model = `claude-code-local` ชื่อเดียว) หรือ Hermes + `/build-feature` | Claude 2/3 เขียวสะอาดบนงานเล็ก + /fix-bug 3/3 หลังอัปเกรด fleet |
 | งานใหญ่ทั้งระบบ | **ห้ามสั่งรวดเดียว** — แตกเป็นชิ้นก่อนเสมอ | 0/8 ทุกเครื่องมือ |
 | ถาม-ตอบ/เอกสาร | `bda/nondev` | — |
 
-หมายเหตุ Claude Code: ระบบฝั่ง server แก้แล้ว (2026-07-05) ให้ `claude-sonnet-4-5` วิ่งเข้า node ที่รองรับ — Desktop ใช้ได้ out-of-the-box; ถ้าเจอ `<function=...>` โผล่ในคำตอบเมื่อไหร่ = แจ้ง admin (route เพี้ยน)
+หมายเหตุ Claude Code: **ใช้ model ชื่อ `claude-code-local` ชื่อเดียว** (ทั้ง Desktop และ CLI — ชื่อ `claude-sonnet-4-5` ปลดออกแล้ว 2026-07-06 ใครตั้งค้างไว้จะเจอ 400 ให้เปลี่ยนชื่อ) ถ้าเจอ `<function=...>` โผล่ = แจ้ง admin
 
 ## ใช้ command เสมอ อย่าสั่งลอยๆ
 `/fix-bug`, `/build-feature` มี checklist บังคับ verify ในตัว — ตอนทดสอบ สั่งลอยๆ แล้ว AI ไม่อ่านโจทย์บ้าง โม้บ้าง; สั่งผ่าน command แล้วอัตราจบจริงสูงขึ้นชัดเจน
