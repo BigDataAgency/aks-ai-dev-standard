@@ -25,4 +25,4 @@
 ## สำหรับ admin: บทเรียนจากคืน 2026-07-05
 - อาการฝูง ("ทุกอย่างล้มพร้อมกัน") ให้สงสัย **rate limit / โควตากลาง** ก่อนสงสัยระบบพัง
 - `claude-sonnet-4-5` ต้องอยู่ GX10 เท่านั้น (A40 leak tool format กับ request ใหญ่) — ตอนนี้คุมโดย litellm alias (gate anthropic lane rewrite ปิดด้วย `BDA_ANTHROPIC_LANE_REWRITE_MODELS=disabled`)
-- ก่อนโทษ AI/ระบบ ให้ตรวจเครื่องวัด/วิธีเทสก่อน (คืนนั้น harness เราเองผิด 4 จุด)
+- ก่อนโทษ AI/ระบบ ให้ตรวจเครื่องวัด/วิธีเทสก่อน (คืนนั้น harness เราเองผิด 6 จุด)
