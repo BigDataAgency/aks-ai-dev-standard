@@ -48,3 +48,14 @@ print(f"✅ Cline config updated: model={os.environ['MODEL']} ctx={os.environ['C
 print(f"   backup: {p}.bak-*")
 print("   ▶ ปิด/เปิด editor ใหม่ แล้ว Start New Task — แถบ context จะแสดง 256.0k")
 PY
+
+# ติดตั้ง Thai self-review rule เป็น Cline global rule (มีผลทุก workspace)
+# ที่มา: Qwen3.6 เขียนไทยเพี้ยนเป็นรายครั้งแต่ตรวจ/แก้ได้แม่น — ดู docs/thai-output-safety.md
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RULE_SRC="$SCRIPT_DIR/../templates/clinerules-thai-review.md"
+RULES_DIR="$HOME/Documents/Cline/Rules"
+if [ -f "$RULE_SRC" ]; then
+  mkdir -p "$RULES_DIR"
+  cp "$RULE_SRC" "$RULES_DIR/bda-thai-review.md"
+  echo "✅ Thai self-review rule installed: $RULES_DIR/bda-thai-review.md"
+fi
