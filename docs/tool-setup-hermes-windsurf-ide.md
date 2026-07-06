@@ -260,11 +260,14 @@ export BDA_AI_ROUTER_API_KEY="personal employee key"
 
 ## Cline: ตั้งค่าอัตโนมัติด้วย script เดียว (แนะนำ — ไม่ต้องกดอะไรเอง)
 
-Cline ไม่อ่าน context window จาก gateway (default 128k) — รัน script นี้ครั้งเดียว (หรือให้ installer รันให้):
+Cline ไม่อ่าน context window จาก gateway (default 128k) — **วิธีง่ายสุด: `bda update` (หรือ `bda setup`) ทำให้อัตโนมัติ** (ปิด editor ทุกตัวก่อน):
 
 ```bash
-./scripts/setup-cline-bda.sh    # ตั้ง base URL สะอาด + bda/dev + ctx 262144 + maxTokens 16384
+bda update     # ดึง standard ล่าสุด + ตั้งค่า Cline 262k ให้เลย (คำสั่งเดียวจบ)
+# หรือถ้าอัปเดตแล้วอยากตั้ง client อย่างเดียว:
+bda setup
 ```
+(ทางลับ manual: `./scripts/setup-cline-bda.sh`)
 
 - เขียนที่ `~/.cline/data/globalState.json` (backup อัตโนมัติ), ไม่แตะ API key (ตั้งใน UI ครั้งแรกครั้งเดียว)
 - ปิด/เปิด editor แล้ว Start New Task → แถบ context = 256.0k
