@@ -8,6 +8,15 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [0.14.0] - 2026-07-06
+
+**One-command onboarding** (owner: "ทำ installer คลีนๆ ไม่ต้องให้พนักงานเปิด docs เอง"):
+
+- **`bda setup`** (ใหม่) — ตั้งค่า client อัตโนมัติ: รัน `setup-cline-bda.sh` ให้ (Cline context 262k), เตือนเรื่อง model `claude-code-local` — idempotent + defensive (editor เปิดอยู่ = บอกให้ปิดก่อน ไม่ทำพัง)
+- **`bda update`** ตอนนี้เรียก client setup ให้ท้ายสุดอัตโนมัติ (มี `--no-setup` ปิดได้) — พนักงานรัน `bda update` คำสั่งเดียวจบ ไม่ต้องไล่ทำตาม docs
+- **`bda version`** โชว์ `standard_version` เพิ่ม (แยกจาก `cli_version`) + note อธิบาย — แก้ความสับสน "ทำไมยัง 0.11.8"
+- CLI version bump: `bda-session/0.11.8` → `0.12.0`; installer `0.11.8` → `0.12.0`
+
 ## [0.13.0] - 2026-07-06
 
 **ใหม่: `eval/` — AI eval harness กลางของทีม (v1)** สร้างจากบทเรียนคืน 2026-07-05→06 (เครื่องวัดเฉพาะกิจกล่าวหา AI ผิด 7 ครั้งในคืนเดียว):

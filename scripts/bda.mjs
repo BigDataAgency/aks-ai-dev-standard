@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.11.8";
+const SESSION_VERSION = "bda-session/0.12.0";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
 const FALLBACK_BDA_MODELS = [
@@ -689,12 +689,58 @@ function applyServerSessionResult(session, result) {
   return true;
 }
 
+function readStandardVersion(standardDir) {
+  try {
+    const p = path.join(standardDir || repoRoot(), "VERSION");
+    return fs.existsSync(p) ? fs.readFileSync(p, "utf8").trim() : "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
 function printVersion() {
+  const standardDir = path.resolve(process.env.BDA_AI_DEV_STANDARD_DIR || repoRoot());
   console.log(JSON.stringify({
     ok: true,
     name: "bda-ai-dev-standard",
     session_version: SESSION_VERSION,
     cli_version: cliVersion(),
+    standard_version: readStandardVersion(standardDir),
+    note: "cli_version = version ของตัว CLI; standard_version = version ของชุด docs/commands/eval (bda update ดึงล่าสุดให้)",
+  }, null, 2));
+}
+
+// day-1 client setup: ทำ Cline config ให้อัตโนมัติ (ต้นทาง ไม่ต้องเปิด docs) — defensive, ไม่พังของเดิม
+function runClineSetup(standardDir) {
+  const script = path.join(standardDir, "scripts", "setup-cline-bda.sh");
+  if (process.platform === "win32") return { ran: false, reason: "windows-ยังไม่รองรับ script (ตั้งใน Cline UI: ctx 262144)" };
+  if (!fs.existsSync(script)) return { ran: false, reason: "script-missing" };
+  const clineState = path.join(os.homedir(), ".cline", "data", "globalState.json");
+  if (!fs.existsSync(clineState)) return { ran: false, reason: "cline-ยังไม่ได้ติดตั้ง/ตั้งค่า — ข้าม" };
+  try {
+    const out = execFileSync("bash", [script], { encoding: "utf8", env: process.env });
+    return { ran: true, ok: true, detail: out.trim().split("\n").filter(Boolean).slice(-2).join(" | ") };
+  } catch (err) {
+    const msg = String((err.stdout || "") + (err.stderr || "") + (err.message || ""));
+    if (msg.includes("ต้องปิด")) return { ran: false, reason: "editors-open", hint: "ปิด VS Code / Devin / Windsurf ให้หมด แล้วรัน: bda setup" };
+    return { ran: false, reason: "error", detail: msg.slice(0, 160) };
+  }
+}
+
+async function setupClient(config, args) {
+  const standardDir = path.resolve(process.env.BDA_AI_DEV_STANDARD_DIR || repoRoot());
+  const cline = runClineSetup(standardDir);
+  console.log(JSON.stringify({
+    ok: true,
+    action: "setup",
+    standard_dir: standardDir,
+    standard_version: readStandardVersion(standardDir),
+    cli_version: cliVersion(),
+    cline_config: cline,
+    claude_code_model: "Claude Code ตั้ง model = claude-code-local (ถ้าตั้ง claude-sonnet-4-5 ไว้จะได้ 400 — เปลี่ยนใน settings)",
+    next: cline.reason === "editors-open"
+      ? "ปิด editor ทุกตัวแล้วรัน: bda setup"
+      : "เปิด Cline task ใหม่ จะเห็น context 262k",
   }, null, 2));
 }
 
@@ -756,6 +802,10 @@ async function updateStandard(args, config = {}) {
     ? cleanHermesConfig({ dryRun: true, models: gatewayModels })
     : cleanHermesConfigWithUpdatedScript(standardDir, gatewayModels);
   const thclawsResult = syncThclawsCatalogue(gatewayModels, { dryRun });
+  let clientSetup = null;
+  if (!boolValue(args.no_setup) && !dryRun) {
+    try { clientSetup = runClineSetup(standardDir); } catch (e) { clientSetup = { ran: false, reason: "error", detail: String(e.message || e).slice(0, 120) }; }
+  }
   const inventorySendResult = await sendInventoryEvent(config, args, {
     source: "bda update",
     utility_command: "bda update",
@@ -778,6 +828,7 @@ async function updateStandard(args, config = {}) {
     gateway_models: gatewayModels,
     hermes_config: configResult,
     thclaws_config: thclawsResult,
+    client_setup: clientSetup,
     inventory_send_result: inventorySendResult,
     note: "Restart Hermes Desktop after update if it is open. Hermes BDA provider/model config has been cleaned so only the BDA AI Gateway group remains.",
   }, null, 2));
@@ -1526,7 +1577,8 @@ TERMINAL COMMANDS
   bda event        ส่ง event ระหว่าง session เช่น command ย่อย/งานย่อย
   bda help         ดู command และกติกาสั้น ๆ
   bda version      แสดง version ของ CLI/session format
-  bda update       อัปเดต BDA AI Dev Standard โดยไม่ต้องลง installer ใหม่
+  bda update       อัปเดต BDA AI Dev Standard + ตั้งค่า client ให้อัตโนมัติ (Cline 262k)
+  bda setup        ตั้งค่า client (Cline context 262k) อย่างเดียว โดยไม่ดึง repo ใหม่
   bda doctor       ตรวจ config/session/Hermes hidden context โดยไม่เปิดเผย key/prompt
   bda doctor --fix archive Hermes state ที่เสี่ยง โดยไม่ลบ key/config/app
   bda config-status ตรวจ Hermes provider/model config ที่ bda update จะ rewrite
@@ -1700,6 +1752,7 @@ async function main() {
   if (subcommand === "help" || subcommand === "--help" || subcommand === "-h") return printHelp();
   if (subcommand === "version" || subcommand === "--version" || subcommand === "-v") return printVersion();
   if (subcommand === "update") return updateStandard(args, config);
+  if (subcommand === "setup") return setupClient(config, args);
   if (subcommand === "config-status") return printConfigStatus(config);
   if (subcommand === "config-clean") return printConfigClean(config);
   if (subcommand === "doctor") return printDoctor(config, args);

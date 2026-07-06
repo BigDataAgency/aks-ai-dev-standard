@@ -111,7 +111,7 @@ const help = run(["help"]);
 assert.match(help.stdout, /bda start/);
 assert.match(help.stdout, /bda-dev/);
 assert.doesNotMatch(help.stdout, /bda-dev-plan-execute/);
-assert.match(help.stdout, /bda-session\/0\.11\.8/);
+assert.match(help.stdout, /bda-session\/0\.12\.0/);
 assert.match(help.stdout, /TERMINAL COMMANDS/);
 assert.match(help.stdout, /CHAT-ONLY PROMPT PREFIXES/);
 assert.match(help.stdout, /ถ้าพิมพ์ใน terminal ให้ใช้ bda start \/ bda event \/ bda stop แทน/);
@@ -126,7 +126,7 @@ assert.match(help.stdout, /bda hermes-light-mode --yes/);
 const version = run(["version"]);
 const versionJson = JSON.parse(version.stdout);
 assert.equal(versionJson.ok, true);
-assert.equal(versionJson.cli_version, "0.11.8");
+assert.equal(versionJson.cli_version, "0.12.0");
 
 const privateInstallerConfigPath = path.join(temp, "installer-private-config.json");
 fs.writeFileSync(privateInstallerConfigPath, JSON.stringify({
@@ -142,7 +142,7 @@ const installerDryRun = runInstaller([
 ]);
 const installerDryRunJson = JSON.parse(installerDryRun.stdout);
 assert.equal(installerDryRunJson.action, "install-bda-standard");
-assert.equal(installerDryRunJson.installer_version, "installer/0.11.8");
+assert.equal(installerDryRunJson.installer_version, "installer/0.12.0");
 assert.equal(installerDryRunJson.dry_run, true);
 assert.equal(installerDryRunJson.config.employee_code, "BDA999");
 assert.match(installerDryRunJson.config.api_key, /^sha256:/);
@@ -156,7 +156,7 @@ assert.equal(updateJson.dry_run, true);
 assert.equal(updateJson.inventory_send_result.dry_run, true);
 assert.equal(updateJson.inventory_send_result.event.event_kind, "bda_inventory");
 assert.equal(updateJson.inventory_send_result.event.utility_command, "bda update");
-assert.equal(updateJson.inventory_send_result.event.bda_cli_version, "0.11.8");
+assert.equal(updateJson.inventory_send_result.event.bda_cli_version, "0.12.0");
 assert.equal(updateJson.hermes_config.config_paths[0].changed, true);
 assert.ok(updateJson.hermes_config.config_paths[0].before_models.includes("bda/qwen3-coder"));
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3-coder"));
