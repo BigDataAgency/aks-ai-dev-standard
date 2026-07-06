@@ -8,9 +8,32 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.12.0";
+const SESSION_VERSION = "bda-session/0.12.1";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
+
+// Live context windows learned from the gateway /v1/models response (id -> context_window).
+// Populated by fetchBdaGatewayModels and preferred over the hardcoded heuristic so that
+// backend/gateway context changes (e.g. bda/dev 64k -> 256k) flow through `bda update`
+// without editing this script. Seeded from BDA_GATEWAY_CONTEXT_JSON so the config-clean
+// subprocess (spawned by cleanHermesConfigWithUpdatedScript) inherits the same values.
+const GATEWAY_CONTEXT_WINDOWS = new Map();
+function seedGatewayContextFromEnv() {
+  try {
+    const parsed = JSON.parse(process.env.BDA_GATEWAY_CONTEXT_JSON || "{}");
+    if (parsed && typeof parsed === "object") {
+      for (const [id, ctx] of Object.entries(parsed)) {
+        const n = Number(ctx);
+        if (typeof id === "string" && id.startsWith("bda/") && Number.isFinite(n) && n > 0) {
+          GATEWAY_CONTEXT_WINDOWS.set(id, Math.trunc(n));
+        }
+      }
+    }
+  } catch {
+    // ignore malformed env seed; fall back to heuristic
+  }
+}
+seedGatewayContextFromEnv();
 const FALLBACK_BDA_MODELS = [
   "bda/qwable-27b-local",
   "bda/qwythos-9b-local",
@@ -136,10 +159,16 @@ const FORBIDDEN_HERMES_ARCHIVE_PATHS = Array.from(new Set([
 ].filter(Boolean).map((entry) => path.resolve(entry))));
 
 function bdaModelContextLength(model) {
+  // Prefer the live context_window reported by the gateway /v1/models response.
+  const gatewayCtx = GATEWAY_CONTEXT_WINDOWS.get(model);
+  if (Number.isFinite(gatewayCtx) && gatewayCtx > 0) return gatewayCtx;
+  // Fallback heuristic for offline/dry-run when the gateway did not report a value.
   if (model.includes("qwen3.7") || model.includes("minimax")) return 262144;
   if (model.includes("deepseek") || model.includes("glm")) return 131072;
   if (model.includes("qwythos")) return 262144;
   if (model.includes("qwable")) return 131072;
+  if (model === "bda/dev") return 262144;
+  if (model === "bda/nondev") return 131072;
   return 65536;
 }
 
@@ -394,9 +423,15 @@ async function fetchBdaGatewayModels(config = {}) {
     });
     if (!response.ok) return FALLBACK_BDA_MODELS;
     const payload = await response.json();
-    const models = Array.isArray(payload.data)
-      ? payload.data.map((row) => row && row.id).filter((id) => typeof id === "string" && id.startsWith("bda/"))
-      : [];
+    const rows = Array.isArray(payload.data) ? payload.data : [];
+    for (const row of rows) {
+      if (!row || typeof row.id !== "string" || !row.id.startsWith("bda/")) continue;
+      const ctx = Number(row.context_window ?? row.max_context_tokens ?? row.context_length ?? row.max_model_len);
+      if (Number.isFinite(ctx) && ctx > 0) GATEWAY_CONTEXT_WINDOWS.set(row.id, Math.trunc(ctx));
+    }
+    const models = rows
+      .map((row) => row && row.id)
+      .filter((id) => typeof id === "string" && id.startsWith("bda/"));
     return models.length ? mergeBdaGatewayModels(models) : FALLBACK_BDA_MODELS;
   } catch {
     return FALLBACK_BDA_MODELS;
@@ -840,7 +875,12 @@ function cleanHermesConfigWithUpdatedScript(standardDir, gatewayModels = FALLBAC
     try {
       const raw = execFileSync(process.execPath, [updatedScript, "config-clean"], {
         encoding: "utf8",
-        env: { ...process.env, BDA_UPDATE_POST_CLEAN: "1", BDA_GATEWAY_MODELS_JSON: JSON.stringify(gatewayModels) },
+        env: {
+          ...process.env,
+          BDA_UPDATE_POST_CLEAN: "1",
+          BDA_GATEWAY_MODELS_JSON: JSON.stringify(gatewayModels),
+          BDA_GATEWAY_CONTEXT_JSON: JSON.stringify(Object.fromEntries(GATEWAY_CONTEXT_WINDOWS)),
+        },
       });
       const parsed = JSON.parse(raw);
       if (parsed && parsed.hermes_config) return parsed.hermes_config;
