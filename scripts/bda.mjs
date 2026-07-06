@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.12.1";
+const SESSION_VERSION = "bda-session/0.12.2";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
 
@@ -1605,6 +1605,154 @@ function unusedLegacyModelCleanerForReference(yamlText) {
   return out.join("\n");
 }
 
+/*
+ * bda thai-check — deterministic Thai text validator (safety net สุดท้าย)
+ * เหตุผล: local model (Qwen3.6) มีจุดอ่อนตอน generate ภาษาไทย (สระ/วรรณยุกต์เพี้ยนเป็นรายครั้ง)
+ * ตัวนี้จับเฉพาะ sequence ที่ "ผิดโครงสร้างภาษาไทยแน่นอน" — ส่วนคำสะกดถูกแต่ผิดความหมาย
+ * (เช่น "หน่า" แทน "น่า") ต้องพึ่ง self-review rule ใน CLAUDE.md/AGENTS.md/.clinerules แทน
+ *
+ * Character classes (Unicode Thai block):
+ *   consonant   ก-ฮ           U+0E01-U+0E2E
+ *   above vowel ั ิ ี ึ ื ็    U+0E31, U+0E34-U+0E37, U+0E47  (ำ U+0E33 ไม่นับ — น้ำ = tone+ำ ถูกต้อง)  (thai-check:ignore)
+ *   below vowel ุ ู ฺ          U+0E38-U+0E3A  (thai-check:ignore)
+ *   tone        ่ ้ ๊ ๋        U+0E48-U+0E4B  (thai-check:ignore)
+ *   other above ์ ํ ๎          U+0E4C-U+0E4E  (thai-check:ignore)
+ */
+const THAI_CONSONANT = "ก-ฮ";
+const THAI_ABOVE_VOWEL = "ัิ-ื็"; // thai-check:ignore
+const THAI_BELOW_VOWEL = "ุ-ฺ"; // thai-check:ignore
+const THAI_TONE = "่-๋"; // thai-check:ignore
+const THAI_COMBINING = `${THAI_ABOVE_VOWEL}${THAI_BELOW_VOWEL}${THAI_TONE}ำ์-๎`; // thai-check:ignore
+
+const THAI_CHECK_RULES = [
+  {
+    code: "double-tone",
+    message: "วรรณยุกต์ซ้อนกัน 2 ตัวขึ้นไป",
+    regex: new RegExp(`[${THAI_TONE}]{2,}`, "gu"),
+  },
+  {
+    code: "stacked-vowel",
+    message: "สระบน/สระล่างซ้อนกัน",
+    regex: new RegExp(`[${THAI_ABOVE_VOWEL}${THAI_BELOW_VOWEL}][${THAI_ABOVE_VOWEL}${THAI_BELOW_VOWEL}]`, "gu"),
+  },
+  {
+    code: "tone-before-vowel",
+    message: "วรรณยุกต์นำหน้าสระบน/สระล่าง (ลำดับผิด เช่น น้ี ที่ถูกคือ นี้)", // thai-check:ignore
+    regex: new RegExp(`[${THAI_TONE}][${THAI_ABOVE_VOWEL}${THAI_BELOW_VOWEL}]`, "gu"),
+  },
+  {
+    code: "orphan-mark",
+    message: "สระบน/ล่าง/วรรณยุกต์ไม่มีพยัญชนะนำหน้า",
+    // combining mark ที่ตัวก่อนหน้าไม่ใช่พยัญชนะและไม่ใช่ combining mark ตัวอื่น (รวมขึ้นต้นบรรทัด)
+    regex: new RegExp(`(?:^|[^${THAI_CONSONANT}${THAI_COMBINING}])[${THAI_COMBINING}]`, "gu"),
+  },
+  {
+    code: "repeated-char",
+    message: "อักษรไทยตัวเดียวกันซ้ำติดกันเกิน 4 ตัว (น่าสงสัยว่า generate เพี้ยน)",
+    regex: new RegExp("([ก-๎])\\1{4,}", "gu"), // thai-check:ignore
+  },
+];
+
+function thaiCheckLine(line) {
+  const findings = [];
+  // pragma: บรรทัดที่ตั้งใจมีตัวอย่างข้อความเพี้ยน (docs/สอน) ใส่ thai-check:ignore ในบรรทัดเดียวกันเพื่อข้าม
+  if (line.includes("thai-check:ignore")) return findings;
+  for (const rule of THAI_CHECK_RULES) {
+    rule.regex.lastIndex = 0;
+    let match;
+    while ((match = rule.regex.exec(line)) !== null) {
+      const col = match.index + 1;
+      const from = Math.max(0, match.index - 6);
+      const context = line.slice(from, Math.min(line.length, match.index + match[0].length + 6));
+      findings.push({ code: rule.code, message: rule.message, col, context });
+      if (match.index === rule.regex.lastIndex) rule.regex.lastIndex += 1;
+    }
+  }
+  return findings;
+}
+
+function thaiCheckText(text, label) {
+  const problems = [];
+  const lines = text.split(/\r?\n/);
+  lines.forEach((line, index) => {
+    for (const finding of thaiCheckLine(line)) {
+      problems.push({ file: label, line: index + 1, ...finding });
+    }
+  });
+  return problems;
+}
+
+function thaiCheckStagedDiff() {
+  const raw = execFileSync("git", ["diff", "--cached", "--unified=0", "--no-color"], { encoding: "utf8" });
+  const problems = [];
+  let currentFile = "(unknown)";
+  let lineNo = 0;
+  for (const line of raw.split(/\r?\n/)) {
+    const fileMatch = line.match(/^\+\+\+ b\/(.+)$/);
+    if (fileMatch) { currentFile = fileMatch[1]; continue; }
+    const hunkMatch = line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+    if (hunkMatch) { lineNo = Number(hunkMatch[1]); continue; }
+    if (line.startsWith("+") && !line.startsWith("+++")) {
+      const content = line.slice(1);
+      for (const finding of thaiCheckLine(content)) {
+        problems.push({ file: currentFile, line: lineNo, ...finding });
+      }
+      lineNo += 1;
+    }
+  }
+  return problems;
+}
+
+async function readStdinText() {
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  return Buffer.concat(chunks).toString("utf8");
+}
+
+async function thaiCheck(args) {
+  const files = args._.slice(1);
+  let problems = [];
+  const scanned = [];
+  if (boolValue(args.diff)) {
+    problems = thaiCheckStagedDiff();
+    scanned.push("git diff --cached");
+  } else if (files.length === 0 || (files.length === 1 && files[0] === "-")) {
+    if (process.stdin.isTTY) {
+      console.error(JSON.stringify({
+        ok: false,
+        error: "No input. Usage: bda thai-check <files...> | bda thai-check --diff | <cmd> | bda thai-check",
+      }, null, 2));
+      process.exit(2);
+    }
+    problems = thaiCheckText(await readStdinText(), "(stdin)");
+    scanned.push("(stdin)");
+  } else {
+    for (const file of files) {
+      if (!fs.existsSync(file)) {
+        console.error(JSON.stringify({ ok: false, error: `File not found: ${file}` }, null, 2));
+        process.exit(2);
+      }
+      problems = problems.concat(thaiCheckText(fs.readFileSync(file, "utf8"), file));
+      scanned.push(file);
+    }
+  }
+  if (problems.length === 0) {
+    console.log(JSON.stringify({ ok: true, action: "thai-check", scanned, problems: [] }, null, 2));
+    return;
+  }
+  for (const p of problems) {
+    console.error(`${p.file}:${p.line}:${p.col} [${p.code}] ${p.message} -> "${p.context}"`);
+  }
+  console.error(JSON.stringify({
+    ok: false,
+    action: "thai-check",
+    scanned,
+    problem_count: problems.length,
+    hint: "ข้อความไทยเพี้ยนจากการ generate — อ่านทวนแล้วแก้ให้ถูกก่อน commit (โมเดลตรวจ/แก้ไทยได้แม่น แค่สั่งให้ทวน)",
+  }, null, 2));
+  process.exit(1);
+}
+
 function printHelp() {
   console.log(`BDA AI Dev CLI ${SESSION_VERSION}
 
@@ -1626,6 +1774,9 @@ TERMINAL COMMANDS
   bda hermes-reset recovery ขั้นสูง: archive Hermes chat/session state เฉพาะจุด ไม่ลบ app/key/config
   bda hermes-clean-context --yes alias ของ hermes-reset สำหรับ installer/เครื่องที่ใช้ชื่อเดิม
   bda hermes-light-mode --yes archive skill cache ที่ไม่ใช้ ให้ Hermes prompt เบาลง
+  bda thai-check     ตรวจข้อความไทยเพี้ยน (สระ/วรรณยุกต์ซ้อน/ลำดับผิด) ในไฟล์/stdin/git diff
+                     ใช้: bda thai-check <files...> | bda thai-check --diff (staged) | <cmd> | bda thai-check
+                     เจอปัญหา = exit 1 พร้อมบรรทัด/ตำแหน่ง — ใช้เป็น pre-commit hook ได้ (ดู docs/thai-output-safety.md)
 
 Terminal examples:
   bda start --project "BDA-InnoHub" --task "debug login error" --command bda-dev --work-type debug
@@ -1803,6 +1954,7 @@ async function main() {
   if (subcommand === "event") return event(config, args);
   if (subcommand === "stop") return stop(config, args);
   if (subcommand === "current") return current(config);
+  if (subcommand === "thai-check") return thaiCheck(args);
   console.error(`Unknown command: ${subcommand}\n`);
   printHelp();
   process.exit(2);
