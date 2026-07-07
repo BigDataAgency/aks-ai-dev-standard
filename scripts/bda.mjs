@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 // production endpoint เป็น default — เครื่องที่ env เก่า/หายจะได้รายงาน inventory ได้ (แก้ false negative ตอนเช็ค adoption 2026-07-07)
 const DEFAULT_URL = "https://ai-local.scmc.digital/bda/work-events";
-const SESSION_VERSION = "bda-session/0.12.3";
+const SESSION_VERSION = "bda-session/0.12.4";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
 
@@ -184,7 +184,9 @@ function buildHermesBdaConfigBlock(models = FALLBACK_BDA_MODELS) {
     : uniqueModels[0] || "bda/qwable-27b-local";
   const compressionModel = uniqueModels.includes("bda/qwythos-9b-local")
     ? "bda/qwythos-9b-local"
-    : defaultModel;
+    : uniqueModels.includes("bda/nondev")
+      ? "bda/nondev" // 2026-07-07: งานบีบอัด context เป็นงานเบา — อย่าแย่ง slot ขนานของ bda/dev (ลด 429) + nondev ไทยเป๊ะกว่า
+      : defaultModel;
   const modelEntries = uniqueModels
     .map((model) => `      ${model}:\n        context_length: ${bdaModelContextLength(model)}`)
     .join("\n");
@@ -763,9 +765,30 @@ function runClineSetup(standardDir) {
   }
 }
 
+function ensureClaudeEnvSettings() {
+  // ลด parallel call เบื้องหลังของ Claude Code (ตั้งชื่อแชท ฯลฯ) — กัน 429 ชนโควตาขนาน
+  try {
+    const p = path.join(os.homedir(), ".claude", "settings.json");
+    ensureDir(path.dirname(p));
+    let obj = {};
+    if (fs.existsSync(p)) {
+      try { obj = JSON.parse(fs.readFileSync(p, "utf8")); } catch { return { ran: false, reason: "settings.json parse ไม่ได้ — ไม่แตะ" }; }
+      fs.copyFileSync(p, `${p}.bak-bda-${Date.now()}`);
+    }
+    obj.env = obj.env || {};
+    if (obj.env.DISABLE_NON_ESSENTIAL_MODEL_CALLS === "1") return { ran: true, changed: false };
+    obj.env.DISABLE_NON_ESSENTIAL_MODEL_CALLS = "1";
+    fs.writeFileSync(p, JSON.stringify(obj, null, 2) + "\n");
+    return { ran: true, changed: true };
+  } catch (err) {
+    return { ran: false, reason: String(err.message || err).slice(0, 100) };
+  }
+}
+
 async function setupClient(config, args) {
   const standardDir = path.resolve(process.env.BDA_AI_DEV_STANDARD_DIR || repoRoot());
   const cline = runClineSetup(standardDir);
+  const claudeEnv = ensureClaudeEnvSettings();
   console.log(JSON.stringify({
     ok: true,
     action: "setup",
@@ -773,6 +796,7 @@ async function setupClient(config, args) {
     standard_version: readStandardVersion(standardDir),
     cli_version: cliVersion(),
     cline_config: cline,
+    claude_env: claudeEnv,
     claude_code_model: "Claude Code ตั้ง model = claude-code-local (ถ้าตั้ง claude-sonnet-4-5 ไว้จะได้ 400 — เปลี่ยนใน settings)",
     next: cline.reason === "editors-open"
       ? "ปิด editor ทุกตัวแล้วรัน: bda setup"
@@ -841,6 +865,7 @@ async function updateStandard(args, config = {}) {
   let clientSetup = null;
   if (!boolValue(args.no_setup) && !dryRun) {
     try { clientSetup = runClineSetup(standardDir); } catch (e) { clientSetup = { ran: false, reason: "error", detail: String(e.message || e).slice(0, 120) }; }
+    try { ensureClaudeEnvSettings(); } catch {}
   }
   const inventorySendResult = await sendInventoryEvent(config, args, {
     source: "bda update",
