@@ -7,8 +7,9 @@ import readline from "node:readline/promises";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-const DEFAULT_URL = "https://example.com/bda/work-events";
-const SESSION_VERSION = "bda-session/0.12.2";
+// production endpoint เป็น default — เครื่องที่ env เก่า/หายจะได้รายงาน inventory ได้ (แก้ false negative ตอนเช็ค adoption 2026-07-07)
+const DEFAULT_URL = "https://ai-local.scmc.digital/bda/work-events";
+const SESSION_VERSION = "bda-session/0.12.3";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
 const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
 
@@ -544,7 +545,7 @@ async function sendEvent(config, event, args) {
     config,
     ["api_key", "work_event_api_key"],
   );
-  const dryRun = boolValue(args.dry_run) || url === DEFAULT_URL;
+  const dryRun = boolValue(args.dry_run) || url.includes("example.com");
   const payload = { ...event };
 
   if (dryRun) {
