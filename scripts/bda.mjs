@@ -202,6 +202,10 @@ auxiliary:
     provider: bda
     model: ${compressionModel}
     context_length: ${bdaModelContextLength(compressionModel)}
+compression:
+  enabled: true
+  threshold: 0.50
+  target_ratio: 0.20
 providers:
   bda:
     name: BDA AI Gateway
@@ -957,7 +961,7 @@ function collectBdaModelNames(yamlText) {
 }
 
 function normalizeHermesBdaConfig(yamlText, models = FALLBACK_BDA_MODELS) {
-  let next = removeTopLevelBlocks(yamlText, new Set(["model", "auxiliary", "providers", "custom_providers"]));
+  let next = removeTopLevelBlocks(yamlText, new Set(["model", "auxiliary", "providers", "custom_providers", "compression"]));
   next = removeLegacyAgentCommandCatalog(next);
   next = next.replace(/^\s+$/gm, "");
   next = next.replace(/\n{3,}/g, "\n\n").trimStart();
