@@ -41,7 +41,7 @@
 ## Non-performance confirmation
 
 - [ ] This feedback is about improving BDA AI Dev Standard
-- [ ] This feedback is not - [ ] This feedback is not a performance review, score, KPI, or individual evaluation
+- [ ] This feedback is not a performance review, score, KPI, or individual evaluation
 - [ ] Role/team context, if provided, is optional and only for understanding usage
 
 ## BDA Standard files used

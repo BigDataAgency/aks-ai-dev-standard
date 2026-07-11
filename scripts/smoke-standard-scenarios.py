@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SANDBOX = Path("/tmp/bda-ai-dev-standard-smoke")
-EXPECTED_VERSION = "0.11.8"
+EXPECTED_VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 
 REQUIRED_SECTIONS = [
     "BDA Standard files used",
@@ -256,6 +256,8 @@ def validate_legacy_staff_versioning_removed() -> None:
 
     for path in ROOT.glob("**/*"):
         if not path.is_file() or ".git" in path.parts:
+            continue
+        if path.name == "package-lock.json":
             continue
         if path.suffix not in {".md", ".py", ".toml", ".json", ".txt"} and path.name not in {"VERSION"}:
             continue

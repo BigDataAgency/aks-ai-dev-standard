@@ -1,3 +1,4 @@
+-- SUPERSEDED 2026-07-09: ห้ามรัน — grants bda/openrouter-free-cloud ซึ่งถอดออกจากระบบแล้ว.
 -- Sync LiteLLM model permissions for internal BDA staff teams.
 --
 -- Why this exists:

@@ -136,10 +136,10 @@
 
 ## BDA Standard files used
 
-- `/Users/Maripae/Documents/bda-ai-dev-standard/commands/test-scenario-report.md`
-- `/Users/Maripae/Documents/bda-ai-dev-standard/workflows/test-scenario-report.md`
-- `/Users/Maripae/Documents/bda-ai-dev-standard/templates/test-scenario-report.md`
-- `/Users/Maripae/Documents/bda-ai-dev-standard/templates/test-scenario-report-innohub-production-readonly.md`
+- `<path-to-standard>/commands/test-scenario-report.md`
+- `<path-to-standard>/workflows/test-scenario-report.md`
+- `<path-to-standard>/templates/test-scenario-report.md`
+- `<path-to-standard>/templates/test-scenario-report-innohub-production-readonly.md`
 
 ## Pipeline trace
 
