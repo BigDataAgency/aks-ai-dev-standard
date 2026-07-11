@@ -1,6 +1,6 @@
 # Policy: source-of-truth
 
-Repo นี้เป็น source of truth ของ BDA AI Dev Standard future update ต้อง sync จาก repo นี้
+Repo นี้เป็น source of truth ของ AKS AI Dev Standard (เดิม BDA AI Dev Standard) future update ต้อง sync จาก repo นี้
 
 ## Required behavior
 - ระบุสิ่งที่ตรวจจริง

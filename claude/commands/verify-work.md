@@ -1,5 +1,5 @@
 # /verify-work
 
-ใช้ command หลักจาก `commands/verify-work.md` และตอบตาม BDA AI Dev Standard เป็นภาษาไทย
+ใช้ command หลักจาก `commands/verify-work.md` และตอบตาม AKS AI Dev Standard (เดิม BDA AI Dev Standard) เป็นภาษาไทย
 
 ต้องรายงานหัวข้อบังคับ: BDA Standard files used, Pipeline trace, Commands run, Verification / Evidence, Limitations / Risks / Next steps

@@ -15,6 +15,14 @@ class CliError extends Error {
   }
 }
 
+function envValue(name, fallback = '') {
+  if (name.startsWith('BDA_')) {
+    const aksName = `AKS_${name.slice(4)}`;
+    if (process.env[aksName]) return process.env[aksName];
+  }
+  return process.env[name] || fallback;
+}
+
 function usage() {
   return `Usage: node scripts/send-ingest-report.mjs --file <report.md|report.json> [--project <name>] [--source <source>] [--send --endpoint <url> (--token-file <path>|--token-env <ENV_NAME>) [--tenant <id>]]
 
@@ -52,7 +60,7 @@ function parseArgs(argv) {
 function reportAndExit(error) {
   const message = error instanceof CliError ? error.message : 'Unexpected connector error';
   console.error(`ERROR: ${message}`);
-  if (!(error instanceof CliError) && process.env.BDA_INGEST_DEBUG === '1') {
+  if (!(error instanceof CliError) && envValue('BDA_INGEST_DEBUG') === '1') {
     console.error(error.stack || String(error));
   }
   process.exit(error instanceof CliError ? error.code : 1);
@@ -249,7 +257,7 @@ function readTokenEnv(name) {
 }
 
 function resolveSendInputs(args) {
-  const endpoint = args.endpoint || process.env.INNOHUB_INGEST_URL || process.env.BDA_INGEST_ENDPOINT || '';
+  const endpoint = args.endpoint || process.env.INNOHUB_INGEST_URL || envValue('BDA_INGEST_ENDPOINT') || '';
   const tenant = args.tenant || process.env.INNOHUB_TENANT_ID || '';
   const tokenFile = args.tokenFile || process.env.INNOHUB_INGEST_TOKEN_FILE || '';
   const tokenEnv = args.tokenEnv || (!tokenFile && process.env.INNOHUB_INGEST_TOKEN ? 'INNOHUB_INGEST_TOKEN' : '');

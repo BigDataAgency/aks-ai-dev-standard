@@ -1,6 +1,6 @@
 # Test Scenario Report Template: InnoHub Production Read-only
 
-> BDA AI Dev Standard template สำหรับ InnoHub QA/product evidence แบบ production read-only. ใช้เป็นแบบฟอร์มรายงานเท่านั้น ไม่ใช่รายงานงานประจำวัน, performance review, score, KPI หรือการประเมินบุคคล
+> AKS AI Dev Standard (เดิม BDA AI Dev Standard) template สำหรับ InnoHub QA/product evidence แบบ production read-only. ใช้เป็นแบบฟอร์มรายงานเท่านั้น ไม่ใช่รายงานงานประจำวัน, performance review, score, KPI หรือการประเมินบุคคล
 
 ## Summary
 
@@ -136,10 +136,10 @@
 
 ## BDA Standard files used
 
-- `/Users/Maripae/Documents/bda-ai-dev-standard/commands/test-scenario-report.md`
-- `/Users/Maripae/Documents/bda-ai-dev-standard/workflows/test-scenario-report.md`
-- `/Users/Maripae/Documents/bda-ai-dev-standard/templates/test-scenario-report.md`
-- `/Users/Maripae/Documents/bda-ai-dev-standard/templates/test-scenario-report-innohub-production-readonly.md`
+- `<path-to-standard>/commands/test-scenario-report.md`
+- `<path-to-standard>/workflows/test-scenario-report.md`
+- `<path-to-standard>/templates/test-scenario-report.md`
+- `<path-to-standard>/templates/test-scenario-report-innohub-production-readonly.md`
 
 ## Pipeline trace
 

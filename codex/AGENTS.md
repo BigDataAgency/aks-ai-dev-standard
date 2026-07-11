@@ -1,4 +1,4 @@
-# AGENTS.md — BDA AI Dev Standard for Codex
+# AGENTS.md — AKS AI Dev Standard (เดิม BDA AI Dev Standard) for Codex
 
 ใช้ไฟล์นี้เป็น project instruction สำหรับ Codex โดย copy ไปไว้ที่ root ของ repo เป้าหมายเป็น `AGENTS.md`.
 

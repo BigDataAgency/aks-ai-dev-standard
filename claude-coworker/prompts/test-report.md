@@ -5,7 +5,7 @@ This is a prompt command, not a Claude Code slash command.
 ## Copy/paste prompt
 
 ```text
-Use BDA AI Dev Standard current command `test-report`.
+Use AKS AI Dev Standard (เดิม BDA AI Dev Standard) current command `test-report`.
 Read/reference `commands/test-report.md`. Treat `commands/test-scenario-report.md` as the source of truth and `templates/test-scenario-report.md` as the output template where applicable.
 
 Guardrail: Use QA/product evidence behavior from the test-scenario-report standard; not performance evaluation.

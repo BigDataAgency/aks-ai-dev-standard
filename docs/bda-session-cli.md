@@ -66,15 +66,15 @@ Show current session:
 bda current
 ```
 
-Update BDA AI Dev Standard without reinstalling the full employee pack:
+Update AKS AI Dev Standard (เดิม BDA AI Dev Standard) without reinstalling the full employee pack:
 
 ```bash
-bda update
+aks update
 ```
 
-`bda update` refreshes the local standard repo from `main` using git and overwrites local edits in `~/.bda-ai-dev-standard`. This is intentional for employee machines; the standard is centrally managed. Restart Hermes Desktop after the update if it is open.
+`aks update` refreshes the local standard repo from `main` using git and overwrites local edits in `~/.bda-ai-dev-standard`. This is intentional for employee machines; the standard is centrally managed. `bda update` remains a permanent alias for existing employees, scripts, and cron jobs. Restart Hermes Desktop after the update if it is open.
 
-Important: `bda update` in v0.10.15 updates command/session behavior, cleans Hermes BDA provider/model config, and keeps the supported local models by their real names plus paid cloud models: `bda/qwable-27b-local`, `bda/qwythos-9b-local`, DeepSeek, Qwen3.7, GLM 5.1, and MiniMax M3. Restart Hermes Desktop after the update so the model picker reloads without the legacy BDA group. If Hermes still shows two BDA groups, close Hermes, run `bda config-clean`, and open Hermes again.
+Important: `aks update` / `bda update` updates command/session behavior, cleans Hermes BDA provider/model config, and keeps the supported local models by their real names plus paid cloud models: `bda/qwable-27b-local`, `bda/qwythos-9b-local`, DeepSeek, Qwen3.7, GLM 5.1, and MiniMax M3. Restart Hermes Desktop after the update so the model picker reloads without the legacy BDA group. If Hermes still shows two BDA groups, close Hermes, run `aks config-clean` or `bda config-clean`, and open Hermes again.
 
 ## Model Change Runbook
 
@@ -93,7 +93,7 @@ Required checklist:
    - default `PUBLIC_MODEL_IDS` in `metadata_gateway/app.py`
    - any routing/context constants that still point to old names
 4. Update this standard package:
-   - `scripts/bda.mjs`
+   - `scripts/aks.mjs` (`scripts/bda.mjs` remains a permanent shim alias)
    - tests that assert Hermes model lists
    - docs that name supported production models
 5. Restart/recreate services:
@@ -103,7 +103,7 @@ Required checklist:
    - `http://127.0.0.1:18080/v1/models`
    - `http://127.0.0.1:14000/v1/models`
 7. Smoke test each new local model with a real chat completion. Treat 401 as permission drift and 500 as worker/runtime failure.
-8. Have employees run `bda update`, fully restart Hermes Desktop, and use `bda config-clean` if old model names remain in the picker.
+8. Have employees run `aks update` (or permanent alias `bda update`), fully restart Hermes Desktop, and use `aks config-clean` / `bda config-clean` if old model names remain in the picker.
 
 Rule of thumb: deleting a model means deleting it from runtime config, DB permissions, public catalog, client config templates, and client caches in the same rollout.
 
@@ -174,7 +174,7 @@ Important for Hermes/tool agents: after the staff member confirms `bda start`, t
 Good behavior:
 
 ```text
-Ran: node ~/.bda-ai-dev-standard/scripts/bda.mjs start --project ... --task ... --command bda-dev --work-type debug
+Ran: node ~/.bda-ai-dev-standard/scripts/aks.mjs start --project ... --task ... --command bda-dev --work-type debug
 ```
 
 Bad behavior:
@@ -188,7 +188,7 @@ For non-session commands, run or answer them as utilities, not as work sessions:
 
 - `bda help` should show the command help.
 - `bda version` should run the version command.
-- `bda update` should run the update command.
+- `aks update` should run the update command. `bda update` remains a permanent alias and should do the same.
 - None of these should create a new BDA work session.
 
 ## Context and Vision Limits

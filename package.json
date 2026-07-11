@@ -1,11 +1,12 @@
 {
-  "version": "0.11.1",
+  "version": "1.0.0",
   "bin": {
-    "bda": "scripts/bda.mjs",
+    "aks": "scripts/aks.mjs",
+    "bda": "scripts/aks.mjs",
     "bda-work-event": "scripts/bda-work-event.mjs"
   },
   "scripts": {
-    "bda": "node scripts/bda.mjs",
+    "bda": "node scripts/aks.mjs",
     "ingest:report": "node scripts/send-ingest-report.mjs",
     "sync:github-reports": "node scripts/sync-github-reports.mjs",
     "test:ingest-report": "node scripts/test-ingest-report.mjs",

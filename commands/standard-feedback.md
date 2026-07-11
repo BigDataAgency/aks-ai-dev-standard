@@ -2,7 +2,7 @@
 
 ## ใช้เมื่อ
 
-ต้องการส่ง feedback เพื่อปรับปรุง/แก้ไข/เพิ่มความสามารถของ BDA AI Dev Standard เช่น command, workflow, template, policy, Claude/Codex support หรือคำอธิบายที่ทำให้ใช้งานง่ายขึ้น
+ต้องการส่ง feedback เพื่อปรับปรุง/แก้ไข/เพิ่มความสามารถของ AKS AI Dev Standard (เดิม BDA AI Dev Standard) เช่น command, workflow, template, policy, Claude/Codex support หรือคำอธิบายที่ทำให้ใช้งานง่ายขึ้น
 
 ## สำคัญ: ไม่ใช่ performance
 
@@ -15,7 +15,7 @@ Feedback นี้เป็น product-improvement loop สำหรับมา
 ## Copy this into AI
 
 ```text
-ทำงาน: Standard Feedback สำหรับ BDA AI Dev Standard
+ทำงาน: Standard Feedback สำหรับ AKS AI Dev Standard
 Context: <วาง feedback, scenario, command/workflow/template ที่เกี่ยวข้อง, expected/actual, evidence เท่าที่ปลอดภัย>
 โปรดทำตามขั้นตอนนี้:
 1. แยก feedback นี้ออกจาก performance evaluation อย่างชัดเจน
@@ -32,7 +32,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 
 ## Checklist
 
-- [ ] ยืนยันว่า feedback นี้เกี่ยวกับ BDA AI Dev Standard ไม่ใช่ performance
+- [ ] ยืนยันว่า feedback นี้เกี่ยวกับ AKS AI Dev Standard ไม่ใช่ performance
 - [ ] ระบุประเภท feedback
 - [ ] ระบุ command/workflow/template/policy/tool support ที่เกี่ยวข้อง
 - [ ] ระบุ expected behavior
@@ -52,4 +52,4 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 5. **Limitations / Risks / Next steps** — ข้อจำกัด ความเสี่ยง สิ่งที่ยังไม่ได้ตรวจ หรือขั้นตอนถัดไป
 
 ---
-ใช้เอกสารนี้เป็นช่องทาง feedback สำหรับปรับปรุง BDA AI Dev Standard เท่านั้น ไม่ใช้เป็นหลักฐานประเมินผลงานรายบุคคล.
+ใช้เอกสารนี้เป็นช่องทาง feedback สำหรับปรับปรุง AKS AI Dev Standard เท่านั้น ไม่ใช้เป็นหลักฐานประเมินผลงานรายบุคคล.

@@ -1,6 +1,6 @@
 # Public InnoHub Ingest Guardrails
 
-This document defines the minimum guardrails for any future InnoHub ingest pipeline that consumes BDA AI Dev Standard outputs.
+This document defines the minimum guardrails for any future InnoHub ingest pipeline that consumes AKS AI Dev Standard (เดิม BDA AI Dev Standard) outputs.
 
 ## Public repo rule
 

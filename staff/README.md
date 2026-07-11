@@ -1,4 +1,4 @@
-# Staff Command Pack — BDA AI Dev Standard
+# Staff Command Pack — AKS AI Dev Standard (เดิม BDA AI Dev Standard)
 
 Staff should use normal command names without legacy version suffixes.
 

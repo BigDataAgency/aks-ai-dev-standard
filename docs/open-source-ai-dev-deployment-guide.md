@@ -1,6 +1,6 @@
 # Open Source AI Dev Deployment Guide
 
-เอกสารนี้อธิบายวิธีนำ BDA AI Dev Standard ไปใช้ในองค์กรอื่นภายใต้ MIT License โดยไม่ต้องใช้ infrastructure, key, หรือ GPU ของ BDA
+เอกสารนี้อธิบายวิธีนำ AKS AI Dev Standard (เดิม BDA AI Dev Standard) ไปใช้ในองค์กรอื่นภายใต้ MIT License โดยไม่ต้องใช้ infrastructure, key, หรือ GPU ของ BDA
 
 ## Public vs Private Boundary
 
@@ -142,7 +142,7 @@ BDA ใช้แนวทางเดียวกันนี้:
 
 ถ้าองค์กร fork ไปใช้เอง:
 
-- keep upstream version ของ BDA AI Dev Standard ไว้ใน changelog
+- keep upstream version ของ AKS AI Dev Standard ไว้ใน changelog
 - เพิ่ม suffix หรือ internal release note ขององค์กรเอง เช่น `0.11.0-org.1`
 - อย่าเปลี่ยน command name ถ้าไม่จำเป็น เพราะทำให้ training และ prompt reuse ยาก
 - private config version ควรแยกจาก standard version

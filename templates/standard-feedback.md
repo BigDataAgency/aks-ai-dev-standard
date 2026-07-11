@@ -1,6 +1,6 @@
 # Standard Feedback Template
 
-> ใช้สำหรับ feedback เพื่อปรับปรุง BDA AI Dev Standard เท่านั้น ไม่ใช่ performance review, score, KPI, หรือการประเมินบุคคล
+> ใช้สำหรับ feedback เพื่อปรับปรุง AKS AI Dev Standard (เดิม BDA AI Dev Standard) เท่านั้น ไม่ใช่ performance review, score, KPI, หรือการประเมินบุคคล
 
 ## Summary
 
@@ -40,8 +40,8 @@
 
 ## Non-performance confirmation
 
-- [ ] This feedback is about improving BDA AI Dev Standard
-- [ ] This feedback is not - [ ] This feedback is not a performance review, score, KPI, or individual evaluation
+- [ ] This feedback is about improving AKS AI Dev Standard
+- [ ] This feedback is not a performance review, score, KPI, or individual evaluation
 - [ ] Role/team context, if provided, is optional and only for understanding usage
 
 ## BDA Standard files used

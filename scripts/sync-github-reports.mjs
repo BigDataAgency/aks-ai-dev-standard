@@ -19,6 +19,14 @@ class CliError extends Error {
   }
 }
 
+function envValue(name, fallback = '') {
+  if (name.startsWith('BDA_')) {
+    const aksName = `AKS_${name.slice(4)}`;
+    if (process.env[aksName]) return process.env[aksName];
+  }
+  return process.env[name] || fallback;
+}
+
 function usage() {
   return `Usage: node scripts/sync-github-reports.mjs [--repo-dir <checkout>] [--patterns <csv>] [--state-file <path>] [--pull] [--send] [--force] [--endpoint <url>] [--token-file <path>|--token-env <ENV_NAME>] [--tenant <id>] [--project <name>] [--source <source>]
 
@@ -190,7 +198,7 @@ async function main() {
   }
 
   if (args.send) {
-    const hasEndpoint = args.endpoint || process.env.INNOHUB_INGEST_URL || process.env.BDA_INGEST_ENDPOINT;
+    const hasEndpoint = args.endpoint || process.env.INNOHUB_INGEST_URL || envValue('BDA_INGEST_ENDPOINT');
     const hasToken = args.tokenFile || args.tokenEnv || process.env.INNOHUB_INGEST_TOKEN_FILE || process.env.INNOHUB_INGEST_TOKEN;
     if (!hasEndpoint) throw new CliError('--send requires --endpoint or private INNOHUB_INGEST_URL');
     if (!hasToken) throw new CliError('--send requires --token-file, --token-env, or private ingest token env');
@@ -253,6 +261,6 @@ async function main() {
 main().catch((error) => {
   const message = error instanceof CliError ? error.message : 'Unexpected GitHub report sync error';
   console.error(`ERROR: ${message}`);
-  if (!(error instanceof CliError) && process.env.BDA_INGEST_DEBUG === '1') console.error(error.stack || String(error));
+  if (!(error instanceof CliError) && envValue('BDA_INGEST_DEBUG') === '1') console.error(error.stack || String(error));
   process.exit(error instanceof CliError ? error.code : 1);
 });

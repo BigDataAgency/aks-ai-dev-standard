@@ -8,7 +8,7 @@ This is the last employee installer path before normal operations move to `bda u
 
 The installer must:
 
-- install the latest BDA AI Dev Standard
+- install the latest AKS AI Dev Standard (เดิม BDA AI Dev Standard)
 - keep employee key/config private
 - make `bda update` available
 - make `bda doctor` and `bda doctor --fix` available

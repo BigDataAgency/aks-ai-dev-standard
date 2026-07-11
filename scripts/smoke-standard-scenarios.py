@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke validation for BDA AI Dev Standard coverage.
+"""Smoke validation for AKS AI Dev Standard coverage.
 
 This script is intentionally dependency-free and safe: it reads this standard
 repo only and writes a temporary sandbox under /tmp for scenario-output checks.
@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SANDBOX = Path("/tmp/bda-ai-dev-standard-smoke")
-EXPECTED_VERSION = "0.11.8"
+EXPECTED_VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 
 REQUIRED_SECTIONS = [
     "BDA Standard files used",
@@ -96,7 +96,7 @@ def validate_version_consistency() -> None:
         raise AssertionError(f"VERSION is {version!r}, expected {EXPECTED_VERSION!r}")
 
     assert_contains_all("README.md", [f"Version: `{EXPECTED_VERSION}`", f"Current version: `{EXPECTED_VERSION}`"])
-    assert_contains_all("CHANGELOG.md", [f"## [{EXPECTED_VERSION}]", "source of truth", "bda help", "bda update"])
+    assert_contains_all("CHANGELOG.md", [f"## [{EXPECTED_VERSION}]", "source of truth", "aks", "bda update"])
 
 
 def validate_required_sections() -> None:
@@ -211,8 +211,8 @@ def validate_bda_session_cli() -> None:
     ]:
         assert_contains_all(rel, ["bda start", "bda stop", "bda help", "bda-dev", "bda-nondev", "bda-pm"])
 
-    assert_contains_all("package.json", ['"bda": "scripts/bda.mjs"', '"test:bda-session"'])
-    assert_contains_all("scripts/bda.mjs", ["bda start", "bda event", "bda stop", "outbox", "BDA_AI_WORK_EVENT_URL"])
+    assert_contains_all("package.json", ['"aks": "scripts/aks.mjs"', '"bda": "scripts/aks.mjs"', '"test:bda-session"'])
+    assert_contains_all("scripts/aks.mjs", ["aks start", "bda start", "bda event", "bda stop", "outbox", "BDA_AI_WORK_EVENT_URL"])
     assert_contains_all("scripts/test-bda-session.mjs", ["bda session CLI smoke test passed"])
 
 
@@ -257,6 +257,8 @@ def validate_legacy_staff_versioning_removed() -> None:
     for path in ROOT.glob("**/*"):
         if not path.is_file() or ".git" in path.parts:
             continue
+        if path.name == "package-lock.json":
+            continue
         if path.suffix not in {".md", ".py", ".toml", ".json", ".txt"} and path.name not in {"VERSION"}:
             continue
         rel = str(path.relative_to(ROOT))
@@ -277,7 +279,7 @@ def validate_standard_feedback_loop() -> None:
         "claude/commands/standard-feedback.md",
     ]
     required_terms = [
-        "BDA AI Dev Standard",
+        "AKS AI Dev Standard",
         "performance",
         "ไม่ใช่",
     ]

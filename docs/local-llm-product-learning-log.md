@@ -1,3 +1,5 @@
+> Archive note: เอกสารนี้เป็นบันทึกประวัติศาสตร์ก่อน rebrand เป็น AKS AI Dev Standard; ชื่อ BDA ในเนื้อหาถูกคงไว้ตามยุคของเหตุการณ์
+
 # Local LLM Product Learning Log
 
 เอกสารนี้เก็บบทเรียนจากการใช้ BDA AI Dev Standard + Hermes + BDA Gateway + Local A40 + Paid Cloud ตั้งแต่ช่วงเริ่มต้นจนถึง version ปัจจุบัน เพื่อใช้ต่อยอดเป็น product สำหรับองค์กรที่อยากใช้ Local LLM จริงในงานประจำวัน

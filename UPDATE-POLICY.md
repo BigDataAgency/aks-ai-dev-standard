@@ -1,6 +1,6 @@
 # Update Policy
 
-Repo นี้คือ source of truth สำหรับ BDA AI Dev Standard
+Repo นี้คือ source of truth สำหรับ AKS AI Dev Standard (เดิม BDA AI Dev Standard)
 
 ## กติกา
 - Future updates ต้องเริ่มจาก repo นี้ก่อน
@@ -11,7 +11,7 @@ Repo นี้คือ source of truth สำหรับ BDA AI Dev Standard
 
 ## Versioning
 
-BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
+AKS AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
 - MAJOR: breaking changes to command names, required output sections, installation layout, or compatibility
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
@@ -34,5 +34,5 @@ BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 ## Feedback-driven improvements
 - รับ feedback เพื่อปรับปรุงมาตรฐานผ่าน `FEEDBACK.md`, `commands/standard-feedback.md`, และ `templates/standard-feedback.md`
 - ถ้า feedback นำไปสู่การแก้ repo ให้ใช้ `workflows/standard-improvement.md` และ verify ก่อน commit/rollout
-- Feedback นี้เป็น product-improvement loop ของ BDA AI Dev Standard เท่านั้น ไม่ใช่ performance review, KPI, score, daily performance หรือการประเมินบุคคล
+- Feedback นี้เป็น product-improvement loop ของ AKS AI Dev Standard เท่านั้น ไม่ใช่ performance review, KPI, score, daily performance หรือการประเมินบุคคล
 - ห้ามใช้ role/team/context ใน feedback เพื่อประเมินผลงานรายบุคคล; ใช้เพื่อเข้าใจ adoption และ scenario ของมาตรฐานเท่านั้น

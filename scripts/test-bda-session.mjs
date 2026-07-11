@@ -47,12 +47,12 @@ agent:
     Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup.
 `);
 
-function run(args, options = {}) {
+function runScript(scriptName, args, options = {}) {
   const runHome = options.home || home;
   const runWork = options.work || work;
-  const result = spawnSync("node", [path.join(repo, "scripts/bda.mjs"), ...args], {
+  const result = spawnSync("node", [path.join(repo, "scripts", scriptName), ...args], {
     cwd: runWork,
-    env: { ...process.env, HOME: runHome, USERPROFILE: runHome },
+    env: { ...process.env, ...(options.env || {}), HOME: runHome, USERPROFILE: runHome },
     text: true,
     encoding: "utf8",
   });
@@ -62,6 +62,14 @@ function run(args, options = {}) {
   }
   assert.equal(result.status, 0, result.stdout + result.stderr);
   return result;
+}
+
+function run(args, options = {}) {
+  return runScript("bda.mjs", args, options);
+}
+
+function runAks(args, options = {}) {
+  return runScript("aks.mjs", args, options);
 }
 
 function runInstaller(args, options = {}) {
@@ -108,13 +116,17 @@ function runAsync(args, options = {}) {
 }
 
 const help = run(["help"]);
+assert.match(help.stdout, /AKS AI Dev Standard \(เดิม BDA\)/);
+assert.match(help.stdout, /ใช้ได้ทั้ง aks และ bda/);
+assert.match(help.stdout, /aks start/);
 assert.match(help.stdout, /bda start/);
 assert.match(help.stdout, /bda-dev/);
 assert.doesNotMatch(help.stdout, /bda-dev-plan-execute/);
-assert.match(help.stdout, /bda-session\/0\.12\.0/);
+assert.match(help.stdout, /aks-session\/1\.0\.0/);
 assert.match(help.stdout, /TERMINAL COMMANDS/);
 assert.match(help.stdout, /CHAT-ONLY PROMPT PREFIXES/);
-assert.match(help.stdout, /ถ้าพิมพ์ใน terminal ให้ใช้ bda start \/ bda event \/ bda stop แทน/);
+assert.match(help.stdout, /ถ้าพิมพ์ใน terminal ให้ใช้ aks start \/ aks event \/ aks stop หรือ alias bda start \/ bda event \/ bda stop แทน/);
+assert.match(help.stdout, /aks update/);
 assert.match(help.stdout, /bda update/);
 assert.match(help.stdout, /bda config-status/);
 assert.match(help.stdout, /bda config-clean/);
@@ -126,7 +138,14 @@ assert.match(help.stdout, /bda hermes-light-mode --yes/);
 const version = run(["version"]);
 const versionJson = JSON.parse(version.stdout);
 assert.equal(versionJson.ok, true);
-assert.equal(versionJson.cli_version, "0.12.0");
+assert.equal(versionJson.session_version, "aks-session/1.0.0");
+assert.equal(versionJson.cli_version, "1.0.0");
+
+const aksVersion = runAks(["version"]);
+const aksVersionJson = JSON.parse(aksVersion.stdout);
+assert.equal(aksVersionJson.ok, true);
+assert.equal(aksVersionJson.session_version, versionJson.session_version);
+assert.equal(aksVersionJson.cli_version, versionJson.cli_version);
 
 const privateInstallerConfigPath = path.join(temp, "installer-private-config.json");
 fs.writeFileSync(privateInstallerConfigPath, JSON.stringify({
@@ -148,15 +167,62 @@ assert.equal(installerDryRunJson.config.employee_code, "BDA999");
 assert.match(installerDryRunJson.config.api_key, /^sha256:/);
 assert.doesNotMatch(installerDryRun.stdout, /sk-installer-secret/);
 
+const wrapperStandardDir = path.join(temp, "standard dir with spaces");
+fs.symlinkSync(repo, wrapperStandardDir, process.platform === "win32" ? "junction" : "dir");
+const wrapperBinDir = path.join(home, ".bda-skills", "bin");
+fs.mkdirSync(wrapperBinDir, { recursive: true });
+fs.writeFileSync(path.join(wrapperBinDir, "aks"), "stale wrapper\n");
+fs.writeFileSync(path.join(wrapperBinDir, "aks.cmd"), "stale wrapper\r\n");
+const setup = runAks(["setup"], {
+  env: {
+    AKS_AI_DEV_STANDARD_DIR: wrapperStandardDir,
+    BDA_AI_DEV_STANDARD_DIR: wrapperStandardDir,
+  },
+});
+const setupJson = JSON.parse(setup.stdout);
+const expectedWrapperPaths = ["aks", "bda", "aks.cmd", "aks.ps1", "bda.cmd", "bda.ps1"]
+  .map((name) => path.join(wrapperBinDir, name));
+assert.equal(setupJson.ok, true);
+assert.equal(setupJson.action, "setup");
+assert.deepEqual(setupJson.cli_wrappers, expectedWrapperPaths);
+for (const wrapperPath of expectedWrapperPaths) {
+  assert.equal(fs.existsSync(wrapperPath), true, `${wrapperPath} should exist`);
+}
+assert.deepEqual(fs.readdirSync(wrapperBinDir).filter((name) => name.endsWith(".tmp")), []);
+assert.equal(
+  fs.readFileSync(path.join(wrapperBinDir, "aks.cmd"), "utf8"),
+  fs.readFileSync(path.join(wrapperBinDir, "bda.cmd"), "utf8"),
+);
+assert.equal(
+  fs.readFileSync(path.join(wrapperBinDir, "aks.ps1"), "utf8"),
+  fs.readFileSync(path.join(wrapperBinDir, "bda.ps1"), "utf8"),
+);
+if (process.platform !== "win32") {
+  const expectedShellWrapper = `#!/bin/sh\nset -eu\nexec node "${path.join(wrapperStandardDir, "scripts", "aks.mjs")}" "$@"\n`;
+  const aksWrapperPath = path.join(wrapperBinDir, "aks");
+  const bdaWrapperPath = path.join(wrapperBinDir, "bda");
+  assert.equal(fs.readFileSync(aksWrapperPath, "utf8"), expectedShellWrapper);
+  assert.equal(fs.readFileSync(bdaWrapperPath, "utf8"), expectedShellWrapper);
+  assert.equal(fs.statSync(aksWrapperPath).mode & 0o777, 0o755);
+  assert.equal(fs.statSync(bdaWrapperPath).mode & 0o777, 0o755);
+  const wrapperEnv = { ...process.env, HOME: home, USERPROFILE: home };
+  const wrappedAksVersion = spawnSync("sh", [aksWrapperPath, "version"], { env: wrapperEnv, text: true, encoding: "utf8" });
+  const wrappedBdaVersion = spawnSync("sh", [bdaWrapperPath, "version"], { env: wrapperEnv, text: true, encoding: "utf8" });
+  assert.equal(wrappedAksVersion.status, 0, wrappedAksVersion.stdout + wrappedAksVersion.stderr);
+  assert.equal(wrappedBdaVersion.status, 0, wrappedBdaVersion.stdout + wrappedBdaVersion.stderr);
+  assert.deepEqual(JSON.parse(wrappedAksVersion.stdout), JSON.parse(wrappedBdaVersion.stdout));
+}
+
 const updateDryRun = run(["update", "--dry-run"]);
 const updateJson = JSON.parse(updateDryRun.stdout);
 assert.equal(updateJson.ok, true);
 assert.equal(updateJson.action, "update");
 assert.equal(updateJson.dry_run, true);
+assert.deepEqual(updateJson.cli_wrappers, []);
 assert.equal(updateJson.inventory_send_result.dry_run, true);
 assert.equal(updateJson.inventory_send_result.event.event_kind, "bda_inventory");
 assert.equal(updateJson.inventory_send_result.event.utility_command, "bda update");
-assert.equal(updateJson.inventory_send_result.event.bda_cli_version, "0.12.0");
+assert.equal(updateJson.inventory_send_result.event.bda_cli_version, "1.0.0");
 assert.equal(updateJson.hermes_config.config_paths[0].changed, true);
 assert.ok(updateJson.hermes_config.config_paths[0].before_models.includes("bda/qwen3-coder"));
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3-coder"));
@@ -192,6 +258,14 @@ assert.equal(configCleanJson.hermes_config.config_paths[0].changed, true);
 const configStatusAfterClean = run(["config-status"]);
 const configStatusAfterCleanJson = JSON.parse(configStatusAfterClean.stdout);
 assert.equal(configStatusAfterCleanJson.hermes_config.config_paths[0].changed, false);
+
+fs.rmSync(wrapperBinDir, { recursive: true, force: true });
+const postUpdateClean = runAks(["config-clean"], { env: { AKS_UPDATE_POST_CLEAN: "1" } });
+const postUpdateCleanJson = JSON.parse(postUpdateClean.stdout);
+assert.deepEqual(postUpdateCleanJson.cli_wrappers, expectedWrapperPaths);
+for (const wrapperPath of expectedWrapperPaths) {
+  assert.equal(fs.existsSync(wrapperPath), true, `${wrapperPath} should be restored during post-update re-exec`);
+}
 
 fs.mkdirSync(path.join(home, ".hermes", "sessions"), { recursive: true });
 fs.mkdirSync(path.join(home, ".hermes", "pastes"), { recursive: true });
@@ -305,6 +379,64 @@ assert.equal(hermesStartJson.session.ai_model, "bda/dev");
 assert.equal(hermesStartJson.session.used_bda_gateway, true);
 assert.equal(hermesStartJson.send_result.dry_run, true);
 assert.equal(hermesStartJson.send_result.reason, "dry-run requested");
+
+const envFallbackHome = path.join(temp, "env-fallback-home");
+const envFallbackWork = path.join(temp, "env-fallback-work");
+fs.mkdirSync(path.join(envFallbackHome, ".bda-skills"), { recursive: true });
+fs.mkdirSync(envFallbackWork, { recursive: true });
+const bdaOnlyStart = run([
+  "start",
+  "--project", "BdaEnvOnly",
+  "--task", "check BDA env fallback",
+  "--command", "bda-dev",
+  "--dry-run",
+], {
+  home: envFallbackHome,
+  work: envFallbackWork,
+  env: {
+    BDA_EMPLOYEE_CODE: "BDA888",
+    BDA_EMPLOYEE_GROUP: "dev",
+    BDA_AI_MODEL: "bda/dev",
+    BDA_AI_ROUTER_BASE_URL: "https://bda-env.example.test/v1",
+    BDA_AI_ROUTER_API_KEY: "sk-bda-env-test",
+  },
+});
+const bdaOnlyStartJson = JSON.parse(bdaOnlyStart.stdout);
+assert.equal(bdaOnlyStartJson.session.employee_code, "BDA888");
+assert.equal(bdaOnlyStartJson.session.ai_model, "bda/dev");
+assert.equal(bdaOnlyStartJson.session.ai_provider, "bda-gateway");
+
+const envPrecedenceHome = path.join(temp, "env-precedence-home");
+const envPrecedenceWork = path.join(temp, "env-precedence-work");
+fs.mkdirSync(path.join(envPrecedenceHome, ".bda-skills"), { recursive: true });
+fs.mkdirSync(envPrecedenceWork, { recursive: true });
+const aksPreferredStart = run([
+  "start",
+  "--project", "AksEnvWins",
+  "--task", "check AKS env precedence",
+  "--command", "bda-dev",
+  "--dry-run",
+], {
+  home: envPrecedenceHome,
+  work: envPrecedenceWork,
+  env: {
+    BDA_EMPLOYEE_CODE: "BDA000",
+    BDA_EMPLOYEE_GROUP: "nondev",
+    BDA_AI_MODEL: "bda/nondev",
+    BDA_AI_ROUTER_BASE_URL: "https://bda-env.example.test/v1",
+    BDA_AI_ROUTER_API_KEY: "sk-bda-env-test",
+    AKS_EMPLOYEE_CODE: "AKS999",
+    AKS_EMPLOYEE_GROUP: "dev",
+    AKS_AI_MODEL: "bda/dev",
+    AKS_AI_ROUTER_BASE_URL: "https://aks-env.example.test/v1",
+    AKS_AI_ROUTER_API_KEY: "sk-aks-env-test",
+  },
+});
+const aksPreferredStartJson = JSON.parse(aksPreferredStart.stdout);
+assert.equal(aksPreferredStartJson.session.employee_code, "AKS999");
+assert.equal(aksPreferredStartJson.session.employee_group, "dev");
+assert.equal(aksPreferredStartJson.session.ai_model, "bda/dev");
+assert.equal(aksPreferredStartJson.session.used_bda_gateway, true);
 
 const current = run(["current"]);
 assert.equal(JSON.parse(current.stdout).active, true);
