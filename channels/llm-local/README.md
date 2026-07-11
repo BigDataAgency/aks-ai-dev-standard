@@ -1,4 +1,8 @@
-# Tool Setup: Hermes, Claude Code, IDE
+# ช่องทาง llm-local — Hermes / Claude Code / IDE ผ่าน LiteLLM Gateway
+
+คู่มือช่องทางบนเครื่องพนักงาน: Hermes, Claude Code, Cline/IDE และ `aks`/`bda` CLI ทั้งหมดวิ่งผ่าน LiteLLM gateway (เดิมคือ `docs/tool-setup-hermes-windsurf-ide.md`)
+
+ถ้าคุณทำงานในกล่อง thClaws (web UI บน GX10) ให้ใช้ `../thclaws/README.md` แทน — เครื่องมือในหน้านี้ไม่มีในกล่อง
 
 This public document describes the generic setup. Real BDA endpoint and user keys must be provided through private rollout docs or local config.
 
