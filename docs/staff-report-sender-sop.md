@@ -148,7 +148,7 @@ After a remote send, the InnoHub owner/admin verifies accepted reports in the pr
 
 - Symptom: `Report cannot be converted ... missing/invalid`
   - Likely cause: Report lacks project, title, status, summary, or evidence manifest fields.
-  - Action: Fix the report using `templates/test-scenario-report.md`, then dry-run again.
+  - Action: Fix the report using `core/templates/test-scenario-report.md`, then dry-run again.
 
 - Symptom: `high-confidence secret pattern`
   - Likely cause: Report contains token, key, password, Authorization header, or similar secret.

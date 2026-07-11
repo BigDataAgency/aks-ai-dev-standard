@@ -12,7 +12,7 @@
 - Source: https://github.com/multica-ai/andrej-karpathy-skills
 - License: MIT License (upstream repository)
 - Use in this repository: conceptual inspiration only for BDA-neutral coding discipline wording; no plugin/runtime integration and no upstream files imported wholesale.
-- Adapted files: `STANDARD.md`, `AI-README.md`, `codex/AGENTS.md`, `claude/CLAUDE.md`, `commands/plan-work.md`, `commands/build-feature.md`, `commands/fix-bug.md`, `commands/review-change.md`, `checklists/before-commit.md`.
+- Adapted files: `STANDARD.md`, `AI-README.md`, `channels/llm-local/codex-local/AGENTS.md`, `channels/llm-local/claude/CLAUDE.md`, `core/commands/plan-work.md`, `core/commands/build-feature.md`, `core/commands/fix-bug.md`, `core/commands/review-change.md`, `core/checklists/before-commit.md`.
 - Notes: employee-facing docs intentionally use neutral BDA wording and do not reference the external project or individuals.
 
 ## MIT reference template

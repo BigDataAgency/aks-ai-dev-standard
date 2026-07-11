@@ -9,7 +9,7 @@
 ทำงาน: PM Log
 Context: <วาง project/date/team/scope>
 โปรดทำตามขั้นตอนนี้:
-1. อ่าน `docs/ai-work-event-logging.md`
+1. อ่าน `channels/llm-local/docs/ai-work-event-logging.md`
 2. ดึงหรืออ่าน daily work events ของวันที่ต้องการ
 3. สรุป project activity ตาม project และ owner
 4. แยก done, in-progress, blocked, failed

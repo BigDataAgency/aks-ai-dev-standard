@@ -8,6 +8,32 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [1.1.0] - 2026-07-12
+
+**Restructure ตามช่องทางใช้งาน (channel-based layout)** — repo นี้ยังเป็น source of truth ของมาตรฐาน และ `aks update` / `bda update` ยังใช้ดึง version ล่าสุดได้ตามเดิม:
+
+### Changed
+
+- ย้ายเนื้อหากลางที่ใช้ได้ทุกช่องทางไป `core/`: `core/commands/`, `core/workflows/`, `core/policies/`, `core/checklists/`, `core/templates/`, `core/roles/`, `core/prompts/` (git mv — history ตามไฟล์ไป)
+- ย้ายของช่องทางเครื่องพนักงานไป `channels/llm-local/`: `claude/`, `codex/` (เปลี่ยนชื่อเป็น `codex-local/`), `gemini/`, `staff/`, `claude-coworker/`, `eval/` และ docs ฝั่ง client 8 ไฟล์ไป `channels/llm-local/docs/`; `docs/tool-setup-hermes-windsurf-ide.md` กลายเป็น `channels/llm-local/README.md`
+- แยก runbook ฝั่ง server ไป `admin/` (`admin/docs/` 3 ไฟล์ + `admin/scripts/litellm-sync-*.sql` คง SUPERSEDED header เดิม) และเอกสารเก่าไป `archive/` (2 ไฟล์)
+- `docs/` ที่ root เหลือเฉพาะ SOP กลาง 4 ไฟล์; `scripts/` และไฟล์ root (README, STANDARD, VERSION ฯลฯ) อยู่ตำแหน่งเดิม
+- root `README.md` ใหม่: สั้นลง เป็นตัวเลือกช่องทาง (llm-local vs thClaws) + ลิงก์ `core/` + กติกา output/versioning เดิม
+- `channels/llm-local/claude/commands/pm-*.md` 6 ไฟล์ เปลี่ยนจาก copy เต็มของ command หลักเป็น thin wrapper ชี้ `core/commands/pm-*.md` แบบเดียวกับ wrapper ตัวอื่น
+- อัปเดต cross-reference ในไฟล์ root/adapter/channel docs ให้ชี้ path ใหม่ (`core/...`, `channels/llm-local/...`, `admin/...`, `archive/...`)
+- `scripts/smoke-standard-scenarios.py` ตรวจ layout ใหม่ + เพิ่มเช็ค `channels/thclaws/` และเช็คว่าโฟลเดอร์ top-level เก่าหายครบ
+
+### Added
+
+- **ช่องทาง thClaws (ใหม่)** — `channels/thclaws/README.md` คู่มือกล่องบน GX10: แท็บ Shell vs Terminal (Terminal = แชทสั่ง AI ไม่ใช่เชลล์), docker/compose ผ่าน sysbox, Preview ต้องฟัง port 3000, Whisper ≤200MB, clone ด้วย https+token เท่านั้น, ตารางของที่ไม่มีในกล่อง (aks/bda CLI, Hermes, Cline, slash commands, Obsidian) พร้อมช่องทางทดแทน — กันเคสพิมพ์ `/bda-repo` ในกล่องซ้ำ
+- `channels/thclaws/AGENTS.md` — agent instruction ฉบับกล่อง: discipline หลักจาก core (evidence verification, no fake evidence, minimum correct change, Thai output self-review) + บริบทกล่อง และห้ามแนะนำเครื่องมือ llm-local ที่ไม่มีในกล่อง / ห้ามแก้ `~/.codex/config.toml`
+
+### Compatibility
+
+- ไม่มีการเปลี่ยนของที่ระบบจริงใช้: model lanes `bda/*`, `claude-code-local`, gateway `ai-local.scmc.digital`, wire fields (`used_bda_gateway`, `work_type`), ingest schema `bda-standard-ingest/0.4.1`, `~/.bda-skills`, ชื่อ slash commands, STANDARD_REPO_URL, ชื่อไฟล์ใน `scripts/`, และ `package.json` bin (`aks`/`bda`) — เหมือนเดิมทั้งหมด
+- `scripts/setup-cline-bda.sh` หา template จาก path ใหม่ (`core/templates/`) ก่อนแล้ว fallback path เก่า (`templates/`) — รองรับทั้งสอง layout หนึ่ง release เผื่อ `bda update` ถูกเรียกจาก checkout เก่า
+- path เก่าในเอกสาร/บันทึกส่วนตัวของพนักงาน: เทียบ mapping ได้ตรงตัว เช่น `commands/x.md` → `core/commands/x.md`, `claude/...` → `channels/llm-local/claude/...`, `codex/AGENTS.md` → `channels/llm-local/codex-local/AGENTS.md`
+
 ## [1.0.0] - 2026-07-11
 
 ### Changed

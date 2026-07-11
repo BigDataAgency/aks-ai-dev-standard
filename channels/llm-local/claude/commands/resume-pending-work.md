@@ -1,5 +1,5 @@
 # /resume-pending-work
 
-ใช้ command หลักจาก `commands/resume-pending-work.md` และตอบตาม AKS AI Dev Standard (เดิม BDA AI Dev Standard) เป็นภาษาไทย
+ใช้ command หลักจาก `core/commands/resume-pending-work.md` และตอบตาม AKS AI Dev Standard (เดิม BDA AI Dev Standard) เป็นภาษาไทย
 
 ต้องรายงานหัวข้อบังคับ: BDA Standard files used, Pipeline trace, Commands run, Verification / Evidence, Limitations / Risks / Next steps

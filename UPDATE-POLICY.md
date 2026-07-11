@@ -25,14 +25,14 @@ AKS AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 
 ## Release flow
 1. แก้ใน branch หรือ commit ที่ชัดเจน
-2. Review ด้วย `commands/review-change.md`
-3. Verify ด้วย `commands/verify-work.md`
+2. Review ด้วย `core/commands/review-change.md`
+3. Verify ด้วย `core/commands/verify-work.md`
 4. อัปเดต `VERSION` และ `CHANGELOG.md` ถ้าเป็น release
 5. สร้าง Git tag/release สำหรับ public checkpoint
 6. Rollout ไปยัง AI tools / team docs จาก repo นี้เท่านั้น
 
 ## Feedback-driven improvements
-- รับ feedback เพื่อปรับปรุงมาตรฐานผ่าน `FEEDBACK.md`, `commands/standard-feedback.md`, และ `templates/standard-feedback.md`
-- ถ้า feedback นำไปสู่การแก้ repo ให้ใช้ `workflows/standard-improvement.md` และ verify ก่อน commit/rollout
+- รับ feedback เพื่อปรับปรุงมาตรฐานผ่าน `FEEDBACK.md`, `core/commands/standard-feedback.md`, และ `core/templates/standard-feedback.md`
+- ถ้า feedback นำไปสู่การแก้ repo ให้ใช้ `core/workflows/standard-improvement.md` และ verify ก่อน commit/rollout
 - Feedback นี้เป็น product-improvement loop ของ AKS AI Dev Standard เท่านั้น ไม่ใช่ performance review, KPI, score, daily performance หรือการประเมินบุคคล
 - ห้ามใช้ role/team/context ใน feedback เพื่อประเมินผลงานรายบุคคล; ใช้เพื่อเข้าใจ adoption และ scenario ของมาตรฐานเท่านั้น

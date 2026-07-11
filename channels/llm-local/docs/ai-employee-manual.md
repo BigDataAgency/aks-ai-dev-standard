@@ -1,7 +1,7 @@
 # คู่มือใช้ AI ทำงาน dev ให้ "เสร็จจริง" (อิงผลวัดจริง)
 
 > who/when/why: กลั่นจากการทดสอบวัดผลจริง 2026-07-05 (Hermes vs Claude Code CLI, โจทย์จริง n≥3 ต่อ scenario, verify อิสระทุกครั้ง — ไม่เชื่อคำ AI อ้าง) โดยทีม infra/eval. อัปเดตเมื่อเทสรอบใหม่
-> ใช้คู่กับ: `docs/troubleshooting-ai-access.md` (เมื่อระบบมีปัญหา) และ commands ใน repo นี้
+> ใช้คู่กับ: `channels/llm-local/docs/troubleshooting-ai-access.md` (เมื่อระบบมีปัญหา) และ commands ใน repo นี้
 
 ## 3 กติกาเหล็ก (จากข้อมูลจริง ไม่ใช่ความรู้สึก)
 

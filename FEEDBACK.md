@@ -23,8 +23,8 @@
 
 ## วิธีส่ง feedback
 
-1. ใช้ `commands/standard-feedback.md`
-2. กรอก `templates/standard-feedback.md`
+1. ใช้ `core/commands/standard-feedback.md`
+2. กรอก `core/templates/standard-feedback.md`
 3. แนบ evidence เท่าที่ปลอดภัย เช่น snippet, command ที่ใช้, expected/actual, screenshot/link ที่ไม่เปิดเผยข้อมูลลับ
 4. ส่งเป็น issue/PR/comment ในช่องทางที่ทีมกำหนด โดยอ้างว่าเป็น feedback ต่อ AKS AI Dev Standard
 

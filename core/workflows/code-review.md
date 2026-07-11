@@ -3,11 +3,11 @@
 Code review: ตรวจ correctness, security, data, tests, maintainability โดยแยก blocker/suggestion
 
 ## Steps
-1. ใช้ `commands/understand-task.md`
-2. ใช้ `commands/plan-work.md` ถ้างานไม่เล็กมาก
+1. ใช้ `core/commands/understand-task.md`
+2. ใช้ `core/commands/plan-work.md` ถ้างานไม่เล็กมาก
 3. ทำงานด้วย command ที่ใกล้ที่สุด
-4. ใช้ `commands/verify-work.md`
-5. ส่ง `commands/handoff-report.md`
+4. ใช้ `core/commands/verify-work.md`
+5. ส่ง `core/commands/handoff-report.md`
 
 ## Evidence
 - command ที่รัน

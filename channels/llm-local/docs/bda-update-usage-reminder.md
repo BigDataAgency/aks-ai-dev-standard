@@ -70,10 +70,10 @@ BDA AI Dev updated / usage reminder
   - ไม่มี key/config ก็เข้า BDA gateway/A40 ไม่ได้
 
 อ่านละเอียด:
-  - docs/bda-update-usage-reminder.md
-  - docs/hybrid-ai-usage-discipline.md
+  - channels/llm-local/docs/bda-update-usage-reminder.md
+  - channels/llm-local/docs/hybrid-ai-usage-discipline.md
   - docs/open-source-ai-dev-deployment-guide.md
-  - docs/bda-session-cli.md
+  - channels/llm-local/docs/bda-session-cli.md
 ```
 
 ## Slack แบบสั้น

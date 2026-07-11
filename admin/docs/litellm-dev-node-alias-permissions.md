@@ -72,7 +72,7 @@ The aliases must be allowed internally but hidden externally.
 
 ## Idempotent Sync SQL
 
-Use [scripts/litellm-sync-dev-node-alias-permissions.sql](../scripts/litellm-sync-dev-node-alias-permissions.sql) after adding or changing internal local aliases.
+Use [admin/scripts/litellm-sync-dev-node-alias-permissions.sql](../scripts/litellm-sync-dev-node-alias-permissions.sql) after adding or changing internal local aliases.
 
 Operational command example on the A40 gateway host:
 
@@ -181,7 +181,7 @@ HTTP 401 key_model_access_denied
 Tried to access bda/qwen3.7-plus-paid-cloud
 ```
 
-Use [scripts/litellm-sync-staff-model-permissions.sql](../scripts/litellm-sync-staff-model-permissions.sql) to sync the full current production model set for internal staff teams:
+Use [admin/scripts/litellm-sync-staff-model-permissions.sql](../scripts/litellm-sync-staff-model-permissions.sql) to sync the full current production model set for internal staff teams:
 
 ```text
 bda-dev
@@ -198,7 +198,7 @@ The staff sync intentionally excludes intern and partner teams until their acces
 | Error text | Most likely layer | Fix |
 | --- | --- | --- |
 | `key_model_access_denied` | `LiteLLM_VerificationToken.models` | Sync internal aliases into key rows that already allow `bda/dev` |
-| `key_model_access_denied` while trying `bda/qwen3.7-plus-paid-cloud` | Staff key still has an old DeepSeek-only allow list | Run `scripts/litellm-sync-staff-model-permissions.sql` for internal staff teams |
+| `key_model_access_denied` while trying `bda/qwen3.7-plus-paid-cloud` | Staff key still has an old DeepSeek-only allow list | Run `admin/scripts/litellm-sync-staff-model-permissions.sql` for internal staff teams |
 | `team_model_access_denied` | `LiteLLM_TeamTable.models` | Sync internal aliases into team rows that already allow `bda/dev` |
 | `invalid_or_expired_bda_personal_api_key` | Raw employee key/env/Hermes config | Run `bda config-clean`, restart Hermes, or inspect the private installer config |
 | `Budget has been exceeded` | LiteLLM budget policy | Raise/reset budget or route to a model/team with budget |

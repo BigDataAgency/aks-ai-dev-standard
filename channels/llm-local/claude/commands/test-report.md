@@ -2,7 +2,7 @@
 
 Claude Code slash alias for user-facing Test Report.
 
-ใช้ command หลัก `commands/test-report.md` ร่วมกับ QA/product evidence standard `commands/test-scenario-report.md`, `workflows/test-scenario-report.md`, และ `templates/test-scenario-report.md`.
+ใช้ command หลัก `core/commands/test-report.md` ร่วมกับ QA/product evidence standard `core/commands/test-scenario-report.md`, `core/workflows/test-scenario-report.md`, และ `core/templates/test-scenario-report.md`.
 
 ข้อสำคัญ: workflow นี้ไม่ใช่ performance review, score, KPI, daily performance หรือการประเมินบุคคล ให้ใช้เพื่อเก็บ evidence ของ product/scenario เท่านั้น.
 
@@ -14,6 +14,6 @@ Claude Code slash alias for user-facing Test Report.
 
 ติดตั้ง slash command โดย copy ไฟล์นี้ไปไว้ที่ `.claude/commands/test-report.md` ของ target repo แล้วเรียก `/test-report` ใน Claude Code แบบ interactive เท่านั้น.
 
-หมายเหตุ: ใน print mode (`claude -p`) slash command แบบ interactive จะไม่ถูกรันโดยตรง ให้ reference ไฟล์ `commands/test-report.md` หรือ paste prompt จาก command แทน.
+หมายเหตุ: ใน print mode (`claude -p`) slash command แบบ interactive จะไม่ถูกรันโดยตรง ให้ reference ไฟล์ `core/commands/test-report.md` หรือ paste prompt จาก command แทน.
 
 ต้องรายงานหัวข้อบังคับ: BDA Standard files used, Pipeline trace, Production Read-only Guardrail, Auth/RBAC Matrix, Route Source Trace, Evidence Manifest, Commands run, Verification / Evidence, Limitations / Risks / Next steps

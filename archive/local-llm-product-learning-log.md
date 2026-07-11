@@ -356,9 +356,9 @@ Product implication:
 
 Reusable artifact:
 
-- `docs/litellm-dev-node-alias-permissions.md`
-- `scripts/litellm-sync-dev-node-alias-permissions.sql`
-- `scripts/litellm-sync-staff-model-permissions.sql`
+- `admin/docs/litellm-dev-node-alias-permissions.md`
+- `admin/scripts/litellm-sync-dev-node-alias-permissions.sql`
+- `admin/scripts/litellm-sync-staff-model-permissions.sql`
 
 ## 2026-06-25 Permission Lesson: Behavior Guidance Is Not A Hard Lock
 
@@ -394,5 +394,5 @@ Production intent:
 Operational requirements:
 
 - Add `bda/nondev` to public `/v1/models`, Hermes generated config, URL prefetch model allow list, and LiteLLM staff team/key permissions together.
-- When adding a new public model alias, update `scripts/litellm-sync-staff-model-permissions.sql` in the same change. Otherwise nondev/PM staff may see `HTTP 401 key_model_access_denied` even though the model appears in the picker.
+- When adding a new public model alias, update `admin/scripts/litellm-sync-staff-model-permissions.sql` in the same change. Otherwise nondev/PM staff may see `HTTP 401 key_model_access_denied` even though the model appears in the picker.
 - Keep behavior guidance separate from permission. Staff may be told to prefer `bda/nondev` for nondev work, but internal staff permissions should still include the production fallback set the gateway can route to.

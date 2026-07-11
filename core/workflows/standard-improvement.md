@@ -6,7 +6,7 @@
 
 ## ขอบเขต
 
-- ปรับปรุง standard repo นี้ เช่น `commands/`, `workflows/`, `templates/`, `policies/`, `claude/`, `codex/`, `AI-README.md`, `STANDARD.md`
+- ปรับปรุง standard repo นี้ เช่น `core/commands/`, `core/workflows/`, `core/templates/`, `core/policies/`, `channels/llm-local/claude/`, `channels/llm-local/codex-local/`, `AI-README.md`, `STANDARD.md`
 - แก้ bug/confusion/missing command/feature request/scenario/adoption friction/AI output issue ของมาตรฐาน
 - ไม่แตะ performance process เว้นแต่มี requirement ชัดเจนและแยก scope ต่างหาก
 
@@ -18,7 +18,7 @@
 
 ## Steps
 
-1. **Intake** — รับ feedback ผ่าน `commands/standard-feedback.md` และ `templates/standard-feedback.md`
+1. **Intake** — รับ feedback ผ่าน `core/commands/standard-feedback.md` และ `core/templates/standard-feedback.md`
 2. **Triage** — จัดประเภทและ priority ตาม `FEEDBACK.md`
 3. **Scope** — ระบุไฟล์มาตรฐานที่ต้องแก้และ non-goals
 4. **Design** — เขียน expected behavior/acceptance criteria สำหรับ standard change
@@ -39,7 +39,7 @@
 
 ทุกครั้งที่ใช้ workflow นี้ ต้องส่งรายงานท้ายงานเป็นภาษาไทยและมีหัวข้อเหล่านี้ครบถ้วน:
 
-1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `FEEDBACK.md`, `commands/standard-feedback.md`, `workflows/standard-improvement.md`, `templates/standard-feedback.md`, `UPDATE-POLICY.md`
+1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `FEEDBACK.md`, `core/commands/standard-feedback.md`, `core/workflows/standard-improvement.md`, `core/templates/standard-feedback.md`, `UPDATE-POLICY.md`
 2. **Pipeline trace** — ลำดับขั้นตอนที่ทำจริงตั้งแต่ Understand → Plan → Execute → Verify → Handoff พร้อม workflow/command ที่ใช้ในแต่ละช่วง
 3. **Commands run** — คำสั่ง shell/tool/test/lint/build/search ที่รันจริง พร้อมผลสรุป; ถ้าไม่ได้รันคำสั่ง ให้ระบุ `ไม่ได้รัน` และเหตุผล
 4. **Verification / Evidence** — หลักฐานผลตรวจจริง เช่น smoke validation, diff, manual wording check, issue/PR link

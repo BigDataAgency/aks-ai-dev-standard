@@ -6,23 +6,23 @@
 
 - ถ้า repo เป้าหมายมี `AI-README.md` ให้ใช้ไฟล์นั้นเป็น entrypoint เพิ่มเติม
 - ถ้าไม่มี `AI-README.md` ให้ทำตามกติกาในไฟล์นี้ได้ทันที ห้ามหยุดงานเพราะหา entrypoint ไม่เจอ
-- ถ้างานผูกกับ Obsidian ให้หา `00-Agent-Context.md` หรือ `.bda/obsidian-context.md`; ถ้าไม่มีและต้องใช้ context ให้ทำตาม `commands/init.md`
+- ถ้างานผูกกับ Obsidian ให้หา `00-Agent-Context.md` หรือ `.bda/obsidian-context.md`; ถ้าไม่มีและต้องใช้ context ให้ทำตาม `core/commands/init.md`
 
 ## Obsidian context
 
-- ใช้ `commands/init.md` เพื่อสำรวจ vault/project และสร้าง `00-Agent-Context.md` จาก `templates/obsidian-context.md`
+- ใช้ `core/commands/init.md` เพื่อสำรวจ vault/project และสร้าง `00-Agent-Context.md` จาก `core/templates/obsidian-context.md`
 - หลังมี context แล้ว `plan-work`, `fix-bug`, `build-feature`, `write-document`, `test-report`, และ `update-obsidian` ต้องอ่าน manifest ก่อนทำงาน
-- เมื่อทำงานเสร็จให้อัปเดต session/evidence note ตาม `templates/obsidian-work-note.md` ถ้า write scope อนุญาต
+- เมื่อทำงานเสร็จให้อัปเดต session/evidence note ตาม `core/templates/obsidian-work-note.md` ถ้า write scope อนุญาต
 - ห้ามสร้าง testcase/evidence ปลอม; ถ้าไม่ได้ตรวจจริงให้เขียน `pending evidence` หรือ `not available`
 
 ## Command Pack
 
 Codex uses this file as agent instruction; it does not use Claude Code slash commands. When asked for commands, reference normal command names:
 
-- `test-report` → `commands/test-report.md` and `commands/test-scenario-report.md`; QA/product evidence only, not individual evaluation.
-- PM / PM lead commands → `commands/pm-log.md`, `commands/pm-standup.md`, `commands/pm-status.md`, `commands/pm-risk.md`, `commands/pm-followup.md`, and `commands/pm-requirement.md`.
-- Work event logging → `docs/ai-work-event-logging.md`, `docs/bda-session-cli.md`, `scripts/bda.mjs`, and `scripts/bda-work-event.mjs`.
-- Hermes / Windsurf / IDE setup → `docs/tool-setup-hermes-windsurf-ide.md`.
+- `test-report` → `core/commands/test-report.md` and `core/commands/test-scenario-report.md`; QA/product evidence only, not individual evaluation.
+- PM / PM lead commands → `core/commands/pm-log.md`, `core/commands/pm-standup.md`, `core/commands/pm-status.md`, `core/commands/pm-risk.md`, `core/commands/pm-followup.md`, and `core/commands/pm-requirement.md`.
+- Work event logging → `channels/llm-local/docs/ai-work-event-logging.md`, `channels/llm-local/docs/bda-session-cli.md`, `scripts/bda.mjs`, and `scripts/bda-work-event.mjs`.
+- Hermes / Windsurf / IDE setup → `channels/llm-local/README.md`.
 - Keep command names stable. Improve the workflow behind existing commands instead of inventing new names unless the user explicitly requests a new command or the standard is being versioned with a migration note.
 
 ## Work event logging
@@ -34,11 +34,11 @@ Codex uses this file as agent instruction; it does not use Claude Code slash com
 - สำหรับ Hermes/local model ให้ใช้ metadata confirmation แบบสั้นเท่านั้น; อย่า paste standard ยาวหรือ JSON ก้อนใหญ่ถ้าไม่จำเป็น
 - ระหว่าง active session ให้รับคำสั่งรูปแบบ `bda-dev: <prompt>`, `bda-nondev: <prompt>`, `bda-pm: <prompt>` แล้ว map เป็น work event ของ command นั้น
 - เก็บรายละเอียดงานใน `work_type` เช่น `debug`, `review`, `document`, `pm-status`, หรือ `risk`; อย่าโชว์ command catalog ย่อยยาวใน local/Hermes context
-- ถ้าผู้ใช้พิมพ์ `bda help` ให้สรุป command catalog จาก `docs/bda-session-cli.md`
+- ถ้าผู้ใช้พิมพ์ `bda help` ให้สรุป command catalog จาก `channels/llm-local/docs/bda-session-cli.md`
 - `bda help`, `bda version`, และ `bda update` เป็น utility commands ไม่ใช่ work session; ห้ามสร้าง session/event ใหม่จากคำสั่งเหล่านี้
 - ถ้าผู้ใช้พิมพ์ `bda stop` ให้สรุป outcome/status/blocker/next step แล้วส่งหรือเตรียม stop event โดยต้องใช้ session_id/project/task เดิมจาก active `bda start`; ห้ามเดา session ใหม่
 - เมื่อมีการใช้ command เช่น `fix-bug`, `review-change`, `build-feature`, `write-document`, `test-report`, หรือ PM command ให้เก็บอย่างน้อย: `employee_code`, `employee_group`, `command`, `task_summary`, `work_type`, `project`, `tool`, `ai_model`, `status`, `outcome`, `tokens` ถ้ามี, และ `duration_ms` ถ้ามี
-- ส่ง event ผ่าน `scripts/bda.mjs`, `scripts/bda-work-event.mjs`, หรือ integration ที่ compatible กับ contract ใน `docs/ai-work-event-logging.md`
+- ส่ง event ผ่าน `scripts/bda.mjs`, `scripts/bda-work-event.mjs`, หรือ integration ที่ compatible กับ contract ใน `channels/llm-local/docs/ai-work-event-logging.md`
 - ห้าม hardcode production endpoint, API key, employee key, หรือ private IP ใน public repo; ใช้ env/config ของเครื่องผู้ใช้หรือ private rollout package เท่านั้น
 - ถ้า endpoint ใช้งานไม่ได้ ให้บันทึก local fallback/outbox แล้วระบุ limitation ใน handoff
 
@@ -77,5 +77,5 @@ Codex uses this file as agent instruction; it does not use Claude Code slash com
 โมเดล local (Qwen3.6) มีจุดอ่อนตอน generate ภาษาไทย: สระ/วรรณยุกต์อาจเพี้ยนเป็นรายครั้ง (เช่น "สั้่น", "น้ี") แต่โมเดลอ่าน/ตรวจ/แก้ภาษาไทยได้แม่น ดังนั้น: <!-- thai-check:ignore -->
 
 - งานที่สร้างหรือแก้ข้อความภาษาไทย (string ใน code, comment, เอกสาร, commit message): **ก่อนปิดงาน ให้อ่านทวนข้อความไทยทั้งหมดที่เพิ่งเขียน** ตรวจสระ/วรรณยุกต์เพี้ยน ลำดับผิด หรือคำสะกดผิด แล้วแก้ให้ถูกต้องก่อนส่งมอบ
-- ถ้ามี BDA CLI ให้รัน `bda thai-check <ไฟล์ที่แก้>` หรือ `bda thai-check --diff` เป็น safety net สุดท้ายก่อน commit (ดู `docs/thai-output-safety.md`)
+- ถ้ามี BDA CLI ให้รัน `bda thai-check <ไฟล์ที่แก้>` หรือ `bda thai-check --diff` เป็น safety net สุดท้ายก่อน commit (ดู `channels/llm-local/docs/thai-output-safety.md`)
 - ห้ามข้ามขั้นตอนนี้แม้งานเล็ก — ความเพี้ยนเกิดเป็นรายครั้งจึงคาดเดาไม่ได้

@@ -16,8 +16,8 @@ Context:
 โปรดทำตามขั้นตอนนี้:
 1. ยืนยัน path ที่จะอ่าน/เขียน และห้ามแตะ shared vault/repo นอก scope
 2. สำรวจโครงสร้าง Obsidian: folder หลัก, index/home note, architecture/docs, sessions/logs, changelog, evidence/test reports, naming, tags, frontmatter, link pattern
-3. สร้างหรืออัปเดต Obsidian context manifest ตาม `templates/obsidian-context.md`
-4. สร้างหรืออัปเดต session/evidence index ตาม `templates/obsidian-work-note.md`
+3. สร้างหรืออัปเดต Obsidian context manifest ตาม `core/templates/obsidian-context.md`
+4. สร้างหรืออัปเดต session/evidence index ตาม `core/templates/obsidian-work-note.md`
 5. สรุปวิธีที่ command อื่นต้องใช้ context นี้ และระบุ path canonical ของ manifest
 
 Output ที่ต้องส่ง: init summary พร้อม Obsidian context path, files created/updated, และ evidence
@@ -52,7 +52,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 
 ทุกครั้งที่ใช้ command นี้ ต้องส่งรายงานท้ายงานเป็นภาษาไทยและมีหัวข้อเหล่านี้ครบถ้วน:
 
-1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `STANDARD.md`, `commands/init.md`, `workflows/obsidian.md`, `templates/obsidian-context.md`, `templates/obsidian-work-note.md`
+1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `STANDARD.md`, `core/commands/init.md`, `core/workflows/obsidian.md`, `core/templates/obsidian-context.md`, `core/templates/obsidian-work-note.md`
 2. **Pipeline trace** — ลำดับขั้นตอนที่ทำจริงตั้งแต่ Understand → Plan → Execute → Verify → Handoff พร้อม workflow/command ที่ใช้ในแต่ละช่วง
 3. **Commands run** — คำสั่ง shell/tool/test/lint/build/search ที่รันจริง พร้อมผลสรุป; ถ้าไม่ได้รันคำสั่ง ให้ระบุ `ไม่ได้รัน` และเหตุผล
 4. **Verification / Evidence** — หลักฐานผลตรวจจริง เช่น files discovered, notes created/updated, diff, link check, manual check

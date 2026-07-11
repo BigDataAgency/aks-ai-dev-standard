@@ -6,7 +6,7 @@
 
 This public document describes the generic setup. Real BDA endpoint and user keys must be provided through private rollout docs or local config.
 
-> **Updated 2026-07-05**: model IDs ปรับเป็นชุดปัจจุบัน (bda/dev, bda/nondev), Hermes เป็นเครื่องมือหลักแบบ agentic (ไม่ใช่แค่ discussion), เพิ่ม Claude Code setup จริง. เมื่อใช้ไม่ได้ให้ดู `docs/troubleshooting-ai-access.md` ก่อน. วิธีทำงานกับ AI ให้เสร็จจริง: `docs/ai-employee-manual.md`
+> **Updated 2026-07-05**: model IDs ปรับเป็นชุดปัจจุบัน (bda/dev, bda/nondev), Hermes เป็นเครื่องมือหลักแบบ agentic (ไม่ใช่แค่ discussion), เพิ่ม Claude Code setup จริง. เมื่อใช้ไม่ได้ให้ดู `channels/llm-local/docs/troubleshooting-ai-access.md` ก่อน. วิธีทำงานกับ AI ให้เสร็จจริง: `channels/llm-local/docs/ai-employee-manual.md`
 
 ## What Staff Need
 
@@ -305,8 +305,8 @@ Install BDA slash commands in each target repo:
 
 ```bash
 mkdir -p .claude/commands
-cp /path/to/bda-ai-dev-standard/claude/CLAUDE.md ./CLAUDE.md
-cp /path/to/bda-ai-dev-standard/claude/commands/*.md ./.claude/commands/
+cp /path/to/bda-ai-dev-standard/channels/llm-local/claude/CLAUDE.md ./CLAUDE.md
+cp /path/to/bda-ai-dev-standard/channels/llm-local/claude/commands/*.md ./.claude/commands/
 ```
 
 Configure the gateway (ค่าจริงดู rollout ส่วนตัว):
@@ -378,7 +378,7 @@ env_key = "BDA_AI_ROUTER_API_KEY"
 wire_api = "responses"
 ```
 
-- copy `codex/AGENTS.md` จาก repo นี้ไปเป็น `AGENTS.md` ที่ root ของโปรเจกต์ (codex จะทำตาม BDA standard + รายงานตาราง)
+- copy `channels/llm-local/codex-local/AGENTS.md` จาก repo นี้ไปเป็น `AGENTS.md` ที่ root ของโปรเจกต์ (codex จะทำตาม BDA standard + รายงานตาราง)
 - ใช้ในสคริปต์/CI: `codex exec --profile bda --skip-git-repo-check --sandbox workspace-write "<งาน>" </dev/null` — **ต้องมี `</dev/null`** ไม่งั้นค้างรอ stdin
 - model `bda/dev-codex` เท่านั้น (route พิเศษรองรับ Responses API) — `bda/dev` ใช้กับ codex ไม่ได้
 

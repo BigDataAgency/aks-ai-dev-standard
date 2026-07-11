@@ -15,9 +15,9 @@
 
 | เครื่องมือ | ไฟล์ | วิธีติดตั้ง |
 |---|---|---|
-| Claude Code | `claude/CLAUDE.md` หัวข้อ "Thai output self-review" | copy เป็น `CLAUDE.md` ที่ root ของ target repo (ตามขั้นตอนติดตั้งเดิม) |
-| Codex | `codex/AGENTS.md` หัวข้อ "Thai output self-review" | copy เป็น `AGENTS.md` ที่ root ของ target repo |
-| Cline (Hermes/Windsurf/VS Code) | `templates/clinerules-thai-review.md` | **อัตโนมัติ**: `bda update` / `bda setup` ติดตั้งเป็น global rule ที่ `~/Documents/Cline/Rules/bda-thai-review.md`; หรือ copy เป็น `.clinerules` per-repo |
+| Claude Code | `channels/llm-local/claude/CLAUDE.md` หัวข้อ "Thai output self-review" | copy เป็น `CLAUDE.md` ที่ root ของ target repo (ตามขั้นตอนติดตั้งเดิม) |
+| Codex | `channels/llm-local/codex-local/AGENTS.md` หัวข้อ "Thai output self-review" | copy เป็น `AGENTS.md` ที่ root ของ target repo |
+| Cline (Hermes/Windsurf/VS Code) | `core/templates/clinerules-thai-review.md` | **อัตโนมัติ**: `bda update` / `bda setup` ติดตั้งเป็น global rule ที่ `~/Documents/Cline/Rules/bda-thai-review.md`; หรือ copy เป็น `.clinerules` per-repo |
 
 เนื้อกติกา:
 

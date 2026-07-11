@@ -11,8 +11,8 @@ Command for safely converting or sending a BDA AI Dev Test Report / test-scenari
 - Staff command name: `send-report`
 - SOP/source of truth: `docs/staff-report-sender-sop.md`
 - Connector script: `scripts/send-ingest-report.mjs`
-- Test Report command: `commands/test-report.md`
-- Internal report workflow: `commands/test-scenario-report.md`, `workflows/test-scenario-report.md`, `templates/test-scenario-report.md`
+- Test Report command: `core/commands/test-report.md`
+- Internal report workflow: `core/commands/test-scenario-report.md`, `core/workflows/test-scenario-report.md`, `core/templates/test-scenario-report.md`
 
 ## Evidence guardrail
 
@@ -49,7 +49,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 
 ทุกครั้งที่ใช้ command นี้ ต้องส่งรายงานท้ายงานเป็นภาษาไทยและมีหัวข้อเหล่านี้ครบถ้วน:
 
-1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `commands/send-report.md`, `docs/staff-report-sender-sop.md`, `commands/test-report.md`
+1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `core/commands/send-report.md`, `docs/staff-report-sender-sop.md`, `core/commands/test-report.md`
 2. **Pipeline trace** — Understand → Plan → Execute → Verify → Handoff พร้อม command/workflow ที่ใช้จริง
 3. **Commands run** — คำสั่ง/tool/search ที่รันจริง พร้อมผลสรุป; ถ้าไม่ได้รัน remote send ให้ระบุเหตุผล
 4. **Verification / Evidence** — หลักฐานจริง เช่น dry-run output shape, redacted send status/event_id, owner dashboard verification หรือ `pending evidence`

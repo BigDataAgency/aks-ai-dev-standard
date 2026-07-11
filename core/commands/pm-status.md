@@ -9,7 +9,7 @@
 ทำงาน: PM Status
 Context: <วาง project/date/audience/scope>
 โปรดทำตามขั้นตอนนี้:
-1. อ่าน `docs/ai-work-event-logging.md`
+1. อ่าน `channels/llm-local/docs/ai-work-event-logging.md`
 2. อ่าน work events และ PM log ที่เกี่ยวข้อง
 3. สรุป progress, blocker, risk, next step
 4. แยก internal note กับ stakeholder-safe summary

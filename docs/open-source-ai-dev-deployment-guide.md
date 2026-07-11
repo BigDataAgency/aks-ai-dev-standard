@@ -64,7 +64,7 @@ BDA_WORK_EVENT_API_KEY=
 
 - อย่าใส่ production endpoint ใน public repo
 - อย่า commit `.env`
-- ใช้ `commands/understand-task.md`, `commands/plan-work.md`, `commands/fix-bug.md`, `commands/verify-work.md` ได้ทันทีใน AI tool ที่รองรับ markdown prompt
+- ใช้ `core/commands/understand-task.md`, `core/commands/plan-work.md`, `core/commands/fix-bug.md`, `core/commands/verify-work.md` ได้ทันทีใน AI tool ที่รองรับ markdown prompt
 
 ## Stage 2: Local Gateway
 
@@ -101,7 +101,7 @@ require-auth: true
 log-usage: true
 ```
 
-ทีมควรอ่านคู่กับ `docs/hybrid-ai-usage-discipline.md` เพื่อป้องกัน prompt ใหญ่, scan ซ้ำ, session ค้าง, และงานซ้ำหลาย agent
+ทีมควรอ่านคู่กับ `channels/llm-local/docs/hybrid-ai-usage-discipline.md` เพื่อป้องกัน prompt ใหญ่, scan ซ้ำ, session ค้าง, และงานซ้ำหลาย agent
 
 ## BDA Deployment Pattern
 

@@ -57,7 +57,7 @@
 ตัวอย่าง prompt ที่ควรใช้:
 
 ```text
-ใช้ commands/understand-task.md สแกน repo map ครั้งเดียว เฉพาะ routing, package config, module payment และ test ที่เกี่ยวข้อง
+ใช้ core/commands/understand-task.md สแกน repo map ครั้งเดียว เฉพาะ routing, package config, module payment และ test ที่เกี่ยวข้อง
 จากนั้นสรุปไฟล์สำคัญไม่เกิน 10 ไฟล์ และรอ plan-work ก่อนแก้
 ```
 
@@ -72,7 +72,7 @@
 ให้ถาม:
 
 ```text
-ใช้ commands/fix-bug.md
+ใช้ core/commands/fix-bug.md
 project: <ชื่อโปรเจกต์>
 error: <paste error text>
 command: <คำสั่งที่ทำให้ error>
@@ -91,7 +91,7 @@ actual: <เกิดอะไร>
 ให้ถาม:
 
 ```text
-ใช้ commands/resume-pending-work.md
+ใช้ core/commands/resume-pending-work.md
 อ่าน handoff ล่าสุด/session note/diff ก่อน
 สรุป current state, remaining tasks, และคำสั่ง verify ที่ต้องรัน
 ห้าม scan ทั้ง repo ซ้ำ เว้นแต่ handoff ระบุว่า context ขาด
@@ -106,7 +106,7 @@ actual: <เกิดอะไร>
 ให้ถาม:
 
 ```text
-ใช้ commands/verify-work.md
+ใช้ core/commands/verify-work.md
 success criteria: <รายการ>
 รันคำสั่ง verify ที่ repo รองรับจริง
 สรุป pass/fail พร้อม command output ที่สำคัญ และระบุส่วนที่ไม่ได้ตรวจ
@@ -116,19 +116,19 @@ success criteria: <รายการ>
 
 | สถานการณ์ | Command ที่ใช้ | เป้าหมาย |
 | --- | --- | --- |
-| เข้า repo/project ครั้งแรก | `commands/init.md` | สร้าง Obsidian/project context manifest หนึ่งครั้ง |
-| เริ่มเข้าใจงาน | `commands/understand-task.md` | จำกัด scope, scan ครั้งเดียว, ระบุไฟล์สำคัญ |
-| วางแผนก่อนแก้ | `commands/plan-work.md` | success criteria, plan, risks, verification |
-| ทำ feature ใหม่ | `commands/build-feature.md` | ลงมือทำตาม plan โดยไม่ขยาย scope |
-| แก้ bug | `commands/fix-bug.md` | reproduce, root cause, minimal fix, verify |
-| รับงานค้าง | `commands/resume-pending-work.md` | อ่าน handoff/diff/session note ก่อน ไม่ scan ใหม่ทั้ง repo |
-| review โค้ด | `commands/review-change.md` | หา bug/regression/missing test จาก diff |
-| ตรวจของจริง | `commands/verify-work.md` | build/lint/test/manual evidence |
-| เช็ก app จริง | `commands/check-real-app.md` | visible user journey และ evidence |
-| เขียนเอกสาร | `commands/write-document.md` | docs ที่มี source/evidence ชัด |
-| อัปเดต Obsidian | `commands/update-obsidian.md` | บันทึก context/session/evidence |
-| ส่งงาน | `commands/handoff-report.md` | handoff สั้น มี commands/evidence/risk |
-| ปรับ standard | `commands/standard-feedback.md` | feedback เพื่อแก้มาตรฐาน ไม่ใช่ประเมินคน |
+| เข้า repo/project ครั้งแรก | `core/commands/init.md` | สร้าง Obsidian/project context manifest หนึ่งครั้ง |
+| เริ่มเข้าใจงาน | `core/commands/understand-task.md` | จำกัด scope, scan ครั้งเดียว, ระบุไฟล์สำคัญ |
+| วางแผนก่อนแก้ | `core/commands/plan-work.md` | success criteria, plan, risks, verification |
+| ทำ feature ใหม่ | `core/commands/build-feature.md` | ลงมือทำตาม plan โดยไม่ขยาย scope |
+| แก้ bug | `core/commands/fix-bug.md` | reproduce, root cause, minimal fix, verify |
+| รับงานค้าง | `core/commands/resume-pending-work.md` | อ่าน handoff/diff/session note ก่อน ไม่ scan ใหม่ทั้ง repo |
+| review โค้ด | `core/commands/review-change.md` | หา bug/regression/missing test จาก diff |
+| ตรวจของจริง | `core/commands/verify-work.md` | build/lint/test/manual evidence |
+| เช็ก app จริง | `core/commands/check-real-app.md` | visible user journey และ evidence |
+| เขียนเอกสาร | `core/commands/write-document.md` | docs ที่มี source/evidence ชัด |
+| อัปเดต Obsidian | `core/commands/update-obsidian.md` | บันทึก context/session/evidence |
+| ส่งงาน | `core/commands/handoff-report.md` | handoff สั้น มี commands/evidence/risk |
+| ปรับ standard | `core/commands/standard-feedback.md` | feedback เพื่อแก้มาตรฐาน ไม่ใช่ประเมินคน |
 
 ## Flow มาตรฐานต่อหนึ่งงาน
 

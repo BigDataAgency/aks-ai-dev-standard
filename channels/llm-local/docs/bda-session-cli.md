@@ -86,8 +86,8 @@ Required checklist:
 2. Update model permissions in LiteLLM DB:
    - `"LiteLLM_TeamTable".models`
    - `"LiteLLM_VerificationToken".models`
-   - If `bda/dev` is internally rewritten to hidden node aliases, run the idempotent sync in `scripts/litellm-sync-dev-node-alias-permissions.sql` and verify both missing counts are `0`. See `docs/litellm-dev-node-alias-permissions.md`.
-   - If internal BDA non-dev/PM users can be routed to `bda/dev` or paid fallback, run `scripts/litellm-sync-staff-model-permissions.sql`. Old DeepSeek-only non-dev keys will otherwise fail with `HTTP 401 key_model_access_denied` when gateway routes to Qwen paid or A40 aliases.
+   - If `bda/dev` is internally rewritten to hidden node aliases, run the idempotent sync in `admin/scripts/litellm-sync-dev-node-alias-permissions.sql` and verify both missing counts are `0`. See `admin/docs/litellm-dev-node-alias-permissions.md`.
+   - If internal BDA non-dev/PM users can be routed to `bda/dev` or paid fallback, run `admin/scripts/litellm-sync-staff-model-permissions.sql`. Old DeepSeek-only non-dev keys will otherwise fail with `HTTP 401 key_model_access_denied` when gateway routes to Qwen paid or A40 aliases.
 3. Update metadata-gate model catalog:
    - `BDA_PUBLIC_MODEL_IDS` in `docker-compose.yml`
    - default `PUBLIC_MODEL_IDS` in `metadata_gateway/app.py`

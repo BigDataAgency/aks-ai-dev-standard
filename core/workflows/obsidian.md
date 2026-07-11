@@ -1,15 +1,15 @@
 # Workflow: obsidian
 
-Obsidian: รักษา link graph, tags, frontmatter, naming, ห้ามแตะ shared vault โดยไม่ยืนยัน และใช้ `commands/init.md` เพื่อสร้าง context manifest ก่อนให้ command อื่นทำงานร่วมกับ vault
+Obsidian: รักษา link graph, tags, frontmatter, naming, ห้ามแตะ shared vault โดยไม่ยืนยัน และใช้ `core/commands/init.md` เพื่อสร้าง context manifest ก่อนให้ command อื่นทำงานร่วมกับ vault
 
 ## Steps
-1. ใช้ `commands/understand-task.md`
-2. ถ้ายังไม่มี Obsidian context manifest ให้ใช้ `commands/init.md` เพื่อสร้าง/อัปเดต `00-Agent-Context.md`, `sessions/_index.md`, และ `test-evidence/_index.md`
-3. ใช้ `commands/plan-work.md` ถ้างานไม่เล็กมาก โดยอ้างอิง session/evidence note จาก manifest
-4. ทำงานด้วย command ที่ใกล้ที่สุด เช่น `commands/fix-bug.md`, `commands/build-feature.md`, `commands/write-document.md`, หรือ `commands/test-report.md`
+1. ใช้ `core/commands/understand-task.md`
+2. ถ้ายังไม่มี Obsidian context manifest ให้ใช้ `core/commands/init.md` เพื่อสร้าง/อัปเดต `00-Agent-Context.md`, `sessions/_index.md`, และ `test-evidence/_index.md`
+3. ใช้ `core/commands/plan-work.md` ถ้างานไม่เล็กมาก โดยอ้างอิง session/evidence note จาก manifest
+4. ทำงานด้วย command ที่ใกล้ที่สุด เช่น `core/commands/fix-bug.md`, `core/commands/build-feature.md`, `core/commands/write-document.md`, หรือ `core/commands/test-report.md`
 5. อัปเดต Obsidian session/evidence/index notes ระหว่างหรือท้ายงาน ไม่ต้องรอให้ user สั่งเก็บเพิ่มอีกครั้งถ้ามี context แล้ว
-6. ใช้ `commands/verify-work.md`
-7. ส่ง `commands/handoff-report.md`
+6. ใช้ `core/commands/verify-work.md`
+7. ส่ง `core/commands/handoff-report.md`
 
 ## Context manifest
 

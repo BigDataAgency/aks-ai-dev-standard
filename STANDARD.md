@@ -26,7 +26,7 @@
 - ห้าม AI/tool เรียก `bda start` หรือ `bda stop` เองโดยไม่อยู่ในคำสั่งหรือ flow ที่ผู้ใช้ยืนยันแล้ว
 - `bda start` ต้องมี project, task_summary, command/tool, employee_code และ session_id ที่ trace กลับไปยังงานจริงได้
 - `bda stop` ต้องปิด session เดิมเท่านั้น ห้ามสร้าง session ใหม่ตอน stop และห้าม stop อัตโนมัติแค่เพราะทำ step หนึ่งเสร็จ
-- หลังเปิด hybrid local GPU + paid cloud ให้ยึด `docs/hybrid-ai-usage-discipline.md` เป็นกติกาใช้งานประจำวัน
+- หลังเปิด hybrid local GPU + paid cloud ให้ยึด `channels/llm-local/docs/hybrid-ai-usage-discipline.md` เป็นกติกาใช้งานประจำวัน
 - ห้าม scan codebase ทั้งหมดซ้ำใน session เดิม; ให้ scan จำกัดครั้งเดียวต่อ task แล้วใช้ targeted search ตาม path/module/error string
 - ห้ามถามงานกว้าง เช่น "ดูให้หน่อย", "ทำต่อ", "แก้ให้หมด" โดยไม่มี path/error/success criteria/command ที่ต้องใช้
 - ห้ามเปิดหลาย agent สำหรับ repo/task เดียวกันพร้อมกัน เพราะทำให้ queue และ paid overflow สูงขึ้น
@@ -56,7 +56,7 @@
 - `Commands run` ต้องเป็นคำสั่งหรือ tool ที่รันจริงพร้อมผลสรุป ถ้าไม่ได้รันต้องเขียนว่าไม่ได้รันและเหตุผล
 
 ## 6. Standard Feedback Loop
-- ใช้ `FEEDBACK.md`, `commands/standard-feedback.md`, `templates/standard-feedback.md`, และ `workflows/standard-improvement.md` เมื่อต้องการ feedback เพื่อปรับปรุง AKS AI Dev Standard (เดิม BDA AI Dev Standard) เอง
+- ใช้ `FEEDBACK.md`, `core/commands/standard-feedback.md`, `core/templates/standard-feedback.md`, และ `core/workflows/standard-improvement.md` เมื่อต้องการ feedback เพื่อปรับปรุง AKS AI Dev Standard (เดิม BDA AI Dev Standard) เอง
 - รับ feedback ประเภท bug report, confusion, missing command, feature request, scenario request, adoption friction, AI output issue หรือข้อเสนออื่น ๆ ที่ทำให้ standard ดีขึ้น
 - Feedback loop นี้แยกจาก performance process โดยสิ้นเชิง: ไม่ใช่ score, KPI, daily performance, หรือการประเมินบุคคล
 - role/team ใน feedback เป็น optional usage context เท่านั้น ไม่ใช้ตัดสินผลงานรายบุคคล

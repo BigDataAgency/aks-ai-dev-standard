@@ -9,7 +9,7 @@
 ทำงาน: Update Obsidian
 Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
-1. ยืนยัน vault/path ก่อน และอ่าน Obsidian context manifest (`00-Agent-Context.md` หรือ `.bda/obsidian-context.md`) ถ้ามี; ถ้าไม่มีให้ใช้ `commands/init.md` เพื่อสร้าง context ก่อนอัปเดตแบบต่อเนื่อง
+1. ยืนยัน vault/path ก่อน และอ่าน Obsidian context manifest (`00-Agent-Context.md` หรือ `.bda/obsidian-context.md`) ถ้ามี; ถ้าไม่มีให้ใช้ `core/commands/init.md` เพื่อสร้าง context ก่อนอัปเดตแบบต่อเนื่อง
 2. ห้ามแตะ shared repo โดยไม่ได้รับอนุญาต
 3. รักษา link/tag/frontmatter
 4. ไม่สร้าง duplicate note
@@ -35,7 +35,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 
 ทุกครั้งที่ใช้ command นี้ ต้องส่งรายงานท้ายงานเป็นภาษาไทยและมีหัวข้อเหล่านี้ครบถ้วน:
 
-1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `STANDARD.md`, `commands/<name>.md`, `workflows/<name>.md`, `policies/<name>.md`, `checklists/<name>.md`, `templates/<name>.md`
+1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `STANDARD.md`, `core/commands/<name>.md`, `core/workflows/<name>.md`, `core/policies/<name>.md`, `core/checklists/<name>.md`, `core/templates/<name>.md`
 2. **Pipeline trace** — ลำดับขั้นตอนที่ทำจริงตั้งแต่ Understand → Plan → Execute → Verify → Handoff พร้อม workflow/command ที่ใช้ในแต่ละช่วง
 3. **Commands run** — คำสั่ง shell/tool/test/lint/build/search ที่รันจริง พร้อมผลสรุป; ถ้าไม่ได้รันคำสั่ง ให้ระบุ `ไม่ได้รัน` และเหตุผล
 4. **Verification / Evidence** — หลักฐานผลตรวจจริง เช่น test result, lint/build output, diff, screenshot, link, manual check

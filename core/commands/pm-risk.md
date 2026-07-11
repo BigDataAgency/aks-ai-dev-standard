@@ -9,7 +9,7 @@
 ทำงาน: PM Risk
 Context: <วาง project/date/team/scope>
 โปรดทำตามขั้นตอนนี้:
-1. อ่าน `docs/ai-work-event-logging.md`
+1. อ่าน `channels/llm-local/docs/ai-work-event-logging.md`
 2. อ่าน events ที่ status เป็น blocked/failed หรือมี blocker
 3. จัดกลุ่ม risk ตาม project, owner, dependency
 4. เสนอ mitigation, owner, next step, due date

@@ -88,7 +88,7 @@
 6. **Capture screenshot** — capture ภาพที่ checkpoint สำคัญ: start state, key action, validation/error state, success/final state; ตั้งชื่อไฟล์ด้วย scenario ID และ step เช่น `TC-001-03-submit-success.png`; ตรวจ PII masking ก่อนแนบ
 7. **Collect diagnostics** — เก็บ console errors, network/API failures ที่เกี่ยวข้อง, HTTP status/final URL/app-level 404, server log snippet ถ้ามี, browser/device/viewport
 8. **Assess result** — กำหนด pass/fail/info/limited/blocked/not run ต่อ scenario พร้อม severity, blocked reason และ recommendation; ห้ามอ้างว่าผ่านถ้าไม่ได้ตรวจจริง
-9. **Generate report** — ใช้ `templates/test-scenario-report.md` เพื่อสรุป test matrix, Auth/RBAC matrix, route source trace, evidence manifest, issues, recommendations และ limitations
+9. **Generate report** — ใช้ `core/templates/test-scenario-report.md` เพื่อสรุป test matrix, Auth/RBAC matrix, route source trace, evidence manifest, issues, recommendations และ limitations
 10. **Verify report quality** — ตรวจว่าทุก screenshot path/link เปิดได้, PII ถูก mask, expected/actual ครบ, console/network ไม่ถูกละเลย, และมี BDA required sections
 11. **Handoff** — ส่งรายงานพร้อม path/link ของไฟล์ Markdown และ screenshot evidence
 
@@ -157,7 +157,7 @@ Pass/fail criteria สำหรับ no mutation/network write:
 
 ทุกครั้งที่ใช้ workflow นี้ ต้องส่งรายงานท้ายงานเป็นภาษาไทยและมีหัวข้อเหล่านี้ครบถ้วน:
 
-1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `commands/test-scenario-report.md`, `workflows/test-scenario-report.md`, `templates/test-scenario-report.md`, `policies/evidence-verification.md`
+1. **BDA Standard files used** — ระบุ path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง เช่น `core/commands/test-scenario-report.md`, `core/workflows/test-scenario-report.md`, `core/templates/test-scenario-report.md`, `core/policies/evidence-verification.md`
 2. **Pipeline trace** — ลำดับขั้นตอนที่ทำจริงตั้งแต่ Understand → Guardrail → Plan → Execute → Verify → Handoff พร้อม workflow/command ที่ใช้ในแต่ละช่วง
 3. **Production Read-only Guardrail** — checklist/ข้อจำกัด no-mutation/no-network-write และ forbidden actions ถ้า environment มี production หรือ real data
 4. **Auth/RBAC Matrix** — role/account class, expected access, actual access, final URL/deny behavior, evidence และ blocked reason ถ้ามี

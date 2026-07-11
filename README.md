@@ -1,256 +1,75 @@
 # AKS AI Dev Standard (เดิม BDA AI Dev Standard)
 
-Version: `1.0.0`
+Version: `1.1.0`
 License: MIT
 
-มาตรฐานกลางสำหรับการทำงานร่วมกับ AI ในงานพัฒนา ซ่อมบั๊ก ตรวจโค้ด เขียนเอกสาร งาน Obsidian งาน Performance และงานติดตามทีมของ BDA
+มาตรฐานกลางสำหรับการทำงานร่วมกับ AI ในงานพัฒนา ซ่อมบั๊ก ตรวจโค้ด เขียนเอกสาร งาน Obsidian งาน Performance และงานติดตามทีมของ AKS
 
 แนวคิดหลัก: ผู้ใช้ไม่ต้องไล่ตามเครื่องมือ/เทคนิคใหม่ตลอดเวลา — ใช้ command และ workflow เดิมได้ แต่ไส้ในของ standard จะถูกปรับปรุงเป็น version ใหม่เมื่อมีวิธีที่ดีกว่า ปลอดภัยกว่า หรือใช้งานจริงได้ดีกว่า
 
-## Versioning
-
-AKS AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
-
-- Current version: `1.0.0`
-- ดูประวัติการเปลี่ยนแปลงที่ `CHANGELOG.md`
-- เลข version หลักอยู่ใน `VERSION`
-- ทุก update สำคัญต้องเปลี่ยน version ใน repo นี้ก่อน rollout
-
-## Quickstart สำหรับคนใช้งาน
-
 > **Public repo security notice:** repo นี้เป็น standards/templates/prompts/schemas แบบ public เท่านั้น ห้าม hardcode BDA/InnoHub production endpoints, credentials, tokens, tenant secrets, privileged database keys, หรือข้อมูลลูกค้าใน repo นี้ ค่า default ต้องเป็น local-output mode (`BDA_STANDARD_MODE=local`) และห้าม auto-ingest เข้า InnoHub โดย default ให้ใช้ `localhost` หรือ `example.com` เป็น placeholder เท่านั้น Production ingest ต้องผ่าน private connector พร้อม auth/tenant validation ตาม `SECURITY.md` และ `docs/public-ingest-guardrails.md`
 
-1. เปิดงานด้วย `commands/understand-task.md`
-2. ถ้างานต้องทำร่วมกับ Obsidian ให้ใช้ `commands/init.md` หนึ่งครั้งเพื่อสร้าง context manifest
-3. เลือก workflow ตามประเภทงานใน `workflows/`
-4. ให้ AI วางแผนด้วย `commands/plan-work.md`
-5. ให้ AI ทำงานตาม command เฉพาะ เช่น `build-feature`, `fix-bug`, `write-document`
-6. ตรวจหลักฐานด้วย `commands/verify-work.md` และ policy ใน `policies/`
-7. ส่ง handoff ด้วย `commands/handoff-report.md`
+## คุณใช้ช่องทางไหน
 
-สำหรับทีมที่ใช้ hybrid local GPU + paid cloud ให้ใช้กติกาลด queue และลด prompt ซ้ำใน `docs/hybrid-ai-usage-discipline.md`
+เลือกคู่มือตามช่องทางที่คุณใช้งานจริง:
 
-บทเรียน product จากการใช้ Local LLM จริง รวมถึงความต่างระหว่างองค์กรที่มี dev team และ non-dev team อยู่ที่ `docs/local-llm-product-learning-log.md`
+- **llm-local** — ทำงานบนเครื่องตัวเองด้วย Hermes / Claude Code / Cline / IDE ผ่าน LiteLLM gateway และมี `aks`/`bda` CLI → [`channels/llm-local/README.md`](channels/llm-local/README.md)
+- **thClaws** — ทำงานในกล่องส่วนตัวบน GX10 ผ่าน web UI (มี AI agent, Shell จริง, docker, Preview port 3000, Whisper) → [`channels/thclaws/README.md`](channels/thclaws/README.md)
 
-## เลือกตามขนาดงาน
+เนื้อหากลางที่ใช้ได้**ทุกช่องทาง**อยู่ใน [`core/`](core/): `core/commands/`, `core/workflows/`, `core/policies/`, `core/checklists/`, `core/templates/`, `core/roles/`, `core/prompts/`
 
-- งานเล็ก: `workflows/task-size-small.md`
-- งานกลาง: `workflows/task-size-medium.md`
-- งานใหญ่: `workflows/task-size-large.md`
+โฟลเดอร์อื่น: `docs/` = SOP กลาง, `admin/` = runbook ฝั่ง server (พนักงานทั่วไปไม่ต้องใช้), `archive/` = เอกสารเก่าเก็บอ้างอิง, `scripts/` = CLI และเครื่องมือ (ตำแหน่งเดิม)
 
-## คำสั่งสำคัญ
+## เริ่มงานยังไง
 
-- งานค้างเดิม: `commands/resume-pending-work.md`
-- งานใหม่: `commands/build-feature.md`
-- แก้บั๊ก: `commands/fix-bug.md`
-- Code Review: `commands/review-change.md`
-- เช็กแอปจริง: `commands/check-real-app.md`
-- Init Obsidian/project context: `commands/init.md`
-- รายงาน test scenario พร้อม screenshot: `commands/test-report.md` (alias ของ `commands/test-scenario-report.md`)
-- ส่งรายงานเข้า InnoHub แบบปลอดภัย: `commands/send-report.md` และ `docs/staff-report-sender-sop.md`
-- Sync รายงานจาก GitHub/KitHub เข้า InnoHub แบบ transition-safe: `docs/github-to-innohub-sync-sop.md`
-- เขียนเอกสาร: `commands/write-document.md`
-- อัปเดต Obsidian: `commands/update-obsidian.md`
-- Feedback เพื่อปรับปรุงมาตรฐาน: `commands/standard-feedback.md`
-- Test Report (QA/product evidence): `commands/test-report.md` (source: `commands/test-scenario-report.md`)
-- Performance: `commands/performance-review.md`
-- PM / PM lead: `commands/pm-log.md`, `commands/pm-standup.md`, `commands/pm-status.md`, `commands/pm-risk.md`, `commands/pm-followup.md`, `commands/pm-requirement.md`
-- Automatic work event logging: `docs/ai-work-event-logging.md` and `scripts/bda-work-event.mjs`
-- AKS/BDA session CLI: `docs/bda-session-cli.md` and `scripts/aks.mjs` (`scripts/bda.mjs` remains a permanent shim alias)
-- Hermes / Windsurf / IDE setup: `docs/tool-setup-hermes-windsurf-ide.md`
+1. เปิดงานด้วย `core/commands/understand-task.md` แล้วเลือก workflow ตามขนาดงานใน `core/workflows/` (task-size-small / medium / large)
+2. ถ้างานผูกกับ Obsidian ใช้ `core/commands/init.md` หนึ่งครั้งเพื่อสร้าง context manifest `00-Agent-Context.md`
+3. วางแผนด้วย `core/commands/plan-work.md` แล้วทำงานด้วย command เฉพาะ เช่น `core/commands/build-feature.md`, `core/commands/fix-bug.md`, `core/commands/review-change.md`, `core/commands/write-document.md`
+4. ตรวจหลักฐานด้วย `core/commands/verify-work.md` และ policy ใน `core/policies/` แล้วส่งมอบด้วย `core/commands/handoff-report.md`
 
-## ใช้กับ AI ตัวไหนได้บ้าง
+คำสั่งสำคัญอื่น:
 
-- General AI: ใช้ `AI-README.md` และ `prompts/general-ai/`
-- Codex: ใช้ `codex/AGENTS.md`
-- Claude: ใช้ `claude/CLAUDE.md` และ `claude/commands/`
+- รายงาน test scenario (QA/product evidence): `core/commands/test-report.md` (alias ของ `core/commands/test-scenario-report.md`) ตาม `core/workflows/test-scenario-report.md` และ `core/templates/test-scenario-report.md` — สำหรับ InnoHub/user-facing checks ใช้ visible-menu navigation เป็น default; direct URL/hidden route ต้อง label เป็น technical verification only — workflow นี้ไม่ใช่ performance review หรือการประเมินบุคคล
+- PM / PM lead: `core/commands/pm-log.md`, `pm-standup`, `pm-status`, `pm-risk`, `pm-followup`, `pm-requirement`
+- Feedback เพื่อปรับปรุงมาตรฐาน: อ่าน `FEEDBACK.md` → ใช้ `core/commands/standard-feedback.md` กรอก `core/templates/standard-feedback.md` และถ้าจะแก้มาตรฐานให้ตาม `core/workflows/standard-improvement.md` — feedback loop นี้ไม่ใช่ performance review, score, KPI หรือการประเมินบุคคล เพราะไม่ใช่ทุกทีม/ทุก role ใช้มาตรฐานนี้
 
-### Claude slash commands
+## Slash commands (เฉพาะช่องทาง llm-local)
 
-ใช้ `/` command ใน Claude Code ได้เมื่อ copy/ติดตั้งไฟล์จาก `claude/commands/*.md` ไปไว้ใน `.claude/commands/` ของ target repo และ copy `claude/CLAUDE.md` ไปเป็น `CLAUDE.md` ที่ root ของ target repo แล้ว
+Slash commands เช่น `/init`, `/fix-bug`, `/review-change`, `/standard-feedback`, `/test-report` ใช้ได้เฉพาะ Claude Code แบบ interactive หลัง copy `channels/llm-local/claude/commands/*.md` (เช่น `channels/llm-local/claude/commands/test-report.md`) ไปไว้ใน `.claude/commands/` ของ target repo และ copy `channels/llm-local/claude/CLAUDE.md` เป็น `CLAUDE.md` ที่ root
 
-- Interactive Claude Code: เรียกได้ เช่น `/init`, `/fix-bug`, `/review-change`, `/build-feature`, `/write-document`, `/standard-feedback`, `/test-report`
-- Print mode (`claude -p`): slash command แบบ interactive จะไม่ถูกรันโดยตรง ให้ reference ไฟล์ command (`commands/fix-bug.md`) หรือ paste prompt จาก command แทน
+- Print mode (`claude -p`): slash command จะไม่ถูกรัน ให้ reference ไฟล์ command (`core/commands/fix-bug.md`) หรือ paste prompt แทน
+- ในกล่อง thClaws **ไม่มี slash commands** — พิมพ์สั่ง AI เป็นภาษาคนธรรมดาในแท็บ Terminal แทน (ดู `channels/thclaws/README.md`)
 
+## Session CLI (เฉพาะช่องทาง llm-local)
 
-## Command Pack
-
-Command names are limited to supported developer, Obsidian, QA, reporting, and feedback workflows:
-
-- Test Report: `commands/test-report.md`, `commands/test-scenario-report.md`, `workflows/test-scenario-report.md`, `templates/test-scenario-report.md`
-- PM Lead: `commands/pm-log.md`, `commands/pm-standup.md`, `commands/pm-status.md`, `commands/pm-risk.md`, `commands/pm-followup.md`, `commands/pm-requirement.md`
-
-Adapter usage:
-
-- Claude Code: copy `claude/commands/*.md` to `.claude/commands/` and use slash commands such as `/init`, `/fix-bug`, `/build-feature`, `/write-document`, `/standard-feedback`, `/test-report` in interactive Claude Code only. If the installed Claude Code build supports Developer Mode gateway/base-url configuration, route it through the BDA gateway with the employee personal key.
-- PM lead Claude commands include `/pm-log`, `/pm-standup`, `/pm-status`, `/pm-risk`, `/pm-followup`, and `/pm-requirement`.
-- Gemini: use prompt commands in `gemini/prompts/`; Gemini does not use Claude Code slash commands.
-- Claude coworker: use prompt commands in `claude-coworker/prompts/`; these are paste/reference prompts, not Claude Code slash commands.
-- Codex: use `codex/AGENTS.md` as agent instruction and reference the command files by path.
-
-## AI work event logging
-
-For real BDA work, staff should use one personal API key and send a work event tied to the command/task. This replaces manual daily log collection and lets PM lead logs be generated from actual useful AI-assisted work.
-
-Public repo rule: do not commit production endpoints or API keys to this repo. Configure private values through `~/.bda-skills/config.json`, `.bda-skills/config.json`, or environment variables.
-
-See:
-
-- `docs/ai-work-event-logging.md`
-- `docs/tool-setup-hermes-windsurf-ide.md`
-- `docs/employee-installer-rollout.md`
-- `scripts/bda-work-event.mjs`
-
-Recommended session flow:
+งานจริงเปิด/ปิด session ด้วย `aks`/`bda` CLI และระหว่าง session สั่งงานแบบ `bda-dev: <prompt>`, `bda-nondev: <prompt>`, `bda-pm: <prompt>` ได้ (ดู `channels/llm-local/docs/bda-session-cli.md` และ `channels/llm-local/docs/ai-work-event-logging.md`):
 
 ```bash
 aks start --project "Project Name" --task "fix login validation bug" --command bda-dev --work-type debug
-aks help
-aks update
-aks event --command bda-dev --work-type review --task "review login fix" --status done
-aks stop --status done --outcome "login validation fixed" --next-step "deploy staging"
-```
-
-`bda` remains a permanent alias for existing employees, scripts, and cron jobs:
-
-```bash
-bda start --project "Project Name" --task "fix login validation bug" --command bda-dev --work-type debug
 bda help
-bda update
-bda event --command bda-dev --work-type review --task "review login fix" --status done
+aks update    # ดึง standard ล่าสุด (bda update เป็น alias ถาวรของพนักงานเดิม/สคริปต์/cron)
 bda stop --status done --outcome "login validation fixed" --next-step "deploy staging"
 ```
 
-หลังติดตั้งครั้งแรกแล้ว ให้ใช้ `aks update` หรือ alias ถาวร `bda update` สำหรับ standard/command/session fixes แทนการแจก zip เต็มทุกครั้ง. ถ้าเป็นการเปลี่ยน Hermes provider/model catalog เช่นลบ alias เก่า หรือเปลี่ยน default/compression model ต้องใช้ update config flow เพิ่มเติม; อย่าปล่อย model เก่าค้างใน Desktop config.
-
-When a staff member types `bda start` in AI chat, the AI should draft the metadata first, ask the staff member to confirm or edit it, and only then continue the work. During an active session, staff can write commands as `bda-dev: <prompt>`, `bda-nondev: <prompt>`, or `bda-pm: <prompt>`. Specific activity belongs in `work_type` such as `debug`, `review`, `document`, `pm-status`, or `risk`; do not expose the old long command list to staff.
-
-See `docs/bda-session-cli.md`.
-
-One-off event example:
-
-```bash
-npm run work:event -- \
-  --employee-code EMPLOYEE_CODE \
-  --employee-group dev \
-  --command "/fix-bug" \
-  --work-type debug \
-  --status done \
-  --project "Project Name" \
-  --task "fix login validation bug" \
-  --dry-run
-```
-
-### Command UX and workflow discipline
-
-ผู้ใช้ยังใช้ command/slash command ชุดเดิมได้ เช่น `/fix-bug`, `/build-feature`, `/review-change`, `/plan-work`, `/test-report`, และ `/standard-feedback`. การปรับปรุงมาตรฐานควรอยู่ที่ workflow ภายใน ไม่ใช่เปลี่ยนชื่อ command หรือเพิ่มภาระให้ผู้ใช้โดยไม่จำเป็น.
-
-หลักการ rollout:
-
-- Keep command names stable: เปลี่ยนชื่อ command เฉพาะเมื่อเป็น breaking release และมี migration note
-- Lightweight by default: งานเล็กให้ถาม/รายงานเฉพาะ success criteria, minimum correct change, verification, และ risk ที่จำเป็น
-- Ask only when it matters: ถาม clarification เฉพาะ ambiguity ที่กระทบ scope, data safety, security, หรือ correctness; ถ้าไม่กระทบให้ระบุ assumption แล้วทำต่อแบบเล็กที่สุด
-- Evidence over ceremony: เพิ่มหลักฐานจริงและ evidence mapping แทนการเพิ่มเอกสารยาว ๆ
-- Same command, better internals: command เดิมต้องนำผู้ใช้ผ่าน success criteria, pattern check, minimal implementation, verification mapping, และ handoff ที่ตรวจกลับได้
-
-## Obsidian init context workflow
-
-ใช้ `commands/init.md` เมื่ออยากให้ AI รู้จักโครงสร้าง Obsidian/project ก่อนทำงานต่อด้วย `plan-work`, `fix-bug`, `build-feature`, `write-document`, `test-report`, หรือ `update-obsidian`.
-
-สิ่งที่ init สร้าง/อัปเดตใน project folder ที่ยืนยันแล้ว:
-
-- `00-Agent-Context.md` จาก `templates/obsidian-context.md` เป็น canonical context manifest
-- `sessions/_index.md` และ `sessions/YYYY-MM-DD-<slug>.md` สำหรับ work notes
-- `test-evidence/_index.md` และ `test-evidence/YYYY-MM-DD-<slug>.md` สำหรับ testcase/evidence
-- `.bda/obsidian-context.md` ใน source repo เฉพาะเมื่อ user อนุญาต เพื่อชี้กลับไปยัง Obsidian manifest
-
-หลังมี manifest แล้ว command งานหลักจะอ่าน context นี้ก่อนทำงาน และอัปเดต session/evidence note เป็น default โดยยังต้องยึด no fake evidence: ไม่มีผลตรวจจริงให้ระบุ `pending evidence`.
-
-## QA/Product evidence workflow
-
-เมื่อต้องการทำ test case/scenario พร้อม capture screenshot และสร้างรายงาน ให้ใช้ชื่อ user-facing ปกติ `test-report`:
-
-- Command: `commands/test-report.md`
-- Detailed command: `commands/test-scenario-report.md`
-- Workflow: `workflows/test-scenario-report.md`
-- Template: `templates/test-scenario-report.md`
-- Claude Code slash command: `/test-report` จาก `claude/commands/test-report.md` (slash command ใช้กับ Claude Code interactive เท่านั้น)
-
-Workflow นี้เป็น QA/product evidence workflow เท่านั้น **ไม่ใช่** performance review, score, KPI, daily performance หรือการประเมินบุคคล
-
-สำหรับ InnoHub หรือ user-facing checks ให้ใช้ visible-menu navigation เป็น default และห้ามใช้ hidden route/direct URL เพื่อ claim user journey เว้นแต่ label ชัดว่าเป็น technical verification only
-
-## Private report ingest connector and GitHub/KitHub sync (dry-run default)
-
-`scripts/send-ingest-report.mjs` converts a Test Report / test-scenario-report markdown or JSON file into a minimal `bda-standard-ingest/0.4.1` `report_summary` payload. `scripts/sync-github-reports.mjs` scans an existing GitHub/KitHub/local checkout for report files, validates them through the same connector, and optionally sends only new/changed reports from a private runner.
-
-Security defaults:
-
-- Dry-run/local JSON output is the default; no network request is made unless `--send` is provided.
-- Remote send requires explicit `--send` plus an endpoint and a private token source (`--token-file`, `--token-env`, or private env).
-- Staff SOP: `docs/staff-report-sender-sop.md`; command: `commands/send-report.md`.
-- Transitional GitHub/KitHub sync SOP: `docs/github-to-innohub-sync-sop.md`; sync script: `scripts/sync-github-reports.mjs`.
-- Private env alternatives are supported for authorized staff/CI: `INNOHUB_INGEST_URL`, `INNOHUB_INGEST_TOKEN_FILE`, `INNOHUB_INGEST_TOKEN`, and `INNOHUB_TENANT_ID`.
-- No production endpoint or token is committed here; use private deployment configuration outside this public repo.
-- The connector rejects high-confidence secret patterns before output/send and redacts likely PII/low-confidence secret-like text from payload fields.
-
-Usage examples:
-
-```bash
-npm run ingest:report -- --file reports/test-report.md
-npm run ingest:report -- --file reports/test-report.json --project "Example Project"
-npm run sync:github-reports -- --repo-dir /path/to/kithub-or-github-checkout
-npm run sync:github-reports -- --repo-dir /path/to/kithub-or-github-checkout --pull --send --endpoint https://example.com/ingest --token-file /private/path/ingest-token
-npm run ingest:report -- --file reports/test-report.md --send --endpoint https://example.com/ingest --token-file /private/path/ingest-token
-INNOHUB_INGEST_URL=https://example.com/ingest INNOHUB_INGEST_TOKEN_FILE=/private/path/ingest-token npm run ingest:report -- --file reports/test-report.md --send
-```
-
-Successful remote send returns `mode: sent`, HTTP status, and `event_id` when the private endpoint provides one. InnoHub owner/admin verifies accepted reports in the private dashboard at `/admin/bda-standard-ingest`.
-
-Smoke test:
-
-```bash
-npm run test:ingest-report
-npm run test:github-sync
-```
-
-## Feedback loop สำหรับปรับปรุงมาตรฐาน
-
-ถ้าผู้ใช้งานพบว่า AKS AI Dev Standard ควรแก้ไข/เพิ่ม feature/เพิ่ม command/ทำให้ใช้ง่ายขึ้น ให้ใช้ feedback loop แยกนี้:
-
-- อ่าน `FEEDBACK.md`
-- ใช้ `commands/standard-feedback.md`
-- กรอก `templates/standard-feedback.md`
-- ถ้าจะลงมือแก้มาตรฐาน ให้ตาม `workflows/standard-improvement.md`
-
-Feedback loop นี้เป็น product-improvement process สำหรับมาตรฐานเท่านั้น **ไม่ใช่** performance review, score, KPI, daily performance หรือการประเมินบุคคล เพราะไม่ใช่ทุกทีม/ทุก role ใช้มาตรฐานนี้ และ non-dev ทีม อาจไม่เกี่ยวข้อง
-
-## Coding discipline
-
-ทุก command ต้องใช้หลัก discipline เดียวกัน:
-
-- เขียน success criteria ก่อนแก้ และใช้เป็น checklist ตอน verify
-- ทำ minimum correct change: แก้เท่าที่จำเป็นให้ถูกต้องก่อน ไม่เพิ่ม feature/config/abstraction เผื่ออนาคต
-- ทำตาม pattern เดิมของ repo และหลีกเลี่ยง unrelated refactor/format churn
-- ทุก changed line ต้อง trace กลับไปยัง request, bug, success criteria, หรือ verification ได้
-- ถาม assumption/ambiguity เฉพาะเมื่อมีผลต่อ scope, data safety, security, หรือ correctness
-- Verification / Evidence ต้อง map กลับไปยัง success criteria และบอกส่วนที่ยังไม่ได้ตรวจจริง
+เมื่อพิมพ์ `bda start` ให้ AI ร่าง metadata ให้ตรวจ/แก้ก่อนเริ่มงานจริง และ `bda stop` ต้องปิด session เดิมเท่านั้น ห้ามเดา session ใหม่
 
 ## Output บังคับทุก workflow/command
 
 ทุกงานที่ใช้ AKS AI Dev Standard ต้องรายงานหัวข้อต่อไปนี้ให้ครบ:
 
-- **BDA Standard files used**: path ของไฟล์มาตรฐาน BDA ที่เปิด/อ้างอิงจริง
+- **BDA Standard files used**: path ของไฟล์มาตรฐานที่เปิด/อ้างอิงจริง
 - **Pipeline trace**: ลำดับ Understand → Plan → Execute → Verify → Handoff พร้อม workflow/command ที่ใช้จริง
 - **Commands run**: คำสั่งหรือ tool ที่รันจริง พร้อมผลสรุป; ถ้าไม่ได้รันให้ระบุเหตุผล
 - **Verification / Evidence**: หลักฐานตรวจจริง เช่น test/lint/build/manual check/diff/link
 - **Limitations / Risks / Next steps**: ข้อจำกัด ความเสี่ยง และงานต่อ
 
-## หลักการสำคัญ
+หลักการสำคัญ: ห้ามส่งงานโดยไม่มี evidence, ห้ามบอกว่า test ผ่านถ้าไม่ได้รันจริง, ทำ minimum correct change และห้ามเพิ่ม speculative abstraction/config/dependency/feature ที่ผู้ใช้ไม่ได้ขอ (รายละเอียดเต็มดู `STANDARD.md` และ `AI-README.md`)
 
-- ห้ามเพิ่ม speculative abstraction, configuration, dependency, หรือ feature ที่ผู้ใช้ไม่ได้ขอ
-- ห้ามส่งงานโดยไม่มี evidence
-- ห้ามบอกว่า test ผ่านถ้าไม่ได้รันจริง
-- ห้ามแก้ shared repo หรือ production โดยไม่ยืนยัน scope
-- ห้ามส่งงานโดยไม่ระบุไฟล์มาตรฐาน BDA ที่ใช้, pipeline trace, และ commands run
-- ทุก update ของมาตรฐานนี้ต้องทำใน repo นี้ก่อน แล้วค่อย rollout
+## Versioning
+
+AKS AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
+
+- Current version: `1.1.0`
+- ดูประวัติการเปลี่ยนแปลงที่ `CHANGELOG.md`
+- เลข version หลักอยู่ใน `VERSION`
+- ทุก update สำคัญต้องเปลี่ยน version ใน repo นี้ก่อน rollout

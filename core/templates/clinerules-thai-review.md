@@ -5,7 +5,7 @@ template นี้ใช้ 2 แบบ:
 1. Cline global rule: bda update / bda setup / scripts/setup-cline-bda.sh ติดตั้งให้อัตโนมัติที่
    ~/Documents/Cline/Rules/bda-thai-review.md (มีผลทุก workspace)
 2. per-repo: copy ไฟล์นี้ไปเป็น .clinerules ที่ root ของ target repo (หรือ .clinerules/thai-review.md)
-รายละเอียด: docs/thai-output-safety.md
+รายละเอียด: channels/llm-local/docs/thai-output-safety.md
 -->
 
 โมเดล local (Qwen3.6) มีจุดอ่อนตอน generate ภาษาไทย: สระ/วรรณยุกต์อาจเพี้ยนเป็นรายครั้ง (เช่น "สั้่น", "น้ี") แต่โมเดลอ่าน/ตรวจ/แก้ภาษาไทยได้แม่น ดังนั้น: <!-- thai-check:ignore -->

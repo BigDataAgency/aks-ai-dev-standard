@@ -13,7 +13,7 @@ Purpose: keep today's staff behavior stable while making reports visible in Inno
 4. A private runner adds `--send` with private endpoint/token configuration stored outside this repo.
 5. InnoHub owner/admin verifies accepted reports in the private BDA Standard Ingest dashboard.
 
-Direct staff send with `commands/send-report.md` remains optional/pilot only. Do not force all employees to change their reporting habit before the transition is ready.
+Direct staff send with `core/commands/send-report.md` remains optional/pilot only. Do not force all employees to change their reporting habit before the transition is ready.
 
 ## Public repo safety rules
 

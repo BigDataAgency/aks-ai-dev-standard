@@ -9,7 +9,7 @@
 ทำงาน: PM Standup
 Context: <วาง project/date/team/scope>
 โปรดทำตามขั้นตอนนี้:
-1. อ่าน `docs/ai-work-event-logging.md`
+1. อ่าน `channels/llm-local/docs/ai-work-event-logging.md`
 2. อ่าน PM log หรือ work events ล่าสุด
 3. สรุปสิ่งที่แต่ละ project ทำเสร็จ กำลังทำ และติด blocker
 4. สร้าง follow-up list พร้อม owner และ due date

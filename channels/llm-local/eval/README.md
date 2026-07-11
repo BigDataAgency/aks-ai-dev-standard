@@ -9,7 +9,7 @@
 cd eval
 ./bin/run_eval.sh claude s1-fix-test 3     # claude CLI × โจทย์แก้บั๊ก × 3 รอบ
 ./bin/run_eval.sh hermes s2-build-slice 3  # hermes × โจทย์สร้าง service × 3 รอบ
-./bin/run_eval.sh codex s1-fix-test 3      # codex (ต้อง setup ตาม docs/tool-setup ก่อน)
+./bin/run_eval.sh codex s1-fix-test 3      # codex (ต้อง setup ตาม channels/llm-local/README.md ส่วน Codex CLI ก่อน)
 python3 bin/scoreboard.py results/results.jsonl   # ตารางรวมทุกผลที่เคยรัน
 ```
 
@@ -36,7 +36,7 @@ eval/scenarios/<ชื่อ>/
 
 ## เพิ่ม tool ใหม่
 
-สร้าง `eval/bin/adapters/<tool>.sh` รับ 3 args: `PROMPT WORKDIR LOGFILE` — ดูของเดิมเป็นแบบ อย่าลืม `</dev/null`
+สร้าง `bin/adapters/<tool>.sh` (ใน eval/ นี้) รับ 3 args: `PROMPT WORKDIR LOGFILE` — ดูของเดิมเป็นแบบ อย่าลืม `</dev/null`
 
 ## ผลอ้างอิง (fleet Qwen3.6 ทั้ง 3 node, 2026-07-06)
 
@@ -46,4 +46,4 @@ eval/scenarios/<ชื่อ>/
 | claude | 3/3 | 2/2 + slice ก่อนหน้า 2/3 |
 | codex | 1/1 | ยังไม่วัด n≥3 |
 
-ประวัติการวัดเต็ม + วิธีอ่านผล: `docs/ai-employee-manual.md`, Obsidian `BDA_AI_EMPLOYEE_TEST_HERMES_CLAUDE_2026-07-05`
+ประวัติการวัดเต็ม + วิธีอ่านผล: `channels/llm-local/docs/ai-employee-manual.md`, Obsidian `BDA_AI_EMPLOYEE_TEST_HERMES_CLAUDE_2026-07-05`
