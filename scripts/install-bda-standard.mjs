@@ -136,35 +136,45 @@ function installStandardRepo(targetDir, dryRun) {
   return { target_dir: targetDir, action: "cloned" };
 }
 
+function cliScript(standardPath) {
+  return path.join(standardPath, "scripts", "aks.mjs");
+}
+
 function shellWrapper(standardPath) {
   return `#!/usr/bin/env sh
 set -eu
-exec node "${standardPath}/scripts/bda.mjs" "$@"
+exec node "${cliScript(standardPath)}" "$@"
 `;
 }
 
 function cmdWrapper(standardPath) {
   const escaped = standardPath.replaceAll("%", "%%");
-  return `@echo off\r\nnode "${escaped}\\scripts\\bda.mjs" %*\r\n`;
+  return `@echo off\r\nnode "${escaped}\\scripts\\aks.mjs" %*\r\n`;
 }
 
 function ps1Wrapper(standardPath) {
-  return `& node ${JSON.stringify(path.join(standardPath, "scripts", "bda.mjs"))} @args\n`;
+  return `& node ${JSON.stringify(cliScript(standardPath))} @args\n`;
 }
 
 function wrapperTargets() {
   const targets = [];
   const skillsBin = path.join(os.homedir(), ".bda-skills", "bin");
   if (process.platform === "win32") {
+    targets.push({ path: path.join(skillsBin, "aks.cmd"), type: "cmd" });
+    targets.push({ path: path.join(skillsBin, "aks.ps1"), type: "ps1" });
     targets.push({ path: path.join(skillsBin, "bda.cmd"), type: "cmd" });
     targets.push({ path: path.join(skillsBin, "bda.ps1"), type: "ps1" });
     if (process.env.LOCALAPPDATA) {
       const hermesNode = path.join(process.env.LOCALAPPDATA, "hermes", "node");
+      targets.push({ path: path.join(hermesNode, "aks.cmd"), type: "cmd", reason: "Hermes Desktop PATH compatibility" });
+      targets.push({ path: path.join(hermesNode, "aks.ps1"), type: "ps1", reason: "Hermes Desktop PATH compatibility" });
+      targets.push({ path: path.join(hermesNode, "aks"), type: "cmd", reason: "Hermes Desktop PATH compatibility" });
       targets.push({ path: path.join(hermesNode, "bda.cmd"), type: "cmd", reason: "Hermes Desktop PATH compatibility" });
       targets.push({ path: path.join(hermesNode, "bda.ps1"), type: "ps1", reason: "Hermes Desktop PATH compatibility" });
       targets.push({ path: path.join(hermesNode, "bda"), type: "cmd", reason: "Hermes Desktop PATH compatibility" });
     }
   } else {
+    targets.push({ path: path.join(skillsBin, "aks"), type: "sh" });
     targets.push({ path: path.join(skillsBin, "bda"), type: "sh" });
   }
   return targets;
@@ -192,14 +202,14 @@ function installUpdateScript(standardPath, dryRun) {
   const targets = [];
   if (process.platform === "win32") {
     const ps1 = path.join(binDir, "bda-standard-update.ps1");
-    const content = `& node ${JSON.stringify(path.join(standardPath, "scripts", "bda.mjs"))} update @args\n`;
+    const content = `& node ${JSON.stringify(cliScript(standardPath))} update @args\n`;
     writeFile(ps1, content, dryRun);
     targets.push(ps1);
   } else {
     const sh = path.join(binDir, "bda-standard-update.sh");
     const content = `#!/usr/bin/env sh
 set -eu
-exec node "${standardPath}/scripts/bda.mjs" update "$@"
+exec node "${cliScript(standardPath)}" update "$@"
 `;
     writeFile(sh, content, dryRun, 0o755);
     targets.push(sh);
@@ -209,7 +219,7 @@ exec node "${standardPath}/scripts/bda.mjs" update "$@"
 
 function installHermesConfig(standardPath, dryRun) {
   if (dryRun) return { skipped: false, dry_run: true };
-  const bdaScript = path.join(standardPath, "scripts", "bda.mjs");
+  const bdaScript = cliScript(standardPath);
   const configClean = run(process.execPath, [bdaScript, "config-clean"], { encoding: "utf8" });
   const lightMode = run(process.execPath, [bdaScript, "hermes-light-mode", "--yes"], { encoding: "utf8" });
   return {
@@ -220,7 +230,7 @@ function installHermesConfig(standardPath, dryRun) {
 
 function runDoctor(standardPath, dryRun) {
   if (dryRun) return { action: "doctor", dry_run: true };
-  const bdaScript = path.join(standardPath, "scripts", "bda.mjs");
+  const bdaScript = cliScript(standardPath);
   const doctor = run(process.execPath, [bdaScript, "doctor"], { encoding: "utf8" });
   return JSON.parse(doctor);
 }
@@ -241,10 +251,10 @@ Private config example:
 
 Notes:
   - Do not commit private config files.
-  - Installer writes ~/.bda-skills/config.json and bda wrappers.
+  - Installer writes ~/.bda-skills/config.json and aks/bda wrappers.
   - Installer runs config-clean and doctor after setup.
   - Installer runs hermes-light-mode to archive unused Hermes skill cache.
-  - Use bda update after this; do not reinstall unless lead asks.
+  - Use aks update or bda update after this; do not reinstall unless lead asks.
 `);
 }
 
@@ -282,9 +292,9 @@ async function main() {
     doctor,
     next_steps: [
       "Restart Hermes Desktop.",
-      "Run: bda version",
-      "Run: bda doctor",
-      "Use bda update from now on; do not reinstall unless lead asks.",
+      "Run: aks version or bda version",
+      "Run: aks doctor or bda doctor",
+      "Use aks update or bda update from now on; do not reinstall unless lead asks.",
     ],
   }, null, 2));
 }

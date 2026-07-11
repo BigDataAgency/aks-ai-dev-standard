@@ -54,9 +54,9 @@ echo "ข้อความ" | bda thai-check                  # ตรวจจ
 ```bash
 cat > .git/hooks/pre-commit <<'EOF'
 #!/bin/sh
-exec node "$HOME/.bda-ai-dev-standard/scripts/bda.mjs" thai-check --diff
+exec node "$HOME/.bda-ai-dev-standard/scripts/aks.mjs" thai-check --diff
 EOF
 chmod +x .git/hooks/pre-commit
 ```
 
-ถ้ามี hook เดิมอยู่แล้ว ให้เพิ่มบรรทัด `node "$HOME/.bda-ai-dev-standard/scripts/bda.mjs" thai-check --diff || exit 1` เข้าไปแทน ข้าม hook ชั่วคราวได้ด้วย `git commit --no-verify` (ใช้เมื่อจำเป็นจริงเท่านั้น)
+ถ้ามี hook เดิมอยู่แล้ว ให้เพิ่มบรรทัด `node "$HOME/.bda-ai-dev-standard/scripts/aks.mjs" thai-check --diff || exit 1` เข้าไปแทน (`scripts/bda.mjs` ยังเป็น shim alias ถาวร) ข้าม hook ชั่วคราวได้ด้วย `git commit --no-verify` (ใช้เมื่อจำเป็นจริงเท่านั้น)

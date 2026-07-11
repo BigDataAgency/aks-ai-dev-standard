@@ -56,7 +56,7 @@ BDA AI Dev Standard ใช้ Semantic Versioning: `MAJOR.MINOR.PATCH`
 - Performance: `commands/performance-review.md`
 - PM / PM lead: `commands/pm-log.md`, `commands/pm-standup.md`, `commands/pm-status.md`, `commands/pm-risk.md`, `commands/pm-followup.md`, `commands/pm-requirement.md`
 - Automatic work event logging: `docs/ai-work-event-logging.md` and `scripts/bda-work-event.mjs`
-- BDA session CLI: `docs/bda-session-cli.md` and `scripts/bda.mjs`
+- AKS/BDA session CLI: `docs/bda-session-cli.md` and `scripts/aks.mjs` (`scripts/bda.mjs` remains a permanent shim alias)
 - Hermes / Windsurf / IDE setup: `docs/tool-setup-hermes-windsurf-ide.md`
 
 ## ใช้กับ AI ตัวไหนได้บ้าง

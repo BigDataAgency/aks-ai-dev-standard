@@ -93,7 +93,7 @@ Required checklist:
    - default `PUBLIC_MODEL_IDS` in `metadata_gateway/app.py`
    - any routing/context constants that still point to old names
 4. Update this standard package:
-   - `scripts/bda.mjs`
+   - `scripts/aks.mjs` (`scripts/bda.mjs` remains a permanent shim alias)
    - tests that assert Hermes model lists
    - docs that name supported production models
 5. Restart/recreate services:
@@ -174,7 +174,7 @@ Important for Hermes/tool agents: after the staff member confirms `bda start`, t
 Good behavior:
 
 ```text
-Ran: node ~/.bda-ai-dev-standard/scripts/bda.mjs start --project ... --task ... --command bda-dev --work-type debug
+Ran: node ~/.bda-ai-dev-standard/scripts/aks.mjs start --project ... --task ... --command bda-dev --work-type debug
 ```
 
 Bad behavior:

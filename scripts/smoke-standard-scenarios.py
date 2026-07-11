@@ -211,8 +211,8 @@ def validate_bda_session_cli() -> None:
     ]:
         assert_contains_all(rel, ["bda start", "bda stop", "bda help", "bda-dev", "bda-nondev", "bda-pm"])
 
-    assert_contains_all("package.json", ['"bda": "scripts/bda.mjs"', '"test:bda-session"'])
-    assert_contains_all("scripts/bda.mjs", ["bda start", "bda event", "bda stop", "outbox", "BDA_AI_WORK_EVENT_URL"])
+    assert_contains_all("package.json", ['"aks": "scripts/aks.mjs"', '"bda": "scripts/aks.mjs"', '"test:bda-session"'])
+    assert_contains_all("scripts/aks.mjs", ["aks start", "bda start", "bda event", "bda stop", "outbox", "BDA_AI_WORK_EVENT_URL"])
     assert_contains_all("scripts/test-bda-session.mjs", ["bda session CLI smoke test passed"])
 
 

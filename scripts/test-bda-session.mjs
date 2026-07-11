@@ -47,10 +47,10 @@ agent:
     Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup.
 `);
 
-function run(args, options = {}) {
+function runScript(scriptName, args, options = {}) {
   const runHome = options.home || home;
   const runWork = options.work || work;
-  const result = spawnSync("node", [path.join(repo, "scripts/bda.mjs"), ...args], {
+  const result = spawnSync("node", [path.join(repo, "scripts", scriptName), ...args], {
     cwd: runWork,
     env: { ...process.env, HOME: runHome, USERPROFILE: runHome },
     text: true,
@@ -62,6 +62,14 @@ function run(args, options = {}) {
   }
   assert.equal(result.status, 0, result.stdout + result.stderr);
   return result;
+}
+
+function run(args, options = {}) {
+  return runScript("bda.mjs", args, options);
+}
+
+function runAks(args, options = {}) {
+  return runScript("aks.mjs", args, options);
 }
 
 function runInstaller(args, options = {}) {
@@ -108,13 +116,17 @@ function runAsync(args, options = {}) {
 }
 
 const help = run(["help"]);
+assert.match(help.stdout, /AKS AI Dev Standard \(เดิม BDA\)/);
+assert.match(help.stdout, /ใช้ได้ทั้ง aks และ bda/);
+assert.match(help.stdout, /aks start/);
 assert.match(help.stdout, /bda start/);
 assert.match(help.stdout, /bda-dev/);
 assert.doesNotMatch(help.stdout, /bda-dev-plan-execute/);
-assert.match(help.stdout, /bda-session\/0\.12\.4/);
+assert.match(help.stdout, /aks-session\/1\.0\.0/);
 assert.match(help.stdout, /TERMINAL COMMANDS/);
 assert.match(help.stdout, /CHAT-ONLY PROMPT PREFIXES/);
-assert.match(help.stdout, /ถ้าพิมพ์ใน terminal ให้ใช้ bda start \/ bda event \/ bda stop แทน/);
+assert.match(help.stdout, /ถ้าพิมพ์ใน terminal ให้ใช้ aks start \/ aks event \/ aks stop หรือ alias bda start \/ bda event \/ bda stop แทน/);
+assert.match(help.stdout, /aks update/);
 assert.match(help.stdout, /bda update/);
 assert.match(help.stdout, /bda config-status/);
 assert.match(help.stdout, /bda config-clean/);
@@ -126,7 +138,14 @@ assert.match(help.stdout, /bda hermes-light-mode --yes/);
 const version = run(["version"]);
 const versionJson = JSON.parse(version.stdout);
 assert.equal(versionJson.ok, true);
-assert.equal(versionJson.cli_version, "0.12.4");
+assert.equal(versionJson.session_version, "aks-session/1.0.0");
+assert.equal(versionJson.cli_version, "1.0.0");
+
+const aksVersion = runAks(["version"]);
+const aksVersionJson = JSON.parse(aksVersion.stdout);
+assert.equal(aksVersionJson.ok, true);
+assert.equal(aksVersionJson.session_version, versionJson.session_version);
+assert.equal(aksVersionJson.cli_version, versionJson.cli_version);
 
 const privateInstallerConfigPath = path.join(temp, "installer-private-config.json");
 fs.writeFileSync(privateInstallerConfigPath, JSON.stringify({
@@ -156,7 +175,7 @@ assert.equal(updateJson.dry_run, true);
 assert.equal(updateJson.inventory_send_result.dry_run, true);
 assert.equal(updateJson.inventory_send_result.event.event_kind, "bda_inventory");
 assert.equal(updateJson.inventory_send_result.event.utility_command, "bda update");
-assert.equal(updateJson.inventory_send_result.event.bda_cli_version, "0.12.4");
+assert.equal(updateJson.inventory_send_result.event.bda_cli_version, "1.0.0");
 assert.equal(updateJson.hermes_config.config_paths[0].changed, true);
 assert.ok(updateJson.hermes_config.config_paths[0].before_models.includes("bda/qwen3-coder"));
 assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3-coder"));
