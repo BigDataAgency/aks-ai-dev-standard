@@ -1,6 +1,6 @@
 # /standard-feedback
 
-ใช้ command หลักจาก `commands/standard-feedback.md` เพื่อรับ feedback สำหรับปรับปรุง BDA AI Dev Standard และตอบตามมาตรฐานเป็นภาษาไทย
+ใช้ command หลักจาก `commands/standard-feedback.md` เพื่อรับ feedback สำหรับปรับปรุง AKS AI Dev Standard (เดิม BDA AI Dev Standard) และตอบตามมาตรฐานเป็นภาษาไทย
 
 ข้อสำคัญ: feedback นี้ไม่ใช่ performance review, score, KPI, หรือการประเมินบุคคล ให้ใช้เพื่อปรับปรุงมาตรฐาน/command/workflow/template/Claude-Codex support เท่านั้น
 

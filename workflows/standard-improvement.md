@@ -2,7 +2,7 @@
 
 ## ใช้เมื่อ
 
-ใช้เมื่อมี feedback จากผู้ใช้งาน BDA AI Dev Standard และต้องการ triage, ออกแบบ, แก้ไข, verify, และ rollout การปรับปรุงมาตรฐาน
+ใช้เมื่อมี feedback จากผู้ใช้งาน AKS AI Dev Standard (เดิม BDA AI Dev Standard) และต้องการ triage, ออกแบบ, แก้ไข, verify, และ rollout การปรับปรุงมาตรฐาน
 
 ## ขอบเขต
 
@@ -14,7 +14,7 @@
 
 - workflow นี้ไม่ใช่ performance review, score, KPI, หรือการประเมินบุคคล
 - ห้ามใช้ feedback นี้เป็น daily performance หรือหลักฐานประเมินรายบุคคล
-- ใช้เพื่อปรับปรุง BDA AI Dev Standard เพราะผู้ใช้งานอาจเป็นเฉพาะทีมที่ใช้ standard และ non-dev ทีม อาจไม่เกี่ยวข้อง
+- ใช้เพื่อปรับปรุง AKS AI Dev Standard เพราะผู้ใช้งานอาจเป็นเฉพาะทีมที่ใช้ standard และ non-dev ทีม อาจไม่เกี่ยวข้อง
 
 ## Steps
 
@@ -46,4 +46,4 @@
 5. **Limitations / Risks / Next steps** — ข้อจำกัด ความเสี่ยง สิ่งที่ยังไม่ได้ตรวจ หรือขั้นตอนถัดไป
 
 ---
-ใช้ workflow นี้เพื่อทำให้ BDA AI Dev Standard ดีขึ้นอย่างต่อเนื่อง โดยไม่ผูกกับการประเมินผลงานรายบุคคล.
+ใช้ workflow นี้เพื่อทำให้ AKS AI Dev Standard ดีขึ้นอย่างต่อเนื่อง โดยไม่ผูกกับการประเมินผลงานรายบุคคล.

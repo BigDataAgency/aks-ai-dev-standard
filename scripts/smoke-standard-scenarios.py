@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke validation for BDA AI Dev Standard coverage.
+"""Smoke validation for AKS AI Dev Standard coverage.
 
 This script is intentionally dependency-free and safe: it reads this standard
 repo only and writes a temporary sandbox under /tmp for scenario-output checks.
@@ -96,7 +96,7 @@ def validate_version_consistency() -> None:
         raise AssertionError(f"VERSION is {version!r}, expected {EXPECTED_VERSION!r}")
 
     assert_contains_all("README.md", [f"Version: `{EXPECTED_VERSION}`", f"Current version: `{EXPECTED_VERSION}`"])
-    assert_contains_all("CHANGELOG.md", [f"## [{EXPECTED_VERSION}]", "source of truth", "bda help", "bda update"])
+    assert_contains_all("CHANGELOG.md", [f"## [{EXPECTED_VERSION}]", "source of truth", "aks", "bda update"])
 
 
 def validate_required_sections() -> None:
@@ -279,7 +279,7 @@ def validate_standard_feedback_loop() -> None:
         "claude/commands/standard-feedback.md",
     ]
     required_terms = [
-        "BDA AI Dev Standard",
+        "AKS AI Dev Standard",
         "performance",
         "ไม่ใช่",
     ]

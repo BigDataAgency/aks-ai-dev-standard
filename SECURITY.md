@@ -2,7 +2,7 @@
 
 ## Public-repository boundary
 
-This repository is a public standards repository. It contains BDA AI Dev Standard documentation, templates, prompts, command adapters, schemas, and smoke checks only.
+This repository is a public standards repository. It contains AKS AI Dev Standard (เดิม BDA AI Dev Standard) documentation, templates, prompts, command adapters, schemas, and smoke checks only.
 
 The repository may include local/dry-run CLI client code and OpenAI-compatible gateway examples, but it must not include any secret or unauthenticated path to BDA private infrastructure. External users can run the standard with their own local models, model providers, or private gateways; see `docs/open-source-ai-dev-deployment-guide.md`.
 

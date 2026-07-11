@@ -1,6 +1,6 @@
 # Test Scenario Report Template: InnoHub Production Read-only
 
-> BDA AI Dev Standard template สำหรับ InnoHub QA/product evidence แบบ production read-only. ใช้เป็นแบบฟอร์มรายงานเท่านั้น ไม่ใช่รายงานงานประจำวัน, performance review, score, KPI หรือการประเมินบุคคล
+> AKS AI Dev Standard (เดิม BDA AI Dev Standard) template สำหรับ InnoHub QA/product evidence แบบ production read-only. ใช้เป็นแบบฟอร์มรายงานเท่านั้น ไม่ใช่รายงานงานประจำวัน, performance review, score, KPI หรือการประเมินบุคคล
 
 ## Summary
 

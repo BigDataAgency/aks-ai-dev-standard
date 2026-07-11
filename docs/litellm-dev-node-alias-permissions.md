@@ -206,4 +206,4 @@ The staff sync intentionally excludes intern and partner teams until their acces
 
 ## Rollout Note
 
-This is an admin/server-side rule. Employees do not need to reinstall BDA AI Dev Standard for this specific permission drift. They only need to retry after the server-side permission sync and LiteLLM restart.
+This is an admin/server-side rule. Employees do not need to reinstall AKS AI Dev Standard (เดิม BDA AI Dev Standard) for this specific permission drift. They only need to retry after the server-side permission sync and LiteLLM restart.

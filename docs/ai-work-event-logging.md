@@ -1,6 +1,6 @@
 # AI Work Event Logging
 
-This document defines how BDA AI Dev Standard records useful AI-assisted work without asking staff to write manual daily logs.
+This document defines how AKS AI Dev Standard (เดิม BDA AI Dev Standard) records useful AI-assisted work without asking staff to write manual daily logs.
 
 Security note: this public standard repo must not contain production API keys, private endpoints, customer data, or employee secrets. Real endpoint values must come from private config or environment variables.
 

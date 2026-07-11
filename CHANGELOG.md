@@ -1,12 +1,31 @@
 # Changelog
 
-All notable changes to BDA AI Dev Standard are tracked here.
+All notable changes to AKS AI Dev Standard (เดิม BDA AI Dev Standard) are tracked here.
 
 This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 
 - MAJOR: breaking changes to command names, required outputs, or installation layout
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
+
+## [1.0.0] - 2026-07-11
+
+### Changed
+
+- Renamed the public brand to **AKS AI Dev Standard**.
+- Added `aks` as the primary CLI name while keeping `bda` as a permanent alias for existing employees, scripts, and cron jobs.
+- Added `AKS_*` environment variables as primary inputs while keeping every legacy `BDA_*` variable as a permanent fallback.
+- Bumped repo/package version to `1.0.0`.
+
+### Compatibility
+
+- The following real production objects are intentionally unchanged: model lanes (`bda/dev`, `bda/nondev`, paid-cloud/local compatibility names), gateway domain/path (`ai-local.scmc.digital`, `/bda/work-events`), wire fields such as `used_bda_gateway`, ingest schema `bda-standard-ingest/0.4.1`, local paths such as `~/.bda-skills` and `~/.bda-ai-dev-standard`, slash command names, SQL/server object names, and the current update repo URL until the S4 owner gate.
+- Do not create a new GitHub repository named `bda-ai-dev-standard` after the eventual repo rename; that would break GitHub's redirect from old installs.
+
+### Pending Owner Gates
+
+- Owner must rename the GitHub repo to `BigDataAgency/aks-ai-dev-standard`.
+- Owner/server must verify that InnoHub/Grafana adoption queries do not filter only `bda-session/` before merging a release that emits `aks-session/1.0.0`.
 
 ## [0.15.0] - 2026-07-09
 
@@ -254,7 +273,7 @@ Server-side ที่แก้คู่กัน (บันทึกไว้เ
 
 ### Added
 
-- Added `bda update` so employee machines can refresh BDA AI Dev Standard without receiving a new full installer zip.
+- Added `bda update` so employee machines can refresh AKS AI Dev Standard without receiving a new full installer zip.
 - Added dry-run smoke coverage for `bda update`.
 
 ### Changed
@@ -450,7 +469,7 @@ Initial public release.
 
 ### Added
 
-- Core BDA AI Dev Standard documentation: `README.md`, `AI-README.md`, `STANDARD.md`
+- Core AKS AI Dev Standard documentation: `README.md`, `AI-README.md`, `STANDARD.md`
 - Neutral commands for common work types:
   - pending work
   - new work / feature work

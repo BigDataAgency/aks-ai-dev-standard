@@ -1,3 +1,5 @@
+> Archive note: เอกสารนี้เป็นบันทึกประวัติศาสตร์ก่อน rebrand เป็น AKS AI Dev Standard; ชื่อ BDA ในเนื้อหาถูกคงไว้ตามยุคของเหตุการณ์
+
 # Nightly A40 Hybrid Guardrails - 2026-06-25
 
 ## สรุปที่แก้คืนนี้

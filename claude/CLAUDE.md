@@ -1,4 +1,4 @@
-# CLAUDE.md — BDA AI Dev Standard
+# CLAUDE.md — AKS AI Dev Standard (เดิม BDA AI Dev Standard)
 
 ใช้เอกสารนี้เมื่อทำงานในโปรเจกต์ BDA
 
@@ -73,13 +73,13 @@ Workflow นี้ไม่ใช่ performance review, score, KPI, daily perfo
 
 ## Feedback เพื่อปรับปรุงมาตรฐาน
 
-ใช้ `/standard-feedback` หรือ `commands/standard-feedback.md` เมื่อต้องการส่ง feedback เพื่อปรับปรุง BDA AI Dev Standard เอง และอ้างอิง `FEEDBACK.md`, `templates/standard-feedback.md`, `workflows/standard-improvement.md` ตามความเหมาะสม
+ใช้ `/standard-feedback` หรือ `commands/standard-feedback.md` เมื่อต้องการส่ง feedback เพื่อปรับปรุง AKS AI Dev Standard เอง และอ้างอิง `FEEDBACK.md`, `templates/standard-feedback.md`, `workflows/standard-improvement.md` ตามความเหมาะสม
 
 Feedback นี้ไม่ใช่ performance review, score, KPI, daily performance หรือการประเมินบุคคล ให้ใช้เพื่อปรับปรุงมาตรฐาน/command/workflow/template/Claude-Codex support เท่านั้น
 
 ## Automatic work event logging
 
-เป้าหมายคือให้ daily log และ PM log เกิดจากการใช้ AI ที่ฉลาดผ่าน BDA AI Dev Standard ไม่ใช่ให้พนักงานต้องส่งรายงานซ้ำทุกวัน
+เป้าหมายคือให้ daily log และ PM log เกิดจากการใช้ AI ที่ฉลาดผ่าน AKS AI Dev Standard ไม่ใช่ให้พนักงานต้องส่งรายงานซ้ำทุกวัน
 
 - งาน BDA จริงที่เรียก command/workflow ต้องส่ง work event ตาม `docs/ai-work-event-logging.md`
 - ใช้ `bda start`, `bda event`, และ `bda stop` จาก `scripts/bda.mjs` เป็น default; ใช้ `scripts/bda-work-event.mjs` สำหรับ one-off event

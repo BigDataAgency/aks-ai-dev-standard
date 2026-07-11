@@ -1,10 +1,10 @@
 # Staff SOP: Send BDA AI Dev Report to InnoHub
 
-SOP for staff AI, QA/product staff, and implementation agents that need to prepare or send BDA AI Dev Standard report summaries to an InnoHub ingest endpoint without exposing secrets.
+SOP for staff AI, QA/product staff, and implementation agents that need to prepare or send AKS AI Dev Standard (เดิม BDA AI Dev Standard) report summaries to an InnoHub ingest endpoint without exposing secrets.
 
 ## Purpose and scope
 
-Use this SOP when you already have a BDA AI Dev Standard Test Report / test-scenario-report file and need to create a safe `bda-standard-ingest/0.4.1` `report_summary` payload for InnoHub.
+Use this SOP when you already have a AKS AI Dev Standard Test Report / test-scenario-report file and need to create a safe `bda-standard-ingest/0.4.1` `report_summary` payload for InnoHub.
 
 This SOP covers:
 
