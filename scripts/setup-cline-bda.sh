@@ -50,9 +50,14 @@ print("   ▶ ปิด/เปิด editor ใหม่ แล้ว Start New 
 PY
 
 # ติดตั้ง Thai self-review rule เป็น Cline global rule (มีผลทุก workspace)
-# ที่มา: Qwen3.6 เขียนไทยเพี้ยนเป็นรายครั้งแต่ตรวจ/แก้ได้แม่น — ดู docs/thai-output-safety.md
+# ที่มา: Qwen3.6 เขียนไทยเพี้ยนเป็นรายครั้งแต่ตรวจ/แก้ได้แม่น — ดู channels/llm-local/docs/thai-output-safety.md
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RULE_SRC="$SCRIPT_DIR/../templates/clinerules-thai-review.md"
+# v1.1.0 layout: templates/ ย้ายไป core/templates/ — ลอง path ใหม่ก่อนแล้ว fallback layout เก่า
+# (script นี้ถูกเรียกจาก bda update/setup ของ checkout เก่าได้ จึงต้องรองรับทั้งสอง layout หนึ่ง release)
+RULE_SRC="$SCRIPT_DIR/../core/templates/clinerules-thai-review.md"
+if [ ! -f "$RULE_SRC" ]; then
+  RULE_SRC="$SCRIPT_DIR/../templates/clinerules-thai-review.md"
+fi
 RULES_DIR="$HOME/Documents/Cline/Rules"
 if [ -f "$RULE_SRC" ]; then
   mkdir -p "$RULES_DIR"

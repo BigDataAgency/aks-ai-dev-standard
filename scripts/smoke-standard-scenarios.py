@@ -24,50 +24,55 @@ REQUIRED_SECTIONS = [
 ]
 
 SCENARIOS = {
-    "init": ["commands/init.md", "templates/obsidian-context.md", "templates/obsidian-work-note.md", "workflows/obsidian.md"],
-    "bug-fix": ["commands/fix-bug.md", "workflows/bug-fix.md"],
-    "review-change": ["commands/review-change.md", "workflows/code-review.md"],
-    "write-document": ["commands/write-document.md", "workflows/writing-docs.md"],
-    "update-obsidian": ["commands/update-obsidian.md", "workflows/obsidian.md"],
-    "performance-review": ["commands/performance-review.md", "workflows/performance.md"],
-    "standard-feedback": ["commands/standard-feedback.md", "templates/standard-feedback.md", "workflows/standard-improvement.md", "FEEDBACK.md"],
-    "test-scenario-report": ["commands/test-scenario-report.md", "templates/test-scenario-report.md", "workflows/test-scenario-report.md"],
-    "test-report": ["commands/test-report.md", "templates/test-scenario-report.md", "workflows/test-scenario-report.md"],
+    "init": ["core/commands/init.md", "core/templates/obsidian-context.md", "core/templates/obsidian-work-note.md", "core/workflows/obsidian.md"],
+    "bug-fix": ["core/commands/fix-bug.md", "core/workflows/bug-fix.md"],
+    "review-change": ["core/commands/review-change.md", "core/workflows/code-review.md"],
+    "write-document": ["core/commands/write-document.md", "core/workflows/writing-docs.md"],
+    "update-obsidian": ["core/commands/update-obsidian.md", "core/workflows/obsidian.md"],
+    "performance-review": ["core/commands/performance-review.md", "core/workflows/performance.md"],
+    "standard-feedback": ["core/commands/standard-feedback.md", "core/templates/standard-feedback.md", "core/workflows/standard-improvement.md", "FEEDBACK.md"],
+    "test-scenario-report": ["core/commands/test-scenario-report.md", "core/templates/test-scenario-report.md", "core/workflows/test-scenario-report.md"],
+    "test-report": ["core/commands/test-report.md", "core/templates/test-scenario-report.md", "core/workflows/test-scenario-report.md"],
 }
 
 GLOBAL_FILES = [
     "STANDARD.md",
     "AI-README.md",
     "README.md",
-    "claude/CLAUDE.md",
+    "channels/llm-local/claude/CLAUDE.md",
 ]
 
 CLAUDE_COMMANDS = [
-    "claude/commands/init.md",
-    "claude/commands/fix-bug.md",
-    "claude/commands/review-change.md",
-    "claude/commands/build-feature.md",
-    "claude/commands/write-document.md",
-    "claude/commands/verify-work.md",
-    "claude/commands/standard-feedback.md",
-    "claude/commands/test-scenario-report.md",
-    "claude/commands/test-report.md",
+    "channels/llm-local/claude/commands/init.md",
+    "channels/llm-local/claude/commands/fix-bug.md",
+    "channels/llm-local/claude/commands/review-change.md",
+    "channels/llm-local/claude/commands/build-feature.md",
+    "channels/llm-local/claude/commands/write-document.md",
+    "channels/llm-local/claude/commands/verify-work.md",
+    "channels/llm-local/claude/commands/standard-feedback.md",
+    "channels/llm-local/claude/commands/test-scenario-report.md",
+    "channels/llm-local/claude/commands/test-report.md",
 ]
 
 COMMAND_PACK = {
     "test-report": {
-        "command": "commands/test-report.md",
-        "claude": "claude/commands/test-report.md",
-        "template": "templates/test-scenario-report.md",
+        # File locations use the v1.1.0 layout; *_ref values are the
+        # layout-independent substrings expected inside file contents
+        # (they match both "commands/x.md" and "core/commands/x.md" refs).
+        "command": "core/commands/test-report.md",
+        "command_ref": "commands/test-report.md",
+        "claude": "channels/llm-local/claude/commands/test-report.md",
+        "template": "core/templates/test-scenario-report.md",
+        "template_ref": "templates/test-scenario-report.md",
         "terms": ["Test Report", "QA/product evidence", "screenshot", "test matrix", "expected", "actual"],
     },
 }
 
 # Optional adapters: when present, they must point users at normal command names.
 OPTIONAL_STAFF_ADAPTER_GLOBS = [
-    "staff/**/*.md",
-    "gemini/**/*.md",
-    "claude-coworker/**/*.md",
+    "channels/llm-local/staff/**/*.md",
+    "channels/llm-local/gemini/**/*.md",
+    "channels/llm-local/claude-coworker/**/*.md",
 ]
 
 FORBIDDEN_CLAIMS = [
@@ -103,10 +108,10 @@ def validate_required_sections() -> None:
     for rel in GLOBAL_FILES:
         assert_contains_all(rel, REQUIRED_SECTIONS)
 
-    for rel in sorted((ROOT / "commands").glob("*.md")):
+    for rel in sorted((ROOT / "core" / "commands").glob("*.md")):
         assert_contains_all(str(rel.relative_to(ROOT)), REQUIRED_SECTIONS)
 
-    for rel in sorted((ROOT / "workflows").glob("*.md")):
+    for rel in sorted((ROOT / "core" / "workflows").glob("*.md")):
         assert_contains_all(str(rel.relative_to(ROOT)), REQUIRED_SECTIONS)
 
     for rel in CLAUDE_COMMANDS:
@@ -114,7 +119,7 @@ def validate_required_sections() -> None:
 
 
 def validate_claude_usage_docs() -> None:
-    for rel in ["README.md", "claude/CLAUDE.md"]:
+    for rel in ["README.md", "channels/llm-local/claude/CLAUDE.md"]:
         assert_contains_all(
             rel,
             [
@@ -132,11 +137,11 @@ def validate_claude_usage_docs() -> None:
 
 def validate_obsidian_init_workflow() -> None:
     init_files = [
-        "commands/init.md",
-        "templates/obsidian-context.md",
-        "templates/obsidian-work-note.md",
-        "workflows/obsidian.md",
-        "claude/commands/init.md",
+        "core/commands/init.md",
+        "core/templates/obsidian-context.md",
+        "core/templates/obsidian-work-note.md",
+        "core/workflows/obsidian.md",
+        "channels/llm-local/claude/commands/init.md",
     ]
     required_terms = [
         "00-Agent-Context.md",
@@ -145,24 +150,26 @@ def validate_obsidian_init_workflow() -> None:
         "Obsidian context manifest",
         "pending evidence",
     ]
-    for rel in ["commands/init.md", "workflows/obsidian.md", "claude/commands/init.md"]:
+    for rel in ["core/commands/init.md", "core/workflows/obsidian.md", "channels/llm-local/claude/commands/init.md"]:
         assert_contains_all(rel, [*REQUIRED_SECTIONS, "00-Agent-Context.md"])
 
     for rel in [
         "README.md",
         "AI-README.md",
-        "claude/CLAUDE.md",
-        "codex/AGENTS.md",
-        "commands/plan-work.md",
-        "commands/fix-bug.md",
-        "commands/build-feature.md",
-        "commands/write-document.md",
-        "commands/update-obsidian.md",
+        "channels/llm-local/claude/CLAUDE.md",
+        "channels/llm-local/codex-local/AGENTS.md",
+        "core/commands/plan-work.md",
+        "core/commands/fix-bug.md",
+        "core/commands/build-feature.md",
+        "core/commands/write-document.md",
+        "core/commands/update-obsidian.md",
     ]:
+        # "commands/init.md" is layout-independent: it matches both the
+        # old-style ref and the new "core/commands/init.md" ref.
         assert_contains_all(rel, ["commands/init.md", "00-Agent-Context.md"])
 
-    assert_contains_all("templates/obsidian-context.md", required_terms[:4])
-    assert_contains_all("templates/obsidian-work-note.md", ["Testcase / Evidence", "Obsidian updates"])
+    assert_contains_all("core/templates/obsidian-context.md", required_terms[:4])
+    assert_contains_all("core/templates/obsidian-work-note.md", ["Testcase / Evidence", "Obsidian updates"])
 
 
 LEGACY_REMOVED_TERMS = [
@@ -186,10 +193,10 @@ LEGACY_REMOVED_TERMS = [
 
 def validate_command_pack() -> None:
     for name, spec in COMMAND_PACK.items():
-        assert_contains_all(spec["command"], [*REQUIRED_SECTIONS, *spec["terms"], spec["template"]])
-        assert_contains_all(spec["claude"], [f"/{name}", spec["command"], *REQUIRED_SECTIONS])
+        assert_contains_all(spec["command"], [*REQUIRED_SECTIONS, *spec["terms"], spec["template_ref"]])
+        assert_contains_all(spec["claude"], [f"/{name}", spec["command_ref"], *REQUIRED_SECTIONS])
 
-    for rel in ["README.md", "claude/CLAUDE.md"]:
+    for rel in ["README.md", "channels/llm-local/claude/CLAUDE.md"]:
         assert_contains_all(
             rel,
             [
@@ -201,13 +208,13 @@ def validate_command_pack() -> None:
 
 def validate_bda_session_cli() -> None:
     for rel in [
-        "docs/bda-session-cli.md",
-        "docs/ai-work-event-logging.md",
+        "channels/llm-local/docs/bda-session-cli.md",
+        "channels/llm-local/docs/ai-work-event-logging.md",
         "README.md",
         "AI-README.md",
-        "claude/CLAUDE.md",
-        "codex/AGENTS.md",
-        "prompts/general-ai/start-here.md",
+        "channels/llm-local/claude/CLAUDE.md",
+        "channels/llm-local/codex-local/AGENTS.md",
+        "core/prompts/general-ai/start-here.md",
     ]:
         assert_contains_all(rel, ["bda start", "bda stop", "bda help", "bda-dev", "bda-nondev", "bda-pm"])
 
@@ -226,29 +233,29 @@ def validate_optional_adapters() -> None:
         if path.name == "README.md":
             assert_contains_all(rel, ["test-report"])
         elif path.stem in COMMAND_PACK:
-            assert_contains_all(rel, [path.stem, COMMAND_PACK[path.stem]["command"]])
+            assert_contains_all(rel, [path.stem, COMMAND_PACK[path.stem]["command_ref"]])
 
 
 def validate_legacy_staff_versioning_removed() -> None:
     removed_files = [
-        "commands/" + "daily" + "-log.md",
-        "commands/" + "weekly" + "-focus.md",
-        "templates/" + "daily" + "-log.md",
-        "templates/" + "weekly" + "-focus.md",
-        "claude/commands/" + "daily" + "-log.md",
-        "claude/commands/" + "weekly" + "-focus.md",
-        "staff/commands/" + "daily" + "-log.md",
-        "staff/commands/" + "weekly" + "-focus.md",
-        "gemini/prompts/" + "daily" + "-log.md",
-        "gemini/prompts/" + "weekly" + "-focus.md",
-        "claude-coworker/prompts/" + "daily" + "-log.md",
-        "claude-coworker/prompts/" + "weekly" + "-focus.md",
-        "commands/employee-" + "daily" + "-log-" + "v" + "5.md",
-        "commands/pm-" + "weekly" + "-focus-" + "v" + "2.md",
-        "templates/" + "daily" + "-log-" + "v" + "5.md",
-        "templates/pm-" + "weekly" + "-focus-" + "v" + "2.md",
-        "claude/commands/employee-" + "daily" + "-log-" + "v" + "5.md",
-        "claude/commands/pm-" + "weekly" + "-focus-" + "v" + "2.md",
+        "core/commands/" + "daily" + "-log.md",
+        "core/commands/" + "weekly" + "-focus.md",
+        "core/templates/" + "daily" + "-log.md",
+        "core/templates/" + "weekly" + "-focus.md",
+        "channels/llm-local/claude/commands/" + "daily" + "-log.md",
+        "channels/llm-local/claude/commands/" + "weekly" + "-focus.md",
+        "channels/llm-local/staff/commands/" + "daily" + "-log.md",
+        "channels/llm-local/staff/commands/" + "weekly" + "-focus.md",
+        "channels/llm-local/gemini/prompts/" + "daily" + "-log.md",
+        "channels/llm-local/gemini/prompts/" + "weekly" + "-focus.md",
+        "channels/llm-local/claude-coworker/prompts/" + "daily" + "-log.md",
+        "channels/llm-local/claude-coworker/prompts/" + "weekly" + "-focus.md",
+        "core/commands/employee-" + "daily" + "-log-" + "v" + "5.md",
+        "core/commands/pm-" + "weekly" + "-focus-" + "v" + "2.md",
+        "core/templates/" + "daily" + "-log-" + "v" + "5.md",
+        "core/templates/pm-" + "weekly" + "-focus-" + "v" + "2.md",
+        "channels/llm-local/claude/commands/employee-" + "daily" + "-log-" + "v" + "5.md",
+        "channels/llm-local/claude/commands/pm-" + "weekly" + "-focus-" + "v" + "2.md",
     ]
     existing = [rel for rel in removed_files if (ROOT / rel).exists()]
     if existing:
@@ -273,10 +280,10 @@ def validate_legacy_staff_versioning_removed() -> None:
 def validate_standard_feedback_loop() -> None:
     feedback_files = [
         "FEEDBACK.md",
-        "commands/standard-feedback.md",
-        "templates/standard-feedback.md",
-        "workflows/standard-improvement.md",
-        "claude/commands/standard-feedback.md",
+        "core/commands/standard-feedback.md",
+        "core/templates/standard-feedback.md",
+        "core/workflows/standard-improvement.md",
+        "channels/llm-local/claude/commands/standard-feedback.md",
     ]
     required_terms = [
         "AKS AI Dev Standard",
@@ -287,7 +294,7 @@ def validate_standard_feedback_loop() -> None:
         assert_contains_all(rel, required_terms)
 
     assert_contains_all(
-        "templates/standard-feedback.md",
+        "core/templates/standard-feedback.md",
         [
             "Tool used",
             "Command or workflow used",
@@ -312,10 +319,10 @@ def validate_standard_feedback_loop() -> None:
 
 def validate_test_scenario_report_workflow() -> None:
     scenario_files = [
-        "commands/test-scenario-report.md",
-        "workflows/test-scenario-report.md",
-        "templates/test-scenario-report.md",
-        "claude/commands/test-scenario-report.md",
+        "core/commands/test-scenario-report.md",
+        "core/workflows/test-scenario-report.md",
+        "core/templates/test-scenario-report.md",
+        "channels/llm-local/claude/commands/test-scenario-report.md",
     ]
     required_terms = [
         "QA/product evidence",
@@ -334,7 +341,7 @@ def validate_test_scenario_report_workflow() -> None:
         assert_contains_all(rel, required_terms)
 
     assert_contains_all(
-        "templates/test-scenario-report.md",
+        "core/templates/test-scenario-report.md",
         [
             "PASS / FAIL",
             "BLOCKED",
@@ -357,6 +364,93 @@ def validate_test_scenario_report_workflow() -> None:
             "technical verification only",
         ],
     )
+
+
+def validate_restructure_layout() -> None:
+    required = [
+        "core/commands/init.md",
+        "core/workflows/bug-fix.md",
+        "core/policies/no-fake-evidence.md",
+        "core/roles/builder.md",
+        "core/checklists/before-commit.md",
+        "core/templates/task-brief.md",
+        "core/prompts/general-ai/start-here.md",
+        "channels/llm-local/README.md",
+        "channels/llm-local/claude/CLAUDE.md",
+        "channels/llm-local/codex-local/AGENTS.md",
+        "channels/llm-local/eval/README.md",
+        "channels/llm-local/docs/bda-session-cli.md",
+        "channels/llm-local/docs/thai-output-safety.md",
+        "channels/thclaws/README.md",
+        "channels/thclaws/AGENTS.md",
+        "admin/docs/litellm-dev-node-alias-permissions.md",
+        "admin/docs/employee-installer-rollout.md",
+        "admin/scripts/litellm-sync-dev-node-alias-permissions.sql",
+        "admin/scripts/litellm-sync-staff-model-permissions.sql",
+        "archive/local-llm-product-learning-log.md",
+        "docs/github-to-innohub-sync-sop.md",
+        "docs/staff-report-sender-sop.md",
+        "docs/public-ingest-guardrails.md",
+        "docs/open-source-ai-dev-deployment-guide.md",
+        "scripts/aks.mjs",
+        "scripts/bda.mjs",
+        "VERSION",
+    ]
+    missing = [rel for rel in required if not (ROOT / rel).exists()]
+    if missing:
+        raise AssertionError(f"v1.1.0 layout missing files: {missing}")
+
+    legacy_dirs = [
+        "commands", "workflows", "templates", "policies", "roles",
+        "checklists", "prompts", "claude", "codex", "gemini", "staff",
+        "claude-coworker", "eval",
+    ]
+    leftovers = [name for name in legacy_dirs if (ROOT / name).exists()]
+    if leftovers:
+        raise AssertionError(f"legacy top-level dirs still exist: {leftovers}")
+
+
+def validate_thclaws_channel() -> None:
+    assert_contains_all(
+        "channels/thclaws/README.md",
+        [
+            "Shell",
+            "Terminal",
+            "docker compose",
+            "sysbox",
+            "port 3000",
+            "200MB",
+            "https",
+            "token",
+            "aks",
+            "Hermes",
+            "Cline",
+            "slash command",
+            "Obsidian",
+            "llm-local",
+            "core/",
+        ],
+    )
+    assert_contains_all(
+        "channels/thclaws/AGENTS.md",
+        [
+            "Shell",
+            "docker",
+            "port 3000",
+            "200MB",
+            "~/.codex/config.toml",
+            "minimum correct change",
+            "pending evidence",
+            "Thai output self-review",
+            "llm-local",
+        ],
+    )
+    # The box has no aks/bda CLI: the box manual must not tell users to run
+    # bda start/stop/update inside thClaws.
+    text = read("channels/thclaws/AGENTS.md")
+    for forbidden in ["bda start", "bda stop", "bda update", "aks start", "aks update"]:
+        if forbidden in text:
+            raise AssertionError(f"channels/thclaws/AGENTS.md tells the agent to use unavailable CLI: {forbidden!r}")
 
 
 def validate_scenario_templates() -> None:
@@ -425,6 +519,8 @@ def main() -> int:
         validate_obsidian_init_workflow,
         validate_standard_feedback_loop,
         validate_test_scenario_report_workflow,
+        validate_restructure_layout,
+        validate_thclaws_channel,
         validate_scenario_templates,
         validate_no_forbidden_claims,
     ]

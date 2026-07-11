@@ -1914,7 +1914,7 @@ TERMINAL COMMANDS
   bda hermes-light-mode --yes archive skill cache ที่ไม่ใช้ ให้ Hermes prompt เบาลง
   bda thai-check     ตรวจข้อความไทยเพี้ยน (สระ/วรรณยุกต์ซ้อน/ลำดับผิด) ในไฟล์/stdin/git diff
                      ใช้: bda thai-check <files...> | bda thai-check --diff (staged) | <cmd> | bda thai-check
-                     เจอปัญหา = exit 1 พร้อมบรรทัด/ตำแหน่ง — ใช้เป็น pre-commit hook ได้ (ดู docs/thai-output-safety.md)
+                     เจอปัญหา = exit 1 พร้อมบรรทัด/ตำแหน่ง — ใช้เป็น pre-commit hook ได้ (ดู channels/llm-local/docs/thai-output-safety.md)
 
 Terminal examples:
   aks start --project "BDA-InnoHub" --task "debug login error" --command bda-dev --work-type debug
