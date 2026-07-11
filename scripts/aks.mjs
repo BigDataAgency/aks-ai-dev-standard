@@ -807,8 +807,73 @@ function ensureClaudeEnvSettings() {
   }
 }
 
+function cliScript(standardDir) {
+  return path.join(standardDir, "scripts", "aks.mjs");
+}
+
+function shellDoubleQuote(value) {
+  const escaped = String(value)
+    .replaceAll("\\", "\\\\")
+    .replaceAll('"', '\\"')
+    .replaceAll("$", "\\$")
+    .replaceAll("`", "\\`");
+  return `"${escaped}"`;
+}
+
+function shellCliWrapper(standardDir) {
+  return `#!/bin/sh
+set -eu
+exec node ${shellDoubleQuote(cliScript(standardDir))} "$@"
+`;
+}
+
+function cmdCliWrapper(standardDir) {
+  const escaped = cliScript(standardDir).replaceAll("%", "%%");
+  return `@echo off\r\nnode "${escaped}" %*\r\n`;
+}
+
+function ps1CliWrapper(standardDir) {
+  return `& node ${JSON.stringify(cliScript(standardDir))} @args\n`;
+}
+
+function writeFileAtomic(filePath, content, mode) {
+  ensureDir(path.dirname(filePath));
+  const tempPath = path.join(
+    path.dirname(filePath),
+    `.${path.basename(filePath)}.${process.pid}.${crypto.randomUUID()}.tmp`,
+  );
+  try {
+    fs.writeFileSync(tempPath, content, { encoding: "utf8" });
+    if (mode !== undefined) fs.chmodSync(tempPath, mode);
+    fs.renameSync(tempPath, filePath);
+  } finally {
+    fs.rmSync(tempPath, { force: true });
+  }
+}
+
+function ensureCliWrappers(standardDir) {
+  const resolvedStandardDir = path.resolve(standardDir);
+  const binDir = path.join(os.homedir(), ".bda-skills", "bin");
+  const shellContent = shellCliWrapper(resolvedStandardDir);
+  const cmdContent = cmdCliWrapper(resolvedStandardDir);
+  const ps1Content = ps1CliWrapper(resolvedStandardDir);
+  const targets = [
+    { path: path.join(binDir, "aks"), content: shellContent, mode: 0o755 },
+    { path: path.join(binDir, "bda"), content: shellContent, mode: 0o755 },
+    { path: path.join(binDir, "aks.cmd"), content: cmdContent },
+    { path: path.join(binDir, "aks.ps1"), content: ps1Content },
+    { path: path.join(binDir, "bda.cmd"), content: cmdContent },
+    { path: path.join(binDir, "bda.ps1"), content: ps1Content },
+  ];
+  for (const target of targets) {
+    writeFileAtomic(target.path, target.content, target.mode);
+  }
+  return targets.map((target) => target.path);
+}
+
 async function setupClient(config, args) {
   const standardDir = path.resolve(envValue("BDA_AI_DEV_STANDARD_DIR", repoRoot()));
+  const cliWrappers = ensureCliWrappers(standardDir);
   const cline = runClineSetup(standardDir);
   const claudeEnv = ensureClaudeEnvSettings();
   console.log(JSON.stringify({
@@ -823,6 +888,7 @@ async function setupClient(config, args) {
     next: cline.reason === "editors-open"
       ? "ปิด editor ทุกตัวแล้วรัน: bda setup"
       : "เปิด Cline task ใหม่ จะเห็น context 262k",
+    cli_wrappers: cliWrappers,
   }, null, 2));
 }
 
@@ -872,6 +938,7 @@ async function updateStandard(args, config = {}) {
       execFileSync(command, commandArgs, { stdio: "inherit" });
     }
   }
+  const cliWrappers = dryRun ? [] : ensureCliWrappers(standardDir);
 
   const afterVersion = dryRun
     ? beforeVersion
@@ -908,6 +975,7 @@ async function updateStandard(args, config = {}) {
     before_version: beforeVersion,
     after_version: afterVersion,
     used_git_repo: hasGitRepo,
+    cli_wrappers: cliWrappers,
     gateway_models: gatewayModels,
     hermes_config: configResult,
     thclaws_config: thclawsResult,
@@ -1620,6 +1688,9 @@ async function printConfigStatus(config = {}) {
 }
 
 async function printConfigClean(config = {}) {
+  const cliWrappers = envValue("BDA_UPDATE_POST_CLEAN") === "1"
+    ? ensureCliWrappers(repoRoot())
+    : [];
   const models = await fetchBdaGatewayModels(config);
   const result = cleanHermesConfig({ dryRun: false, models });
   const hermesEnv = syncHermesEnv(config, { dryRun: false });
@@ -1627,6 +1698,7 @@ async function printConfigClean(config = {}) {
   console.log(JSON.stringify({
     ok: true,
     action: "config-clean",
+    cli_wrappers: cliWrappers,
     gateway_models: models,
     hermes_config: result,
     hermes_env: hermesEnv,

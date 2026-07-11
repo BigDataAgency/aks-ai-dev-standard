@@ -167,11 +167,58 @@ assert.equal(installerDryRunJson.config.employee_code, "BDA999");
 assert.match(installerDryRunJson.config.api_key, /^sha256:/);
 assert.doesNotMatch(installerDryRun.stdout, /sk-installer-secret/);
 
+const wrapperStandardDir = path.join(temp, "standard dir with spaces");
+fs.symlinkSync(repo, wrapperStandardDir, process.platform === "win32" ? "junction" : "dir");
+const wrapperBinDir = path.join(home, ".bda-skills", "bin");
+fs.mkdirSync(wrapperBinDir, { recursive: true });
+fs.writeFileSync(path.join(wrapperBinDir, "aks"), "stale wrapper\n");
+fs.writeFileSync(path.join(wrapperBinDir, "aks.cmd"), "stale wrapper\r\n");
+const setup = runAks(["setup"], {
+  env: {
+    AKS_AI_DEV_STANDARD_DIR: wrapperStandardDir,
+    BDA_AI_DEV_STANDARD_DIR: wrapperStandardDir,
+  },
+});
+const setupJson = JSON.parse(setup.stdout);
+const expectedWrapperPaths = ["aks", "bda", "aks.cmd", "aks.ps1", "bda.cmd", "bda.ps1"]
+  .map((name) => path.join(wrapperBinDir, name));
+assert.equal(setupJson.ok, true);
+assert.equal(setupJson.action, "setup");
+assert.deepEqual(setupJson.cli_wrappers, expectedWrapperPaths);
+for (const wrapperPath of expectedWrapperPaths) {
+  assert.equal(fs.existsSync(wrapperPath), true, `${wrapperPath} should exist`);
+}
+assert.deepEqual(fs.readdirSync(wrapperBinDir).filter((name) => name.endsWith(".tmp")), []);
+assert.equal(
+  fs.readFileSync(path.join(wrapperBinDir, "aks.cmd"), "utf8"),
+  fs.readFileSync(path.join(wrapperBinDir, "bda.cmd"), "utf8"),
+);
+assert.equal(
+  fs.readFileSync(path.join(wrapperBinDir, "aks.ps1"), "utf8"),
+  fs.readFileSync(path.join(wrapperBinDir, "bda.ps1"), "utf8"),
+);
+if (process.platform !== "win32") {
+  const expectedShellWrapper = `#!/bin/sh\nset -eu\nexec node "${path.join(wrapperStandardDir, "scripts", "aks.mjs")}" "$@"\n`;
+  const aksWrapperPath = path.join(wrapperBinDir, "aks");
+  const bdaWrapperPath = path.join(wrapperBinDir, "bda");
+  assert.equal(fs.readFileSync(aksWrapperPath, "utf8"), expectedShellWrapper);
+  assert.equal(fs.readFileSync(bdaWrapperPath, "utf8"), expectedShellWrapper);
+  assert.equal(fs.statSync(aksWrapperPath).mode & 0o777, 0o755);
+  assert.equal(fs.statSync(bdaWrapperPath).mode & 0o777, 0o755);
+  const wrapperEnv = { ...process.env, HOME: home, USERPROFILE: home };
+  const wrappedAksVersion = spawnSync("sh", [aksWrapperPath, "version"], { env: wrapperEnv, text: true, encoding: "utf8" });
+  const wrappedBdaVersion = spawnSync("sh", [bdaWrapperPath, "version"], { env: wrapperEnv, text: true, encoding: "utf8" });
+  assert.equal(wrappedAksVersion.status, 0, wrappedAksVersion.stdout + wrappedAksVersion.stderr);
+  assert.equal(wrappedBdaVersion.status, 0, wrappedBdaVersion.stdout + wrappedBdaVersion.stderr);
+  assert.deepEqual(JSON.parse(wrappedAksVersion.stdout), JSON.parse(wrappedBdaVersion.stdout));
+}
+
 const updateDryRun = run(["update", "--dry-run"]);
 const updateJson = JSON.parse(updateDryRun.stdout);
 assert.equal(updateJson.ok, true);
 assert.equal(updateJson.action, "update");
 assert.equal(updateJson.dry_run, true);
+assert.deepEqual(updateJson.cli_wrappers, []);
 assert.equal(updateJson.inventory_send_result.dry_run, true);
 assert.equal(updateJson.inventory_send_result.event.event_kind, "bda_inventory");
 assert.equal(updateJson.inventory_send_result.event.utility_command, "bda update");
@@ -211,6 +258,14 @@ assert.equal(configCleanJson.hermes_config.config_paths[0].changed, true);
 const configStatusAfterClean = run(["config-status"]);
 const configStatusAfterCleanJson = JSON.parse(configStatusAfterClean.stdout);
 assert.equal(configStatusAfterCleanJson.hermes_config.config_paths[0].changed, false);
+
+fs.rmSync(wrapperBinDir, { recursive: true, force: true });
+const postUpdateClean = runAks(["config-clean"], { env: { AKS_UPDATE_POST_CLEAN: "1" } });
+const postUpdateCleanJson = JSON.parse(postUpdateClean.stdout);
+assert.deepEqual(postUpdateCleanJson.cli_wrappers, expectedWrapperPaths);
+for (const wrapperPath of expectedWrapperPaths) {
+  assert.equal(fs.existsSync(wrapperPath), true, `${wrapperPath} should be restored during post-update re-exec`);
+}
 
 fs.mkdirSync(path.join(home, ".hermes", "sessions"), { recursive: true });
 fs.mkdirSync(path.join(home, ".hermes", "pastes"), { recursive: true });
