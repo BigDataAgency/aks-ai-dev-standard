@@ -8,7 +8,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const VERSION = "installer/0.12.0";
-const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
+const STANDARD_REPO_URL = "https://github.com/BigDataAgency/aks-ai-dev-standard.git";
 
 function envValue(name, fallback = "") {
   if (name.startsWith("BDA_")) {
