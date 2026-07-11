@@ -7,10 +7,10 @@
 set -euo pipefail
 
 STATE="$HOME/.cline/data/globalState.json"
-BASE_URL="${BDA_AI_ROUTER_BASE_URL:-https://ai-local.scmc.digital/v1}"
-MODEL="${BDA_CLINE_MODEL:-bda/dev}"
-CTX="${BDA_CLINE_CONTEXT_WINDOW:-262144}"
-MAXTOK="${BDA_CLINE_MAX_TOKENS:-16384}"
+BASE_URL="${AKS_AI_ROUTER_BASE_URL:-${BDA_AI_ROUTER_BASE_URL:-https://ai-local.scmc.digital/v1}}"
+MODEL="${AKS_CLINE_MODEL:-${BDA_CLINE_MODEL:-bda/dev}}"
+CTX="${AKS_CLINE_CONTEXT_WINDOW:-${BDA_CLINE_CONTEXT_WINDOW:-262144}}"
+MAXTOK="${AKS_CLINE_MAX_TOKENS:-${BDA_CLINE_MAX_TOKENS:-16384}}"
 
 # Cline flush state ในหน่วยความจำทับไฟล์ตอนปิดแอป (พิสูจน์แล้ว 2026-07-06) → ต้องปิด editor ก่อน ไม่งั้นค่าหาย
 if pgrep -f "Visual Studio Code|Devin|Windsurf" >/dev/null 2>&1 && [ "${FORCE:-0}" != "1" ]; then

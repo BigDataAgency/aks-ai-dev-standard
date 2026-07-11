@@ -9,7 +9,16 @@ import { fileURLToPath } from "node:url";
 
 const VERSION = "installer/0.12.0";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
-const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
+
+function envValue(name, fallback = "") {
+  if (name.startsWith("BDA_")) {
+    const aksName = `AKS_${name.slice(4)}`;
+    if (process.env[aksName]) return process.env[aksName];
+  }
+  return process.env[name] || fallback;
+}
+
+const BDA_GATEWAY_BASE_URL = envValue("BDA_GATEWAY_BASE_URL", "https://ai-local.scmc.digital/v1");
 
 function parseArgs(argv) {
   const args = {};
@@ -73,11 +82,11 @@ function run(command, args, options = {}) {
 
 function normalizeConfig(input = {}, args = {}) {
   const config = {
-    employee_code: args.employee_code || input.employee_code || process.env.BDA_EMPLOYEE_CODE || "",
-    employee_group: args.employee_group || input.employee_group || input.group || process.env.BDA_EMPLOYEE_GROUP || "",
-    api_key: args.api_key || input.api_key || input.work_event_api_key || process.env.BDA_AI_ROUTER_API_KEY || process.env.BDA_WORK_EVENT_API_KEY || "",
-    work_event_url: args.work_event_url || input.work_event_url || input.bda_work_event_url || process.env.BDA_WORK_LOG_URL || "",
-    ai_model: args.ai_model || input.ai_model || process.env.BDA_AI_MODEL || "bda/dev",
+    employee_code: args.employee_code || input.employee_code || envValue("BDA_EMPLOYEE_CODE"),
+    employee_group: args.employee_group || input.employee_group || input.group || envValue("BDA_EMPLOYEE_GROUP"),
+    api_key: args.api_key || input.api_key || input.work_event_api_key || envValue("BDA_AI_ROUTER_API_KEY") || envValue("BDA_WORK_EVENT_API_KEY"),
+    work_event_url: args.work_event_url || input.work_event_url || input.bda_work_event_url || envValue("BDA_WORK_LOG_URL"),
+    ai_model: args.ai_model || input.ai_model || envValue("BDA_AI_MODEL", "bda/dev"),
     ai_provider: args.ai_provider || input.ai_provider || "bda-gateway",
     used_bda_gateway: true,
     tool: input.tool || "hermes-desktop-agent",

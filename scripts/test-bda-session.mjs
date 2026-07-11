@@ -52,7 +52,7 @@ function runScript(scriptName, args, options = {}) {
   const runWork = options.work || work;
   const result = spawnSync("node", [path.join(repo, "scripts", scriptName), ...args], {
     cwd: runWork,
-    env: { ...process.env, HOME: runHome, USERPROFILE: runHome },
+    env: { ...process.env, ...(options.env || {}), HOME: runHome, USERPROFILE: runHome },
     text: true,
     encoding: "utf8",
   });
@@ -324,6 +324,64 @@ assert.equal(hermesStartJson.session.ai_model, "bda/dev");
 assert.equal(hermesStartJson.session.used_bda_gateway, true);
 assert.equal(hermesStartJson.send_result.dry_run, true);
 assert.equal(hermesStartJson.send_result.reason, "dry-run requested");
+
+const envFallbackHome = path.join(temp, "env-fallback-home");
+const envFallbackWork = path.join(temp, "env-fallback-work");
+fs.mkdirSync(path.join(envFallbackHome, ".bda-skills"), { recursive: true });
+fs.mkdirSync(envFallbackWork, { recursive: true });
+const bdaOnlyStart = run([
+  "start",
+  "--project", "BdaEnvOnly",
+  "--task", "check BDA env fallback",
+  "--command", "bda-dev",
+  "--dry-run",
+], {
+  home: envFallbackHome,
+  work: envFallbackWork,
+  env: {
+    BDA_EMPLOYEE_CODE: "BDA888",
+    BDA_EMPLOYEE_GROUP: "dev",
+    BDA_AI_MODEL: "bda/dev",
+    BDA_AI_ROUTER_BASE_URL: "https://bda-env.example.test/v1",
+    BDA_AI_ROUTER_API_KEY: "sk-bda-env-test",
+  },
+});
+const bdaOnlyStartJson = JSON.parse(bdaOnlyStart.stdout);
+assert.equal(bdaOnlyStartJson.session.employee_code, "BDA888");
+assert.equal(bdaOnlyStartJson.session.ai_model, "bda/dev");
+assert.equal(bdaOnlyStartJson.session.ai_provider, "bda-gateway");
+
+const envPrecedenceHome = path.join(temp, "env-precedence-home");
+const envPrecedenceWork = path.join(temp, "env-precedence-work");
+fs.mkdirSync(path.join(envPrecedenceHome, ".bda-skills"), { recursive: true });
+fs.mkdirSync(envPrecedenceWork, { recursive: true });
+const aksPreferredStart = run([
+  "start",
+  "--project", "AksEnvWins",
+  "--task", "check AKS env precedence",
+  "--command", "bda-dev",
+  "--dry-run",
+], {
+  home: envPrecedenceHome,
+  work: envPrecedenceWork,
+  env: {
+    BDA_EMPLOYEE_CODE: "BDA000",
+    BDA_EMPLOYEE_GROUP: "nondev",
+    BDA_AI_MODEL: "bda/nondev",
+    BDA_AI_ROUTER_BASE_URL: "https://bda-env.example.test/v1",
+    BDA_AI_ROUTER_API_KEY: "sk-bda-env-test",
+    AKS_EMPLOYEE_CODE: "AKS999",
+    AKS_EMPLOYEE_GROUP: "dev",
+    AKS_AI_MODEL: "bda/dev",
+    AKS_AI_ROUTER_BASE_URL: "https://aks-env.example.test/v1",
+    AKS_AI_ROUTER_API_KEY: "sk-aks-env-test",
+  },
+});
+const aksPreferredStartJson = JSON.parse(aksPreferredStart.stdout);
+assert.equal(aksPreferredStartJson.session.employee_code, "AKS999");
+assert.equal(aksPreferredStartJson.session.employee_group, "dev");
+assert.equal(aksPreferredStartJson.session.ai_model, "bda/dev");
+assert.equal(aksPreferredStartJson.session.used_bda_gateway, true);
 
 const current = run(["current"]);
 assert.equal(JSON.parse(current.stdout).active, true);

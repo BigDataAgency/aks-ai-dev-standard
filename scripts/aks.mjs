@@ -11,7 +11,24 @@ import { fileURLToPath } from "node:url";
 const DEFAULT_URL = "https://ai-local.scmc.digital/bda/work-events";
 const SESSION_VERSION = "aks-session/1.0.0";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/bda-ai-dev-standard.git";
-const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-local.scmc.digital/v1";
+
+function envValue(name, fallback = "") {
+  if (name.startsWith("BDA_")) {
+    const aksName = `AKS_${name.slice(4)}`;
+    if (process.env[aksName]) return process.env[aksName];
+  }
+  return process.env[name] || fallback;
+}
+
+function envMapValue(envMap, name, fallback = "") {
+  if (name.startsWith("BDA_")) {
+    const aksName = `AKS_${name.slice(4)}`;
+    if (envMap[aksName]) return envMap[aksName];
+  }
+  return envMap[name] || fallback;
+}
+
+const BDA_GATEWAY_BASE_URL = envValue("BDA_GATEWAY_BASE_URL", "https://ai-local.scmc.digital/v1");
 
 // Live context windows learned from the gateway /v1/models response (id -> context_window).
 // Populated by fetchBdaGatewayModels and preferred over the hardcoded heuristic so that
@@ -21,7 +38,7 @@ const BDA_GATEWAY_BASE_URL = process.env.BDA_GATEWAY_BASE_URL || "https://ai-loc
 const GATEWAY_CONTEXT_WINDOWS = new Map();
 function seedGatewayContextFromEnv() {
   try {
-    const parsed = JSON.parse(process.env.BDA_GATEWAY_CONTEXT_JSON || "{}");
+    const parsed = JSON.parse(envValue("BDA_GATEWAY_CONTEXT_JSON", "{}"));
     if (parsed && typeof parsed === "object") {
       for (const [id, ctx] of Object.entries(parsed)) {
         const n = Number(ctx);
@@ -343,15 +360,15 @@ function workEventUrlFromBaseUrl(value) {
 }
 
 function configFromEnvMap(envMap) {
-  const baseUrl = envMap.BDA_AI_ROUTER_BASE_URL || envMap.OPENAI_BASE_URL || "";
+  const baseUrl = envMapValue(envMap, "BDA_AI_ROUTER_BASE_URL") || envMap.OPENAI_BASE_URL || "";
   return {
-    employee_code: envMap.BDA_EMPLOYEE_CODE,
-    employee_group: envMap.BDA_EMPLOYEE_GROUP,
-    work_event_url: envMap.BDA_AI_WORK_EVENT_URL || envMap.BDA_WORK_LOG_URL || workEventUrlFromBaseUrl(baseUrl),
-    api_key: envMap.BDA_AI_ROUTER_API_KEY || envMap.BDA_WORK_EVENT_API_KEY || envMap.OPENAI_API_KEY,
-    ai_provider: envMap.BDA_AI_PROVIDER || (baseUrl ? "bda-gateway" : ""),
-    ai_model: envMap.BDA_AI_MODEL,
-    used_bda_gateway: envMap.BDA_USED_BDA_GATEWAY,
+    employee_code: envMapValue(envMap, "BDA_EMPLOYEE_CODE"),
+    employee_group: envMapValue(envMap, "BDA_EMPLOYEE_GROUP"),
+    work_event_url: envMapValue(envMap, "BDA_AI_WORK_EVENT_URL") || envMapValue(envMap, "BDA_WORK_LOG_URL") || workEventUrlFromBaseUrl(baseUrl),
+    api_key: envMapValue(envMap, "BDA_AI_ROUTER_API_KEY") || envMapValue(envMap, "BDA_WORK_EVENT_API_KEY") || envMap.OPENAI_API_KEY,
+    ai_provider: envMapValue(envMap, "BDA_AI_PROVIDER") || (baseUrl ? "bda-gateway" : ""),
+    ai_model: envMapValue(envMap, "BDA_AI_MODEL"),
+    used_bda_gateway: envMapValue(envMap, "BDA_USED_BDA_GATEWAY"),
   };
 }
 
@@ -408,7 +425,8 @@ function legacySessionPaths(config) {
 
 function envOrConfig(envNames, config, keys, fallback = "") {
   for (const envName of envNames) {
-    if (process.env[envName]) return process.env[envName];
+    const value = envValue(envName);
+    if (value) return value;
   }
   for (const key of keys) {
     if (config[key]) return String(config[key]);
@@ -741,7 +759,7 @@ function readStandardVersion(standardDir) {
 }
 
 function printVersion() {
-  const standardDir = path.resolve(process.env.BDA_AI_DEV_STANDARD_DIR || repoRoot());
+  const standardDir = path.resolve(envValue("BDA_AI_DEV_STANDARD_DIR", repoRoot()));
   console.log(JSON.stringify({
     ok: true,
     name: "bda-ai-dev-standard",
@@ -790,7 +808,7 @@ function ensureClaudeEnvSettings() {
 }
 
 async function setupClient(config, args) {
-  const standardDir = path.resolve(process.env.BDA_AI_DEV_STANDARD_DIR || repoRoot());
+  const standardDir = path.resolve(envValue("BDA_AI_DEV_STANDARD_DIR", repoRoot()));
   const cline = runClineSetup(standardDir);
   const claudeEnv = ensureClaudeEnvSettings();
   console.log(JSON.stringify({
@@ -822,7 +840,7 @@ function repoRoot() {
 }
 
 async function updateStandard(args, config = {}) {
-  const standardDir = path.resolve(process.env.BDA_AI_DEV_STANDARD_DIR || repoRoot());
+  const standardDir = path.resolve(envValue("BDA_AI_DEV_STANDARD_DIR", repoRoot()));
   const beforeVersion = fs.existsSync(path.join(standardDir, "VERSION"))
     ? fs.readFileSync(path.join(standardDir, "VERSION"), "utf8").trim()
     : "unknown";
@@ -907,6 +925,9 @@ function cleanHermesConfigWithUpdatedScript(standardDir, gatewayModels = FALLBAC
         encoding: "utf8",
         env: {
           ...process.env,
+          AKS_UPDATE_POST_CLEAN: "1",
+          AKS_GATEWAY_MODELS_JSON: JSON.stringify(gatewayModels),
+          AKS_GATEWAY_CONTEXT_JSON: JSON.stringify(Object.fromEntries(GATEWAY_CONTEXT_WINDOWS)),
           BDA_UPDATE_POST_CLEAN: "1",
           BDA_GATEWAY_MODELS_JSON: JSON.stringify(gatewayModels),
           BDA_GATEWAY_CONTEXT_JSON: JSON.stringify(Object.fromEntries(GATEWAY_CONTEXT_WINDOWS)),
@@ -971,7 +992,7 @@ function normalizeHermesBdaConfig(yamlText, models = FALLBACK_BDA_MODELS) {
 
 function modelsFromEnvOverride() {
   try {
-    const parsed = JSON.parse(process.env.BDA_GATEWAY_MODELS_JSON || "[]");
+    const parsed = JSON.parse(envValue("BDA_GATEWAY_MODELS_JSON", "[]"));
     return Array.isArray(parsed) && parsed.length ? parsed : FALLBACK_BDA_MODELS;
   } catch {
     return FALLBACK_BDA_MODELS;

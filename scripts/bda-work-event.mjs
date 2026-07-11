@@ -39,6 +39,10 @@ function parseArgs(argv) {
 }
 
 function envOrConfig(envName, config, keys, fallback = "") {
+  if (envName.startsWith("BDA_")) {
+    const aksName = `AKS_${envName.slice(4)}`;
+    if (process.env[aksName]) return process.env[aksName];
+  }
   if (process.env[envName]) return process.env[envName];
   for (const key of keys) {
     if (config[key]) return String(config[key]);
