@@ -86,7 +86,7 @@ function normalizeConfig(input = {}, args = {}) {
     employee_group: args.employee_group || input.employee_group || input.group || envValue("BDA_EMPLOYEE_GROUP"),
     api_key: args.api_key || input.api_key || input.work_event_api_key || envValue("BDA_AI_ROUTER_API_KEY") || envValue("BDA_WORK_EVENT_API_KEY"),
     work_event_url: args.work_event_url || input.work_event_url || input.bda_work_event_url || envValue("BDA_WORK_LOG_URL"),
-    ai_model: args.ai_model || input.ai_model || envValue("BDA_AI_MODEL", "bda/dev"),
+    ai_model: args.ai_model || input.ai_model || envValue("BDA_AI_MODEL", "aksai"),
     ai_provider: args.ai_provider || input.ai_provider || "bda-gateway",
     used_bda_gateway: true,
     tool: input.tool || "hermes-desktop-agent",
@@ -255,7 +255,7 @@ Private config example:
     "employee_code": "BDA001",
     "employee_group": "dev",
     "api_key": "sk-...",
-    "ai_model": "bda/dev"
+    "ai_model": "aksai"
   }
 
 Notes:

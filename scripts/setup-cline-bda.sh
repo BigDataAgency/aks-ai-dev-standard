@@ -1,6 +1,6 @@
 #!/bin/bash
 # setup-cline-bda.sh — ตั้งค่า Cline ให้ตรง BDA gateway แบบอัตโนมัติ (ศูนย์คลิก)
-# ทำอะไร: เขียน ~/.cline/data/globalState.json → base URL สะอาด, model bda/dev,
+# ทำอะไร: เขียน ~/.cline/data/globalState.json → base URL สะอาด, model aksai,
 #          contextWindow 262144 + maxTokens 16384 (ไม่ตั้ง = Cline ใช้ default 128k)
 # ใช้: ./scripts/setup-cline-bda.sh   (ควรปิด VS Code/Devin/Windsurf ก่อน แล้วเปิดใหม่หลังรัน)
 # หมายเหตุ: ไม่แตะ secrets.json (API key ผู้ใช้ตั้งใน UI ครั้งแรกครั้งเดียว)
@@ -8,7 +8,7 @@ set -euo pipefail
 
 STATE="$HOME/.cline/data/globalState.json"
 BASE_URL="${AKS_AI_ROUTER_BASE_URL:-${BDA_AI_ROUTER_BASE_URL:-https://ai-local.scmc.digital/v1}}"
-MODEL="${AKS_CLINE_MODEL:-${BDA_CLINE_MODEL:-bda/dev}}"
+MODEL="${AKS_CLINE_MODEL:-${BDA_CLINE_MODEL:-aksai}}"
 CTX="${AKS_CLINE_CONTEXT_WINDOW:-${BDA_CLINE_CONTEXT_WINDOW:-262144}}"
 MAXTOK="${AKS_CLINE_MAX_TOKENS:-${BDA_CLINE_MAX_TOKENS:-16384}}"
 
