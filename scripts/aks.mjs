@@ -52,28 +52,21 @@ function seedGatewayContextFromEnv() {
   }
 }
 seedGatewayContextFromEnv();
+// 21/09/2026: รายชื่อเดิมตายหมดแล้วหลังเก็บกวาดชื่อ lane (qwable/qwythos/nondev/qwen3.7/minimax/glm-5.1)
+// การปล่อยชื่อตายไว้ทำให้ bda update เขียน config ให้พนักงานชี้ไป lane ที่ไม่มีอยู่จริง แล้วยิงพังทุกครั้ง
 const FALLBACK_BDA_MODELS = [
-  "bda/qwable-27b-local",
-  "bda/qwythos-9b-local",
-  "bda/nondev",
-  "bda/deepseek-fast-paid-cloud",
-  "bda/deepseek-paid-cloud",
-  "bda/deepseek-v4-pro-paid-cloud",
-  "bda/minimax-m3-paid-cloud",
-  "bda/qwen3.7-plus-paid-cloud",
-  "bda/qwen3.7-max-paid-cloud",
-  "bda/glm-5.1-paid-cloud",
+  "aksai",
+  "bda/glm-5.2-paid-cloud",
+  "bda/deepseek-v4",
+  "bda/gemini-3.8-flash",
+  "bda/gemini-3.5-flash-lite",
 ];
 const REQUIRED_COMPATIBILITY_BDA_MODELS = [
-  "bda/dev",
-  "bda/nondev",
-  "bda/deepseek-fast-paid-cloud",
-  "bda/deepseek-paid-cloud",
-  "bda/deepseek-v4-pro-paid-cloud",
-  "bda/minimax-m3-paid-cloud",
-  "bda/qwen3.7-plus-paid-cloud",
-  "bda/qwen3.7-max-paid-cloud",
-  "bda/glm-5.1-paid-cloud",
+  "aksai",
+  "bda/glm-5.2-paid-cloud",
+  "bda/deepseek-v4",
+  "bda/gemini-3.8-flash",
+  "bda/gemini-3.5-flash-lite",
 ];
 const MAC_HERMES_APP_SUPPORT = path.join(os.homedir(), "Library", "Application Support", "Hermes");
 const THCLAWS_CONFIG_DIR = path.join(os.homedir(), ".config", "thclaws");
@@ -186,7 +179,8 @@ function bdaModelContextLength(model) {
   if (model.includes("qwythos")) return 262144;
   if (model.includes("qwable")) return 131072;
   if (model === "bda/dev") return 262144;
-  if (model === "bda/nondev") return 131072;
+  if (model.includes("gemini")) return 1048576;
+  if (model === "aksai") return 131072;
   return 65536;
 }
 
@@ -199,16 +193,17 @@ function buildHermesBdaConfigBlock(models = FALLBACK_BDA_MODELS) {
   // of the static BDA model map avoids duplicate picker entries and invented
   // context-window values for models whose metadata AI pass does not publish.
   const uniqueModels = [...new Set(models)].filter(
-    (model) => model.startsWith("bda/") && !model.startsWith("bda/aipass-model/"),
+    // aksai ไม่มี prefix bda/ แต่เป็น lane หลักของพนักงาน ถ้ากรองด้วย prefix อย่างเดียวมันจะหายไปเฉย ๆ
+    (model) => (model === "aksai" || model.startsWith("bda/")) && !model.startsWith("bda/aipass-model/"),
   );
-  const defaultModel = uniqueModels.includes("bda/qwable-27b-local")
-    ? "bda/qwable-27b-local"
-    : uniqueModels[0] || "bda/qwable-27b-local";
-  const compressionModel = uniqueModels.includes("bda/qwythos-9b-local")
-    ? "bda/qwythos-9b-local"
-    : uniqueModels.includes("bda/nondev")
-      ? "bda/nondev" // 2026-07-07: งานบีบอัด context เป็นงานเบา — อย่าแย่ง slot ขนานของ bda/dev (ลด 429) + nondev ไทยเป๊ะกว่า
-      : defaultModel;
+  const defaultModel = uniqueModels.includes("aksai")
+    ? "aksai"
+    : uniqueModels[0] || "aksai";
+  // งานบีบอัด context เป็นงานเบาและควรฟรี — DeepSeek V4 local เหมาะที่สุดและไม่กินงบ
+  // (ของเดิมชี้ qwythos/nondev ซึ่งถูกลบไปแล้ว ทำให้ทุกครั้งที่ Hermes บีบอัดจะยิงไป lane ที่ไม่มีอยู่)
+  const compressionModel = uniqueModels.includes("bda/deepseek-v4")
+    ? "bda/deepseek-v4"
+    : defaultModel;
   const modelEntries = uniqueModels
     .map((model) => `      ${model}:\n        context_length: ${bdaModelContextLength(model)}`)
     .join("\n");
@@ -1612,7 +1607,7 @@ function syncHermesEnv(config = {}, { dryRun = false } = {}) {
     BDA_AI_ROUTER_API_KEY: apiKey,
     BDA_USED_BDA_GATEWAY: apiKey ? "true" : "",
     BDA_AI_PROVIDER: apiKey ? "bda-gateway" : "",
-    BDA_AI_MODEL: envOrConfig(["BDA_AI_MODEL"], config, ["ai_model"], "bda/auto-default-local"),
+    BDA_AI_MODEL: envOrConfig(["BDA_AI_MODEL"], config, ["ai_model"], "aksai"),
     BDA_EMPLOYEE_CODE: envOrConfig(["BDA_EMPLOYEE_CODE"], config, ["employee_code"]),
     BDA_EMPLOYEE_GROUP: envOrConfig(["BDA_EMPLOYEE_GROUP"], config, ["employee_group", "group"]),
   };
