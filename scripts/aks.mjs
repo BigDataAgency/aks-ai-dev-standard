@@ -475,7 +475,8 @@ async function fetchBdaGatewayModels(config = {}) {
 function mergeBdaGatewayModels(models = []) {
   const merged = [];
   for (const model of [...models, ...REQUIRED_COMPATIBILITY_BDA_MODELS]) {
-    if (typeof model !== "string" || !model.startsWith("bda/")) continue;
+    // 29/09: aksai ไม่มี prefix bda/ — เดิมถูกกรองทิ้งที่นี่ Hermes เลยไม่มี aksai และ default ไปตกที่ตัวแรก (เจอ bda/box-claude)
+    if (typeof model !== "string" || !(model === "aksai" || model.startsWith("bda/"))) continue;
     if (!merged.includes(model)) merged.push(model);
   }
   return merged.length ? merged : FALLBACK_BDA_MODELS;
