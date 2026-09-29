@@ -54,19 +54,18 @@ function seedGatewayContextFromEnv() {
 seedGatewayContextFromEnv();
 // 21/09/2026: รายชื่อเดิมตายหมดแล้วหลังเก็บกวาดชื่อ lane (qwable/qwythos/nondev/qwen3.7/minimax/glm-5.1)
 // การปล่อยชื่อตายไว้ทำให้ bda update เขียน config ให้พนักงานชี้ไป lane ที่ไม่มีอยู่จริง แล้วยิงพังทุกครั้ง
+// 29/09/2026: ปิด DeepSeek local (bda/deepseek-v4) + glm-5.2 + gemini-3.5-flash-lite แล้ว — ชุดที่ใช้ได้ตรงกับ /v1/models ของ gate ตอนนี้
 const FALLBACK_BDA_MODELS = [
   "aksai",
-  "bda/glm-5.2-paid-cloud",
-  "bda/deepseek-v4",
+  "bda/deepseek-v4.1-paid-cloud",
+  "bda/gemma4",
   "bda/gemini-3.8-flash",
-  "bda/gemini-3.5-flash-lite",
 ];
 const REQUIRED_COMPATIBILITY_BDA_MODELS = [
   "aksai",
-  "bda/glm-5.2-paid-cloud",
-  "bda/deepseek-v4",
+  "bda/deepseek-v4.1-paid-cloud",
+  "bda/gemma4",
   "bda/gemini-3.8-flash",
-  "bda/gemini-3.5-flash-lite",
 ];
 const MAC_HERMES_APP_SUPPORT = path.join(os.homedir(), "Library", "Application Support", "Hermes");
 const THCLAWS_CONFIG_DIR = path.join(os.homedir(), ".config", "thclaws");
@@ -180,6 +179,7 @@ function bdaModelContextLength(model) {
   if (model.includes("qwable")) return 131072;
   if (model === "bda/dev") return 262144;
   if (model.includes("gemini")) return 1048576;
+  if (model.includes("gemma")) return 131072;
   if (model === "aksai") return 131072;
   return 65536;
 }
@@ -199,10 +199,10 @@ function buildHermesBdaConfigBlock(models = FALLBACK_BDA_MODELS) {
   const defaultModel = uniqueModels.includes("aksai")
     ? "aksai"
     : uniqueModels[0] || "aksai";
-  // งานบีบอัด context เป็นงานเบาและควรฟรี — DeepSeek V4 local เหมาะที่สุดและไม่กินงบ
+  // งานบีบอัด context เป็นงานเบาและควรฟรี — Gemma บนเครื่องบริษัท (29/09: DeepSeek local ปิดแล้ว)
   // (ของเดิมชี้ qwythos/nondev ซึ่งถูกลบไปแล้ว ทำให้ทุกครั้งที่ Hermes บีบอัดจะยิงไป lane ที่ไม่มีอยู่)
-  const compressionModel = uniqueModels.includes("bda/deepseek-v4")
-    ? "bda/deepseek-v4"
+  const compressionModel = uniqueModels.includes("bda/gemma4")
+    ? "bda/gemma4"
     : defaultModel;
   const modelEntries = uniqueModels
     .map((model) => `      ${model}:\n        context_length: ${bdaModelContextLength(model)}`)
