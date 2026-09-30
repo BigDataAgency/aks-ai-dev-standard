@@ -1,15 +1,15 @@
 #!/bin/bash
 # setup-cline-bda.sh — ตั้งค่า Cline ให้ตรง BDA gateway แบบอัตโนมัติ (ศูนย์คลิก)
-# ทำอะไร: เขียน ~/.cline/data/globalState.json → base URL สะอาด, model bda/dev,
-#          contextWindow 262144 + maxTokens 16384 (ไม่ตั้ง = Cline ใช้ default 128k)
+# ทำอะไร: เขียน ~/.cline/data/globalState.json → base URL สะอาด, model aksai,
+#          contextWindow 110000 + maxTokens 16384 (30/09: bda/dev ปลดแล้ว ได้ 410 · gate ตัดที่ 110k token)
 # ใช้: ./scripts/setup-cline-bda.sh   (ควรปิด VS Code/Devin/Windsurf ก่อน แล้วเปิดใหม่หลังรัน)
 # หมายเหตุ: ไม่แตะ secrets.json (API key ผู้ใช้ตั้งใน UI ครั้งแรกครั้งเดียว)
 set -euo pipefail
 
 STATE="$HOME/.cline/data/globalState.json"
 BASE_URL="${AKS_AI_ROUTER_BASE_URL:-${BDA_AI_ROUTER_BASE_URL:-https://ai-local.scmc.digital/v1}}"
-MODEL="${AKS_CLINE_MODEL:-${BDA_CLINE_MODEL:-bda/dev}}"
-CTX="${AKS_CLINE_CONTEXT_WINDOW:-${BDA_CLINE_CONTEXT_WINDOW:-262144}}"
+MODEL="${AKS_CLINE_MODEL:-${BDA_CLINE_MODEL:-aksai}}"
+CTX="${AKS_CLINE_CONTEXT_WINDOW:-${BDA_CLINE_CONTEXT_WINDOW:-110000}}"
 MAXTOK="${AKS_CLINE_MAX_TOKENS:-${BDA_CLINE_MAX_TOKENS:-16384}}"
 
 # Cline flush state ในหน่วยความจำทับไฟล์ตอนปิดแอป (พิสูจน์แล้ว 2026-07-06) → ต้องปิด editor ก่อน ไม่งั้นค่าหาย
@@ -36,7 +36,7 @@ info = {
     "supportsPromptCache": False,
     "inputPrice": 0,
     "outputPrice": 0,
-    "description": "BDA local fleet (Qwen3.6) via ai gateway",
+    "description": "BDA aksai via ai gateway",
 }
 d["openAiBaseUrl"] = os.environ["BASE_URL"].strip()          # strip กัน \t/space จาก copy-paste
 for mode in ("planMode", "actMode"):
@@ -46,7 +46,7 @@ for mode in ("planMode", "actMode"):
 json.dump(d, open(p, "w"), ensure_ascii=False, indent=2)
 print(f"✅ Cline config updated: model={os.environ['MODEL']} ctx={os.environ['CTX']} maxTokens={os.environ['MAXTOK']}")
 print(f"   backup: {p}.bak-*")
-print("   ▶ ปิด/เปิด editor ใหม่ แล้ว Start New Task — แถบ context จะแสดง 256.0k")
+print("   ▶ ปิด/เปิด editor ใหม่ แล้ว Start New Task — แถบ context จะแสดง 110.0k")
 PY
 
 # ติดตั้ง Thai self-review rule เป็น Cline global rule (มีผลทุก workspace)
