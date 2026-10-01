@@ -168,7 +168,15 @@ const FORBIDDEN_HERMES_ARCHIVE_PATHS = Array.from(new Set([
   path.join(os.homedir(), "Applications", "Hermes.app"),
 ].filter(Boolean).map((entry) => path.resolve(entry))));
 
+// gate ตัด prompt ที่ ~120k token (413 prompt_exceeds_ds4_hard_cap) แต่ /v1/models ประกาศ 131072
+// ถ้าบอก Hermes ตามนั้น เกณฑ์บีบอัดจะช้าไปจนชนเพดาน (ภัส 01/10) — เลยกดไว้ใต้เพดาน gate
+const BDA_GATE_PROMPT_CAP = 110000;
+
 function bdaModelContextLength(model) {
+  return Math.min(bdaModelContextWindow(model), BDA_GATE_PROMPT_CAP);
+}
+
+function bdaModelContextWindow(model) {
   // Prefer the live context_window reported by the gateway /v1/models response.
   const gatewayCtx = GATEWAY_CONTEXT_WINDOWS.get(model);
   if (Number.isFinite(gatewayCtx) && gatewayCtx > 0) return gatewayCtx;
