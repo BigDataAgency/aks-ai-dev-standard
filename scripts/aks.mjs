@@ -768,12 +768,18 @@ function applyServerSessionResult(session, result) {
 }
 
 function readStandardVersion(standardDir) {
+  const dir = standardDir || repoRoot();
+  let version = "unknown";
   try {
-    const p = path.join(standardDir || repoRoot(), "VERSION");
-    return fs.existsSync(p) ? fs.readFileSync(p, "utf8").trim() : "unknown";
-  } catch {
-    return "unknown";
-  }
+    const p = path.join(dir, "VERSION");
+    if (fs.existsSync(p)) version = fs.readFileSync(p, "utf8").trim();
+  } catch {}
+  // VERSION ไม่เคยถูก bump (1.0.0 มาเป็นเดือน) — ต่อท้ายด้วย commit ที่ติดตั้งอยู่จริง จะได้รู้ว่ามี fix ไหนแล้ว
+  try {
+    const build = execFileSync("git", ["-C", dir, "log", "-1", "--format=%h %cs"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    if (build) version += `+${build.replace(" ", " (")})`;
+  } catch {}
+  return version;
 }
 
 function printVersion() {
@@ -782,7 +788,7 @@ function printVersion() {
     ok: true,
     name: "bda-ai-dev-standard",
     session_version: SESSION_VERSION,
-    cli_version: cliVersion(),
+    cli_version: readStandardVersion(repoRoot()),
     standard_version: readStandardVersion(standardDir),
     note: "cli_version = version ของตัว CLI; standard_version = version ของชุด docs/commands/eval (bda update ดึงล่าสุดให้)",
   }, null, 2));
@@ -925,9 +931,7 @@ function repoRoot() {
 
 async function updateStandard(args, config = {}) {
   const standardDir = path.resolve(envValue("BDA_AI_DEV_STANDARD_DIR", repoRoot()));
-  const beforeVersion = fs.existsSync(path.join(standardDir, "VERSION"))
-    ? fs.readFileSync(path.join(standardDir, "VERSION"), "utf8").trim()
-    : "unknown";
+  const beforeVersion = readStandardVersion(standardDir);
   const hasGitRepo = fs.existsSync(path.join(standardDir, ".git"));
   const dryRun = boolValue(args.dry_run);
 
@@ -960,9 +964,7 @@ async function updateStandard(args, config = {}) {
 
   const afterVersion = dryRun
     ? beforeVersion
-    : (fs.existsSync(path.join(standardDir, "VERSION"))
-        ? fs.readFileSync(path.join(standardDir, "VERSION"), "utf8").trim()
-        : "unknown");
+    : readStandardVersion(standardDir);
 
   const gatewayModels = await fetchBdaGatewayModels(config);
   const configResult = dryRun
