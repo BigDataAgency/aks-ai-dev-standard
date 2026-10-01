@@ -171,6 +171,9 @@ const FORBIDDEN_HERMES_ARCHIVE_PATHS = Array.from(new Set([
 // gate ตัด prompt ที่ ~120k token (413 prompt_exceeds_ds4_hard_cap) แต่ /v1/models ประกาศ 131072
 // ถ้าบอก Hermes ตามนั้น เกณฑ์บีบอัดจะช้าไปจนชนเพดาน (ภัส 01/10) — เลยกดไว้ใต้เพดาน gate
 const BDA_GATE_PROMPT_CAP = 110000;
+// Hermes ตัดคำขอแบบไม่ stream ที่ 90 วิ (stale default) และงานบีบอัดที่ 120 วิ — แต่ gateway ตอบงาน prompt ~50k
+// ช้าได้ 30–90 วิตอนคิวแน่น (เคน 01/10 "Non-streaming API call timed out after 90s") ให้เท่า timeout ของ LiteLLM
+const BDA_HERMES_TIMEOUT_SECONDS = 300;
 
 function bdaModelContextLength(model) {
   return Math.min(bdaModelContextWindow(model), BDA_GATE_PROMPT_CAP);
@@ -227,6 +230,7 @@ auxiliary:
     provider: bda
     model: ${compressionModel}
     context_length: ${bdaModelContextLength(compressionModel)}
+    timeout: ${BDA_HERMES_TIMEOUT_SECONDS}
 compression:
   enabled: true
   threshold: 0.50
@@ -236,6 +240,8 @@ providers:
     name: BDA AI Gateway
     api: ${BDA_GATEWAY_BASE_URL}
     key_env: BDA_AI_ROUTER_API_KEY
+    request_timeout_seconds: ${BDA_HERMES_TIMEOUT_SECONDS}
+    stale_timeout_seconds: ${BDA_HERMES_TIMEOUT_SECONDS}
     transport: openai_chat
     default_model: ${defaultModel}
     discover_models: false
