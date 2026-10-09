@@ -137,9 +137,15 @@ assert.match(help.stdout, /bda hermes-light-mode --yes/);
 
 const version = run(["version"]);
 const versionJson = JSON.parse(version.stdout);
+const versionFile = fs.readFileSync(path.join(repo, "VERSION"), "utf8").trim();
+const gitVersion = spawnSync("git", ["-C", repo, "log", "-1", "--format=%h (%cs)"], {
+  text: true,
+  encoding: "utf8",
+});
+assert.equal(gitVersion.status, 0, gitVersion.stdout + gitVersion.stderr);
 assert.equal(versionJson.ok, true);
 assert.equal(versionJson.session_version, "aks-session/1.0.0");
-assert.equal(versionJson.cli_version, "1.0.0");
+assert.equal(versionJson.cli_version, `${versionFile}+${gitVersion.stdout.trim()}`);
 
 const aksVersion = runAks(["version"]);
 const aksVersionJson = JSON.parse(aksVersion.stdout);
@@ -166,6 +172,19 @@ assert.equal(installerDryRunJson.dry_run, true);
 assert.equal(installerDryRunJson.config.employee_code, "BDA999");
 assert.match(installerDryRunJson.config.api_key, /^sha256:/);
 assert.doesNotMatch(installerDryRun.stdout, /sk-installer-secret/);
+
+const installerDefaultModelConfigPath = path.join(temp, "installer-default-model-config.json");
+fs.writeFileSync(installerDefaultModelConfigPath, JSON.stringify({
+  employee_code: "BDA998",
+  employee_group: "dev",
+  api_key: "sk-installer-default-test",
+}, null, 2));
+const installerDefaultModelDryRun = runInstaller([
+  "--private-config", installerDefaultModelConfigPath,
+  "--standard-dir", path.join(temp, "standard-default-model-target"),
+  "--dry-run",
+]);
+assert.equal(JSON.parse(installerDefaultModelDryRun.stdout).config.ai_model, "aksai");
 
 const wrapperStandardDir = path.join(temp, "standard dir with spaces");
 fs.symlinkSync(repo, wrapperStandardDir, process.platform === "win32" ? "junction" : "dir");
@@ -225,27 +244,12 @@ assert.equal(updateJson.inventory_send_result.event.utility_command, "bda update
 assert.equal(updateJson.inventory_send_result.event.bda_cli_version, "1.0.0");
 assert.equal(updateJson.hermes_config.config_paths[0].changed, true);
 assert.ok(updateJson.hermes_config.config_paths[0].before_models.includes("bda/qwen3-coder"));
-assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3-coder"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwable-27b-local"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwythos-9b-local"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/nondev"));
-assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/auto-default-local"));
-assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/free-fast-local"));
-assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3.6-local"));
-assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/dev-local"));
-assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/nondev-local"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/deepseek-fast-paid-cloud"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/deepseek-paid-cloud"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/deepseek-v4-pro-paid-cloud"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3.7-plus-paid-cloud"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/qwen3.7-max-paid-cloud"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/glm-5.1-paid-cloud"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/minimax-m3-paid-cloud"));
-assert.ok(updateJson.hermes_config.config_paths[0].after_models.includes("bda/aipass-model/gemini-3.1-flash-lite"));
-assert.equal(updateJson.hermes_config.config_paths[0].after_models.length, 11);
-assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/gemma-4-26b-a4b-local"));
-assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/gpt-oss-20b-local"));
-assert.ok(!updateJson.hermes_config.config_paths[0].after_models.includes("bda/kimi-k2.7-code-paid-cloud"));
+assert.deepEqual(updateJson.hermes_config.config_paths[0].after_models, [
+  "bda/aipass-model/gemini-3.1-flash-lite",
+  "bda/deepseek-v4.1-paid-cloud",
+  "bda/gemini-3.8-flash",
+  "bda/gemma4",
+]);
 const configStatus = run(["config-status"]);
 const configStatusJson = JSON.parse(configStatus.stdout);
 assert.equal(configStatusJson.ok, true);
@@ -256,6 +260,12 @@ const configCleanJson = JSON.parse(configClean.stdout);
 assert.equal(configCleanJson.ok, true);
 assert.equal(configCleanJson.hermes_config.config_paths[0].changed, true);
 const cleanedHermesConfig = fs.readFileSync(path.join(home, ".hermes", "config.yaml"), "utf8");
+assert.match(cleanedHermesConfig, /default: aksai/);
+assert.match(cleanedHermesConfig, /compression_model: bda\/gemma4/);
+assert.match(cleanedHermesConfig, /context_length: 110000/);
+assert.match(cleanedHermesConfig, /request_timeout_seconds: 300/);
+assert.match(cleanedHermesConfig, /stale_timeout_seconds: 300/);
+assert.match(cleanedHermesConfig, /timeout: 300/);
 assert.match(cleanedHermesConfig, /aipass-litellm:/);
 assert.match(cleanedHermesConfig, /X-BDA-AiPASS-Catalog: chat/);
 assert.match(cleanedHermesConfig, /discover_models: true/);
