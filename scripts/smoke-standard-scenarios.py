@@ -131,6 +131,16 @@ def validate_review_traceability() -> None:
     assert_contains_all("templates/review-report.md", ["[BLOCKING]", "[SUGGESTION]", "| Changed file/lines | Request/bug/criterion | Evidence | Status |", "Follow-up PR/issue", "## Commands run", "Not verified"])
 
 
+def validate_hidden_regression_preflight() -> None:
+    db_prompt = (ROOT / "commands/verify-work.md").read_text(encoding="utf-8").split("```text\n", 1)[1].split("```", 1)[0]
+    runtime_prompt = (ROOT / "commands/check-real-app.md").read_text(encoding="utf-8").split("```text\n", 1)[1].split("```", 1)[0]
+    assert all(term in db_prompt for term in ["CREATE OR REPLACE FUNCTION", "Latest definition source", "Preserved behavior", "Not verified"])
+    assert all(term in runtime_prompt for term in ["Runtime loaded latest bundle", "--force", "Not verified"])
+    assert_contains_all("checklists/before-commit.md", ["CREATE OR REPLACE FUNCTION", "RPC rewrite"])
+    for rel in ["commands/handoff-report.md", "templates/verification-report.md", "docs/hidden-regression-preflight.md"]:
+        assert_contains_all(rel, ["Latest definition source", "Preserved behavior", "Runtime loaded latest bundle"])
+
+
 def validate_claude_usage_docs() -> None:
     for rel in ["README.md", "claude/CLAUDE.md"]:
         assert_contains_all(
@@ -437,6 +447,7 @@ def main() -> int:
         validate_required_sections,
         validate_success_criteria_mappings,
         validate_review_traceability,
+        validate_hidden_regression_preflight,
         validate_claude_usage_docs,
         validate_command_pack,
         validate_bda_session_cli,

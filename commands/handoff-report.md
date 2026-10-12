@@ -14,6 +14,7 @@ Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 3. ระบุ verification
 4. ระบุ risk
 5. บอก next step
+6. จาก templates/verification-report.md ส่ง Latest definition source, Preserved behavior และ Runtime loaded latest bundle พร้อมevidence/status; N/Aต้องมีเหตุ ส่วนที่ไม่มีหลักฐานเป็นNot verified ไม่ถือcompileผ่านว่าระบบจริงผ่าน
 
 Output ที่ต้องส่ง: รายงานส่งต่องานภาษาไทย
 

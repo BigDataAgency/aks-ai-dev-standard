@@ -16,6 +16,8 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 
 ### Fixed
 
+- Add DB/RPC replacement preservation and frontend runtime-cache preflights, with report fields, a Supabase/Postgres plus Vite example and smoke guards.
+
 - Align review findings to a two-tier rubric, actual diff/tool evidence, changed-line traceability and PR/issue follow-up; add a smoke guard.
 
 - Add criterion/evidence/status mapping and an explicit Not verified default to verification and implementation report templates, with a smoke guard.
