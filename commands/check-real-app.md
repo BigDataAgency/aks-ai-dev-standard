@@ -12,6 +12,7 @@ Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 0. หลังแก้shared package/API client/types ตรวจrevision/moduleและmethod/behaviorที่โหลดในbrowserจริงก่อนE2E/manual; สำหรับViteถ้าoptimizeddeps/browsercacheเก่า ให้re-optimizeด้วยวิธีdevของrepo (เช่นrestartdevserverของโครงการพร้อม --force และreloadหลังจัดการbrowsercache) แล้วตรวจซ้ำ บันทึก Runtime loaded latest bundle แยกจากcompile/typecheck; ถ้าไม่มีruntimeproofให้Not verified
 1. เปิด/รันแอปตามวิธีของ repo
 2. เช็กหน้าหรือ endpoint จริง
+2.1 งาน UI/frontend ต้องตรวจ visual/runtime ในแอปที่รันจริงด้วย screenshot + interaction ผ่าน browser/E2E หรือ manual บน device; เลือก worst/edge case ตามความเสี่ยง ไม่ใช้ first passing case เป็นตัวแทน เช่น หลายรูป/thumbnail, ข้อความยาว, empty, loading/error, resume และ viewport แคบ/กว้างที่รองรับ ระบุเหตุที่เลือกเคสและเคสไม่เกี่ยวเป็น N/A; ตรวจ overflow/alignment/interaction ตาม success criteria พร้อม URL/environment, revision, viewport/device, input, expected/actual และ evidence path; unit/tsc/build ผ่านไม่แทนหลักฐาน UI ถ้าเข้า runtime หรือเก็บหลักฐานไม่ได้ให้ Not verified พร้อม blocker ไม่ประกาศ feature verified
 3. ตรวจ console/log
 4. capture evidence ถ้าทำได้
 
@@ -24,6 +25,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 - [ ] Shared/API changes: Runtime loaded latest bundle มีrevision/หลักฐานbrowser; re-optimize stale Vite depsก่อนE2E/manualตาม `docs/hidden-regression-preflight.md`
 - [ ] เปิด/รันแอปตามวิธีของ repo
 - [ ] เช็กหน้าหรือ endpoint จริง
+- [ ] UI/frontend: visual/runtime ของ worst/edge case; บันทึก viewport/device, expected/actual, evidence หรือ Not verified
 - [ ] ตรวจ console/log
 - [ ] capture evidence ถ้าทำได้
 
