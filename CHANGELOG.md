@@ -16,6 +16,8 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 
 ### Fixed
 
+- Align review findings to a two-tier rubric, actual diff/tool evidence, changed-line traceability and PR/issue follow-up; add a smoke guard.
+
 - Add criterion/evidence/status mapping and an explicit Not verified default to verification and implementation report templates, with a smoke guard.
 
 - Validate the required report sections in the current test-scenario and standard-feedback templates, rather than only their commands and generated smoke reports.
