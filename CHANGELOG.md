@@ -16,6 +16,8 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 
 ### Fixed
 
+- Add criterion/evidence/status mapping and an explicit Not verified default to verification and implementation report templates, with a smoke guard.
+
 - Validate the required report sections in the current test-scenario and standard-feedback templates, rather than only their commands and generated smoke reports.
 
 ## [1.0.0] - 2026-07-11
