@@ -14,7 +14,7 @@ Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 2. ตรวจว่าทุก changed line trace กลับไปยัง request, bug, success criteria, หรือ verification ได้
 3. หา bug, security, data loss, compatibility, missing test
 4. หา speculative abstraction/config/dependency/feature, unrelated refactor, หรือ format churn ที่ไม่จำเป็น
-5. แยก findings ด้วย enum [BLOCKING] / [SUGGESTION] ตาม Severity rubric ด้านล่าง
+5. ใช้สอง enum เท่านั้น: [BLOCKING] = มีหลักฐานว่ากระทบ correctness, data loss, security หรือ compatibility/contract ที่ต้องแก้ก่อนรวมงาน; [SUGGESTION] = ข้อเสนออื่น. ถ้ายังไม่มีหลักฐานระบุ Not verified และสิ่งที่ต้องตรวจ ไม่อ้างว่าพบบั๊ก
 6. อย่าติ style ถ้าไม่กระทบ correctness, maintainability, security, หรือ pattern เดิม
 
 Output ที่ต้องส่ง: ใช้ `templates/review-report.md`; findings ระบุ [BLOCKING] / [SUGGESTION], file/line, หลักฐานและลิงก์ติดตาม PR/issue พร้อมตาราง changed file/lines → request/bug/criterion → evidence → status; ช่องที่ยังไม่ตรวจเป็น Not verified

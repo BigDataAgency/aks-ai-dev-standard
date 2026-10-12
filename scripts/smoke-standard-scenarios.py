@@ -122,6 +122,9 @@ def validate_success_criteria_mappings() -> None:
 
 
 def validate_review_traceability() -> None:
+    prompt = (ROOT / "commands/review-change.md").read_text(encoding="utf-8").split("```text\n", 1)[1].split("```", 1)[0]
+    rubric = next(line for line in prompt.splitlines() if line.startswith("5."))
+    assert all(term in rubric for term in ["[BLOCKING]", "[SUGGESTION]", "correctness", "data loss", "security", "compatibility/contract"])
     assert_contains_all("templates/review-report.md", REQUIRED_SECTIONS)
     assert_contains_all("commands/review-change.md", ["[BLOCKING]", "[SUGGESTION]", "Severity rubric", "git diff", "PR/issue"])
     assert_contains_all("workflows/code-review.md", ["[BLOCKING]", "[SUGGESTION]", "commands/review-change.md"])
