@@ -1,11 +1,11 @@
 # Workflow: code-review
 
-Code review: ตรวจ correctness, security, data, tests, maintainability โดยแยก blocker/suggestion
+Code review: ตรวจ correctness, security, data, tests, maintainability โดยใช้ [BLOCKING] / [SUGGESTION] จาก `commands/review-change.md`
 
 ## Steps
 1. ใช้ `commands/understand-task.md`
 2. ใช้ `commands/plan-work.md` ถ้างานไม่เล็กมาก
-3. ทำงานด้วย command ที่ใกล้ที่สุด
+3. ใช้ `commands/review-change.md` ตรวจ diff ตาม ref ที่กำหนด และบันทึก `templates/review-report.md` พร้อม traceability/evidence/follow-up
 4. ใช้ `commands/verify-work.md`
 5. ส่ง `commands/handoff-report.md`
 

@@ -121,6 +121,13 @@ def validate_success_criteria_mappings() -> None:
         assert_contains_all(rel, ["## Success Criteria", "| Criterion | Evidence | Status |", "Not verified", "Passed requires actual evidence"])
 
 
+def validate_review_traceability() -> None:
+    assert_contains_all("templates/review-report.md", REQUIRED_SECTIONS)
+    assert_contains_all("commands/review-change.md", ["[BLOCKING]", "[SUGGESTION]", "Severity rubric", "git diff", "PR/issue"])
+    assert_contains_all("workflows/code-review.md", ["[BLOCKING]", "[SUGGESTION]", "commands/review-change.md"])
+    assert_contains_all("templates/review-report.md", ["[BLOCKING]", "[SUGGESTION]", "| Changed file/lines | Request/bug/criterion | Evidence | Status |", "Follow-up PR/issue", "## Commands run", "Not verified"])
+
+
 def validate_claude_usage_docs() -> None:
     for rel in ["README.md", "claude/CLAUDE.md"]:
         assert_contains_all(
@@ -426,6 +433,7 @@ def main() -> int:
         validate_version_consistency,
         validate_required_sections,
         validate_success_criteria_mappings,
+        validate_review_traceability,
         validate_claude_usage_docs,
         validate_command_pack,
         validate_bda_session_cli,
