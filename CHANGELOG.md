@@ -8,6 +8,12 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - MINOR: new commands, workflows, templates, adapters, or substantial behavior improvements
 - PATCH: clarifications, typo fixes, safer wording, and non-breaking documentation updates
 
+## [Unreleased]
+
+### Added
+
+- Document precedence for existing project schemas and linked companion reporting, with a dual-compliant example. Preserve the retirement of public staff operational workflows and require project-specific migration/rollout evidence.
+
 ## [1.0.0] - 2026-07-11
 
 ### Changed
