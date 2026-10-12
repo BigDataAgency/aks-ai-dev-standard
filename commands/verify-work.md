@@ -9,6 +9,7 @@
 ทำงาน: Verify Work
 Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
+0. ถ้ามี CREATE OR REPLACE FUNCTION / RPC rewrite ให้ค้นทุกdefinitionของschema/signatureนั้นในrepo ระบุ Latest definition source (path/migration/revisionและappliedstateถ้าทราบ), list Preserved behavior และเทียบdiffกับนิยามล่าสุด ไม่ใช้bodyเก่าทับfilter/contract/settingsเดิม; ถ้ายังยืนยันล่าสุดไม่ได้ให้ Not verified และห้ามอ้างว่าตรวจclobberผ่าน
 1. รัน test/lint/build ที่เกี่ยวข้อง
 2. ตรวจ manual flow ถ้าจำเป็น
 3. บันทึก command และผลลัพธ์
@@ -20,6 +21,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 ```
 
 ## Checklist
+- [ ] DB/RPC rewrite: Latest definition source และ Preserved behavior ผูกหลักฐานล่าสุด; diffไม่ย้อนพฤติกรรมก่อนหน้า ดู `docs/hidden-regression-preflight.md`
 - [ ] รัน test/lint/build ที่เกี่ยวข้อง
 - [ ] ตรวจ manual flow ถ้าจำเป็น
 - [ ] บันทึก command และผลลัพธ์

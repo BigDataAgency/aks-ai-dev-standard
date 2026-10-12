@@ -9,6 +9,7 @@
 ทำงาน: Check Real App
 Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
+0. หลังแก้shared package/API client/types ตรวจrevision/moduleและmethod/behaviorที่โหลดในbrowserจริงก่อนE2E/manual; สำหรับViteถ้าoptimizeddeps/browsercacheเก่า ให้re-optimizeด้วยวิธีdevของrepo (เช่นrestartdevserverของโครงการพร้อม --force และreloadหลังจัดการbrowsercache) แล้วตรวจซ้ำ บันทึก Runtime loaded latest bundle แยกจากcompile/typecheck; ถ้าไม่มีruntimeproofให้Not verified
 1. เปิด/รันแอปตามวิธีของ repo
 2. เช็กหน้าหรือ endpoint จริง
 3. ตรวจ console/log
@@ -20,6 +21,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 ```
 
 ## Checklist
+- [ ] Shared/API changes: Runtime loaded latest bundle มีrevision/หลักฐานbrowser; re-optimize stale Vite depsก่อนE2E/manualตาม `docs/hidden-regression-preflight.md`
 - [ ] เปิด/รันแอปตามวิธีของ repo
 - [ ] เช็กหน้าหรือ endpoint จริง
 - [ ] ตรวจ console/log
