@@ -4,9 +4,93 @@ import fs from "node:fs";
 import http from "node:http";
 import os from "node:os";
 import path from "node:path";
+import vm from "node:vm";
 import { spawn, spawnSync } from "node:child_process";
 
 const repo = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+
+function checkThclawsCatalogue() {
+  const source = fs.readFileSync(path.join(repo, "scripts", "aks.mjs"), "utf8");
+  const begin = source.indexOf("function syncThclawsCatalogue(");
+  const end = source.indexOf("\nasync function printConfigStatus", begin);
+  assert.ok(begin >= 0 && end > begin);
+  const managedSource = "BDA Gateway /v1/models";
+  const managed = { context: 65536, maxOutput: 1024, source: managedSource, chat: true };
+  const personal = {
+    schema: 4, source: "personal catalogue", fallback: 128000,
+    selected_provider: "personal", custom: { nested: ["keep", { flag: true }] },
+    providers: {
+      personal: { token_env: "PERSONAL_KEY", models: { "my-model": { context: 90000 } } },
+      "openai-compat": { transport: "keep", models: {
+        "oai/bda/old": { ...managed, extra: "keep" },
+        "my-private-model": { context: 12345, source: "personal" },
+      } },
+    },
+    aliases: { personal: "my-private-model", aksai: "oai/bda/old" },
+  };
+  function drive(catalogue, models, dryRun = false) {
+    const before = typeof catalogue === "string" ? catalogue : catalogue === null ? "" : JSON.stringify(catalogue);
+    let written;
+    const context = {
+      fs: {
+        existsSync: p => p.endsWith("model_catalogue.json") ? catalogue !== null : true,
+        readFileSync: () => before,
+        writeFileSync: (_p, data) => { written = data; },
+      },
+      path, os, THCLAWS_CONFIG_DIR: "/synthetic/thclaws",
+      FALLBACK_BDA_MODELS: ["aksai", "bda/gemma4"], ensureDir() {},
+      bdaModelContextLength: () => 110000, bdaModelMaxOutput: () => 8192,
+    };
+    vm.runInNewContext(source.slice(begin, end) + "\nglobalThis.sync = syncThclawsCatalogue;", context);
+    const result = context.sync(models, { dryRun });
+    return { result, written, next: written === undefined ? null : JSON.parse(written), before };
+  }
+  const fresh = drive(null, ["aksai", "bda/gemma4"]);
+  assert.ok(fresh.next.providers["openai-compat"].models["oai/aksai"]);
+  assert.equal(fresh.next.aliases.aksai, "oai/aksai");
+  const mixed = drive(personal, ["aksai", "bda/gemma4"]);
+  assert.deepEqual(mixed.next.providers.personal, personal.providers.personal);
+  assert.deepEqual(mixed.next.custom, personal.custom);
+  assert.equal(mixed.next.selected_provider, personal.selected_provider);
+  assert.equal(mixed.next.source, personal.source);
+  assert.equal(mixed.next.fallback, personal.fallback);
+  assert.deepEqual(mixed.next.providers["openai-compat"].models["my-private-model"], personal.providers["openai-compat"].models["my-private-model"]);
+  assert.deepEqual(mixed.next.providers["openai-compat"].models["oai/bda/old"], personal.providers["openai-compat"].models["oai/bda/old"]);
+  assert.equal(mixed.next.providers["openai-compat"].transport, "keep");
+  assert.equal(mixed.next.aliases.personal, personal.aliases.personal);
+  assert.equal(mixed.next.aliases.aksai, "oai/aksai");
+  const existing = JSON.parse(JSON.stringify(personal));
+  existing.providers["openai-compat"].models["oai/aksai"] = { ...managed, extra: "keep" };
+  existing.aliases.aksai = "oai/aksai";
+  const updated = drive(existing, ["aksai"]);
+  assert.equal(updated.next.providers["openai-compat"].models["oai/aksai"].context, 110000);
+  assert.equal(updated.next.providers["openai-compat"].models["oai/aksai"].extra, "keep");
+  assert.equal(drive(personal, []).written, undefined);
+  const fallback = drive(personal, undefined); // caller fetch failure uses fallback models
+  assert.deepEqual(fallback.next.providers.personal, personal.providers.personal);
+  assert.deepEqual(fallback.next.providers["openai-compat"].models["oai/bda/old"], personal.providers["openai-compat"].models["oai/bda/old"]);
+  for (const invalid of ["{invalid", { ...personal, schema: 5 },
+    { ...personal, providers: { "openai-compat": null } },
+    { ...personal, providers: { "openai-compat": { models: [] } } }]) {
+    const stopped = drive(invalid, ["aksai"]);
+    assert.equal(stopped.written, undefined);
+    assert.equal(stopped.result.changed, false);
+    assert.ok(stopped.result.reason);
+  }
+  const collision = JSON.parse(JSON.stringify(personal));
+  collision.providers["openai-compat"].models["oai/aksai"] = { context: 12345, source: "personal" };
+  assert.equal(drive(collision, ["aksai"]).written, undefined);
+  const aliasCollision = JSON.parse(JSON.stringify(personal));
+  aliasCollision.aliases.aksai = "my-private-model";
+  assert.equal(drive(aliasCollision, ["aksai"]).written, undefined);
+  assert.equal(drive(personal, ["aksai"], true).written, undefined);
+  console.log("thclaws focused checks: aksai, mixed preservation, managed updates, empty/fallback, invalid schema/json, collisions and dry-run passed");
+}
+if (process.argv.includes("--catalog-only")) {
+  checkThclawsCatalogue();
+  process.exit(0);
+}
+checkThclawsCatalogue();
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), "bda-session-test-"));
 const home = path.join(temp, "home");
 const work = path.join(temp, "work");
