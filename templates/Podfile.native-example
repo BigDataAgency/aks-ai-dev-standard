@@ -1,0 +1,35 @@
+# Example fragment only: merge into the project's existing Podfile post_install; do not replace it.
+# Keep the project's own post_install settings and overrides. This fragment never edits the app project.
+#
+# Simulator architecture policy (Apple Silicon): by default change nothing and keep any existing
+# override. Only after proving each dependency's simulator slice (XCFramework Info.plist
+# SupportedPlatformVariant=simulator + arm64, or Mach-O LC_BUILD_VERSION platform IOSSIMULATOR;
+# `lipo -archs` alone is not proof) run
+#   PODS_SIM_EXCLUDED_ARCHS=arm64 pod install   # a dependency lacks arm64 simulator
+#   PODS_SIM_EXCLUDED_ARCHS=    pod install     # all proven: explicit empty = no exclusion
+# and keep the app target consistent. See docs/native-build-preflight.md.
+
+SIM_EXCLUDED_ARCHS_KEY = 'EXCLUDED_ARCHS[sdk=iphonesimulator*]'.freeze
+
+post_install do |installer|
+  # ... project's existing react_native_post_install(...) and other settings stay here ...
+
+  # Runs after the project's settings above so the explicit opt-in wins; ENV.key? allows an empty value.
+  if ENV.key?('PODS_SIM_EXCLUDED_ARCHS')
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings[SIM_EXCLUDED_ARCHS_KEY] = ENV['PODS_SIM_EXCLUDED_ARCHS']
+      end
+    end
+  end
+
+  # Warn (never fail) when Pods and the app target disagree: the CLI linker error
+  # "found architecture 'x86_64', required architecture 'arm64'" comes from that mismatch.
+  # shortcut: reads target-level build settings only, not xcconfig/project-level values.
+  projects = [installer.pods_project] + installer.aggregate_targets.map(&:user_project).compact.uniq
+  values = projects.flat_map(&:targets).flat_map(&:build_configurations)
+                   .map { |c| c.build_settings[SIM_EXCLUDED_ARCHS_KEY].to_s }.uniq
+  if values.size > 1
+    Pod::UI.warn "Simulator EXCLUDED_ARCHS differs across targets: #{values.inspect}. Align Pods and app."
+  end
+end

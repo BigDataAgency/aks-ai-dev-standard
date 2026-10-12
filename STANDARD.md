@@ -14,6 +14,7 @@
 - รักษา command/slash command เดิมเป็น default; เพิ่ม discipline ใน workflow ภายในแทนการเปลี่ยน UX โดยไม่จำเป็น
 
 ## 3. Execute
+- สำหรับ iOS/React Native ใช้ [native build preflight](docs/native-build-preflight.md) ก่อนแก้ locale, shared-package link, simulator หรือ architecture; รักษา scripts/overrides เดิมและตรวจ dependency simulator slices จริงก่อนเปลี่ยน exclusion.
 - ถ้ามี submodule/หลาย repo หรือหลาย branch ใช้ [Git topology baseline](policies/multi-repo-and-branching.md): child push ก่อน parent pointer และยืนยัน branch/environment/deploy gates ตามโครงการ
 - ถ้า merge หลาย branch/ref เข้า target เดียว ใช้ [merge-branches workflow](workflows/merge-branches.md); ถ้าตัดสินใจโดยอ้างอิง project อื่น ใช้ [cross-reference policy](policies/cross-reference.md) (registry เป็นของโครงการ)
 - แก้เฉพาะ scope ที่เกี่ยวข้อง
