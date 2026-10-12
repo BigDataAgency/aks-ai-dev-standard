@@ -1671,19 +1671,51 @@ function syncThclawsCatalogue(models = FALLBACK_BDA_MODELS, { dryRun = false } =
     || fs.existsSync(path.join(os.homedir(), "bin", "thclaws"))
     || fs.existsSync("/Applications/thclaws.app");
   const filePath = path.join(THCLAWS_CONFIG_DIR, "model_catalogue.json");
+  const supported = [...new Set(models.filter(model =>
+    typeof model === "string" && (model === "aksai" || model.startsWith("bda/"))))];
   const result = {
     installed,
     changed: false,
     catalogue_path: filePath,
-    models: models.map((model) => `oai/${model}`),
+    models: supported.map((model) => `oai/${model}`),
   };
-  if (!installed) return result;
-  const modelEntries = {};
-  const aliases = {};
-  for (const model of models) {
-    if (!model.startsWith("bda/")) continue;
+  if (!installed || !supported.length) return result;
+  const before = fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
+  let catalogue;
+  try {
+    catalogue = before ? JSON.parse(before) : {
+      schema: 4, source: "BDA Gateway /v1/models live sync",
+      providers: {}, aliases: {}, fallback: 65536,
+    };
+  } catch {
+    return { ...result, reason: "invalid-catalogue-json" };
+  }
+  const record = value => value && typeof value === "object" && !Array.isArray(value);
+  if (!record(catalogue) || catalogue.schema !== 4
+      || (catalogue.providers !== undefined && !record(catalogue.providers))
+      || (catalogue.aliases !== undefined && !record(catalogue.aliases))) {
+    return { ...result, reason: "unsupported-catalogue-schema" };
+  }
+  const providers = { ...catalogue.providers };
+  const provider = Object.hasOwn(providers, "openai-compat") ? providers["openai-compat"] : {};
+  if (!record(provider) || (provider.models !== undefined && !record(provider.models))) {
+    return { ...result, reason: "unsupported-provider-schema" };
+  }
+  const modelEntries = { ...provider.models };
+  const aliases = { ...catalogue.aliases };
+  const managed = id => typeof id === "string"
+    && (id === "oai/aksai" || id.startsWith("oai/bda/"))
+    && modelEntries[id]?.source === "BDA Gateway /v1/models";
+  for (const model of supported) {
     const thclawsModel = `oai/${model}`;
+    if (Object.hasOwn(modelEntries, thclawsModel) && !managed(thclawsModel)) {
+      return { ...result, reason: "ambiguous-model-ownership" };
+    }
+    if (Object.hasOwn(aliases, model) && aliases[model] !== thclawsModel && !managed(aliases[model])) {
+      return { ...result, reason: "ambiguous-alias-ownership" };
+    }
     modelEntries[thclawsModel] = {
+      ...modelEntries[thclawsModel],
       context: bdaModelContextLength(model),
       maxOutput: bdaModelMaxOutput(model),
       source: "BDA Gateway /v1/models",
@@ -1691,15 +1723,10 @@ function syncThclawsCatalogue(models = FALLBACK_BDA_MODELS, { dryRun = false } =
     };
     aliases[model] = thclawsModel;
   }
-  const catalogue = {
-    schema: 4,
-    source: "BDA Gateway /v1/models live sync",
-    providers: { "openai-compat": { models: modelEntries } },
-    aliases,
-    fallback: 65536,
-  };
+  // Missing models may mean a partial/offline catalog, so retain existing entries.
+  catalogue.providers = { ...providers, "openai-compat": { ...provider, models: modelEntries } };
+  catalogue.aliases = aliases;
   const next = JSON.stringify(catalogue, null, 2) + "\n";
-  const before = fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
   result.changed = before !== next;
   if (result.changed && !dryRun) {
     ensureDir(path.dirname(filePath));
