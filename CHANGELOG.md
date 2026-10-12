@@ -12,6 +12,8 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 
 ### Added
 
+- Add opt-in native build preflight and example scripts/Podfile fragment preserving existing hooks, links and architecture overrides; actual iOS build remains project-specific.
+
 - Document precedence for existing project schemas and linked companion reporting, with a dual-compliant example. Preserve the retirement of public staff operational workflows and require project-specific migration/rollout evidence.
 
 ### Fixed

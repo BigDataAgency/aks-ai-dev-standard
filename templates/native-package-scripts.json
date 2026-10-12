@@ -1,0 +1,9 @@
+{
+  "_comment": "Example only. Merge into the project's package.json; replace every <placeholder>; keep existing project scripts/overrides and remove <existing-postinstall> and its && only if the project has none; <rel-prefix> is ../ (unscoped) or ../../ (scoped). See docs/native-build-preflight.md.",
+  "scripts": {
+    "shared:link": "[ -e \"node_modules/<shared-package>\" ] || [ -L \"node_modules/<shared-package>\" ] || { mkdir -p \"$(dirname \"node_modules/<shared-package>\")\" && ln -s \"<rel-prefix><shared-source-dir>\" \"node_modules/<shared-package>\"; }",
+    "postinstall": "<existing-postinstall> && npm run shared:link",
+    "setup:ios": "npm run shared:link && cd ios && LANG=\"${POD_LANG:-en_US.UTF-8}\" LC_ALL=\"${POD_LANG:-en_US.UTF-8}\" bundle exec pod install",
+    "ios:run:uat": "react-native run-ios --scheme <uat-scheme> --simulator \"${IOS_SIMULATOR:-<simulator-name>}\""
+  }
+}
