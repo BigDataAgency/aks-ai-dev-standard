@@ -9,6 +9,7 @@
 ทำงาน: Build Feature
 Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
+ก่อนรวมหลาย branch/ref ใช้ workflows/merge-branches.md และ policies/cross-reference.md; ยืนยัน scope/revision, คง conflict ที่ยังไม่มีหลักฐาน และรักษา project release gates
 1. ถ้ามี Obsidian context manifest (`00-Agent-Context.md` หรือ `.bda/obsidian-context.md`) ให้อ่านก่อนเริ่ม และเตรียม session/evidence note ตาม context; ถ้าไม่มีและงานต้องผูกกับ Obsidian ให้ใช้ `commands/init.md`
 2. ยืนยัน expected behavior และ success criteria
 2.5 **ประเมิน scope ก่อนลงมือ (กติกาจากผลวัดจริง 2026-07-05)**: ถ้างานใหญ่กว่า 1 service/module/endpoint ให้แตกเป็นชิ้นเล็กแล้วทำทีละชิ้นให้ test ผ่านก่อนไปต่อ — โจทย์ใหญ่เปิดกว้างมีอัตราจบจริง 0/8; ห้ามพยายามสร้างทั้งระบบในรอบเดียว
