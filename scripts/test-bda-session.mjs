@@ -9,6 +9,111 @@ import { spawn, spawnSync } from "node:child_process";
 
 const repo = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 
+
+async function checkHermesPreservation() {
+  const source = fs.readFileSync(path.join(repo, "scripts", "aks.mjs"), "utf8");
+  const extract = (start, end) => {
+    const a = source.indexOf(start), b = source.indexOf(end, a);
+    assert.ok(a >= 0 && b > a);
+    return source.slice(a, b);
+  };
+  const code = [
+    extract("function buildHermesBdaConfigBlock(", "\nconst COMMANDS"),
+    extract("async function updateStandard(", "\nfunction collectBdaModelNames"),
+    extract("function collectBdaModelNames(", "\nfunction safeBackupName"),
+    extract("async function printHermesReset(", "\nfunction printHermesLightMode"),
+    extract("async function printConfigStatus(", "\n/*"),
+    "globalThis.api = { normalizeHermesBdaConfig, cleanHermesConfig, updateStandard, cleanHermesConfigWithUpdatedScript, printHermesReset, printConfigStatus, printConfigClean, buildHermesBdaConfigBlock };",
+  ].join("\n");
+  const personal = "model:\n  provider: personal\n  default: personal-model\n  unknown: keep\nproviders:\n  personal:\n    api_key: synthetic-secret\nauxiliary:\n  compression:\n    model: personal-compressor\ncustom_providers:\n  - name: custom\ncompression:\n  extra: keep\n";
+  function harness(contents, childError = false) {
+    const files = new Map(Object.entries(contents));
+    const effects = [], outputs = [];
+    const effect = name => (...args) => { effects.push(name); return {}; };
+    const context = {
+      fs: {
+        existsSync: p => files.has(p) || p === "/cache" || p.endsWith("aks.mjs"),
+        readFileSync: p => files.get(p),
+        copyFileSync: effect("backup"),
+        writeFileSync: (p, v) => { effects.push("config-write"); files.set(p, v); },
+        rmSync: effect("cache-or-install-remove"),
+      },
+      path, FALLBACK_BDA_MODELS: ["aksai", "bda/gemma4"],
+      BDA_GATEWAY_BASE_URL: "https://example.test/v1", BDA_HERMES_TIMEOUT_SECONDS: 300,
+      HERMES_CONFIG_PATHS: Object.keys(contents), HERMES_CACHE_PATHS: ["/cache"],
+      GATEWAY_CONTEXT_WINDOWS: new Map(), bdaModelContextLength: () => 110000,
+      modelsFromEnvOverride: () => ["aksai", "bda/gemma4"],
+      envValue: (_key, fallback = "") => fallback, boolValue: v => Boolean(v),
+      commandExists: () => true, repoRoot: () => "/synthetic",
+      readStandardVersion: () => "synthetic-version", ensureDir: effect("mkdir"),
+      ensureCliWrappers: effect("wrappers"), runClineSetup: effect("setup"),
+      ensureClaudeEnvSettings: effect("settings"),
+      fetchBdaGatewayModels: async () => { effects.push("fetch-models"); return ["aksai", "bda/gemma4"]; },
+      syncHermesEnv: effect("env"), syncThclawsCatalogue: effect("catalog"),
+      sendInventoryEvent: async () => { effects.push("inventory"); return {}; },
+      moveHermesState: () => { effects.push("state"); return { errors: [] }; },
+      execFileSync: () => { effects.push("child-or-git"); if (childError) throw Error("synthetic child failure"); return "{}"; },
+      process: { execPath: "/synthetic/node", env: {}, exitCode: 0, exit: effect("exit") },
+      console: { log: text => outputs.push(JSON.parse(text)), error: effect("error") },
+    };
+    vm.runInNewContext(code, context);
+    return { api: context.api, files, effects, outputs, context };
+  }
+  const mixed = harness({ "/empty": "", "/personal": personal });
+  const blocked = mixed.api.cleanHermesConfig({ dryRun: false });
+  assert.equal(blocked.blocked, true);
+  assert.equal(blocked.changed, false);
+  assert.deepEqual(mixed.effects, []);
+  assert.equal(mixed.files.get("/empty"), "");
+  assert.equal(mixed.files.get("/personal"), personal);
+  for (const input of ["providers: [", "---\n", "model: &anchor {default: personal}\n", "# comment only\n",
+    "model: {provider: bda}\nmodel: {provider: personal}\n", "model: !custom personal\n", "[]\n", "null\n"]) {
+    const h = harness({ "/config": input });
+    assert.equal(h.api.cleanHermesConfig({ dryRun: false }).blocked, true);
+    assert.equal(h.files.get("/config"), input);
+    assert.deepEqual(h.effects, []);
+  }
+  const owned = harness({ "/config": "" });
+  const generated = owned.api.buildHermesBdaConfigBlock();
+  owned.files.set("/config", generated);
+  assert.equal(owned.api.normalizeHermesBdaConfig(generated), generated);
+  assert.equal(owned.api.cleanHermesConfig({ dryRun: true }).blocked, false);
+  assert.deepEqual(owned.effects, []);
+  const empty = harness({ "/config": "  \n" });
+  assert.equal(empty.api.cleanHermesConfig({ dryRun: false }).blocked, false);
+  assert.equal(empty.files.get("/config"), generated);
+  const absent = harness({});
+  assert.equal(absent.api.cleanHermesConfig({ dryRun: true }).blocked, false);
+  assert.deepEqual(absent.effects, []);
+  for (const [caller, args, dryRun] of [
+    ["updateStandard", [{}, {}], false],
+    ["updateStandard", [{ dry_run: true }, {}], true],
+    ["printHermesReset", [{}, {}], false],
+    ["printHermesReset", [{}, { dry_run: true }], true],
+    ["printConfigStatus", [{}], true],
+    ["printConfigClean", [{}], false],
+  ]) {
+    const h = harness({ "/config": personal });
+    await h.api[caller](...args);
+    assert.deepEqual(h.effects, [], caller + " must stop before every side effect");
+    assert.equal(h.outputs[0].ok, false);
+    assert.equal(h.outputs[0].hermes_config.blocked, true);
+    assert.equal(h.context.process.exitCode, dryRun ? 0 : 2);
+    assert.equal(h.files.get("/config"), personal);
+  }
+  const child = harness({ "/config": generated }, true);
+  const childResult = child.api.cleanHermesConfigWithUpdatedScript("/synthetic");
+  assert.equal(childResult.blocked, true);
+  assert.deepEqual(child.effects, ["child-or-git"]);
+  assert.equal(child.files.get("/config"), generated);
+  console.log("hermes focused checks: profile-wide no-write, exact bytes, malformed/anchors, empty/absent, update/reset/clean/status side-effect stops, child failure no fallback passed");
+}
+if (process.argv.includes("--hermes-only")) {
+  await checkHermesPreservation();
+  process.exit(0);
+}
+await checkHermesPreservation();
+
 function checkThclawsCatalogue() {
   const source = fs.readFileSync(path.join(repo, "scripts", "aks.mjs"), "utf8");
   const begin = source.indexOf("function syncThclawsCatalogue(");
@@ -316,32 +421,29 @@ if (process.platform !== "win32") {
   assert.deepEqual(JSON.parse(wrappedAksVersion.stdout), JSON.parse(wrappedBdaVersion.stdout));
 }
 
+const existingHermesConfig = fs.readFileSync(path.join(home, ".hermes", "config.yaml"), "utf8");
 const updateDryRun = run(["update", "--dry-run"]);
 const updateJson = JSON.parse(updateDryRun.stdout);
-assert.equal(updateJson.ok, true);
+assert.equal(updateJson.ok, false);
 assert.equal(updateJson.action, "update");
 assert.equal(updateJson.dry_run, true);
-assert.deepEqual(updateJson.cli_wrappers, []);
-assert.equal(updateJson.inventory_send_result.dry_run, true);
-assert.equal(updateJson.inventory_send_result.event.event_kind, "bda_inventory");
-assert.equal(updateJson.inventory_send_result.event.utility_command, "bda update");
-assert.equal(updateJson.inventory_send_result.event.bda_cli_version, "1.0.0");
-assert.equal(updateJson.hermes_config.config_paths[0].changed, true);
-assert.ok(updateJson.hermes_config.config_paths[0].before_models.includes("bda/qwen3-coder"));
-assert.deepEqual(updateJson.hermes_config.config_paths[0].after_models, [
-  "bda/aipass-model/gemini-3.1-flash-lite",
-  "bda/deepseek-v4.1-paid-cloud",
-  "bda/gemini-3.8-flash",
-  "bda/gemma4",
-]);
+assert.equal(updateJson.hermes_config.blocked, true);
+assert.equal(updateJson.inventory_send_result, undefined);
+assert.equal(updateJson.cli_wrappers, undefined);
 const configStatus = run(["config-status"]);
 const configStatusJson = JSON.parse(configStatus.stdout);
-assert.equal(configStatusJson.ok, true);
-assert.equal(configStatusJson.hermes_config.config_paths[0].changed, true);
+assert.equal(configStatusJson.ok, false);
+assert.equal(configStatusJson.hermes_config.blocked, true);
+const blockedClean = run(["config-clean"], { expectFailure: true });
+assert.equal(JSON.parse(blockedClean.stdout).hermes_config.blocked, true);
+assert.equal(fs.readFileSync(path.join(home, ".hermes", "config.yaml"), "utf8"), existingHermesConfig);
 
+// Separate disposable empty-profile bootstrap; this does not migrate the old config.
+fs.writeFileSync(path.join(home, ".hermes", "config.yaml"), "");
 const configClean = run(["config-clean"]);
 const configCleanJson = JSON.parse(configClean.stdout);
 assert.equal(configCleanJson.ok, true);
+assert.equal(configCleanJson.hermes_config.blocked, false);
 assert.equal(configCleanJson.hermes_config.config_paths[0].changed, true);
 const cleanedHermesConfig = fs.readFileSync(path.join(home, ".hermes", "config.yaml"), "utf8");
 assert.match(cleanedHermesConfig, /default: aksai/);

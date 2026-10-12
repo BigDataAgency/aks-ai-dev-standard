@@ -936,6 +936,8 @@ function repoRoot() {
 }
 
 async function updateStandard(args, config = {}) {
+  const preflight = cleanHermesConfig({ dryRun: true });
+  if (hermesConfigBlocked("update", preflight, boolValue(args.dry_run))) return;
   const standardDir = path.resolve(envValue("BDA_AI_DEV_STANDARD_DIR", repoRoot()));
   const beforeVersion = readStandardVersion(standardDir);
   const hasGitRepo = fs.existsSync(path.join(standardDir, ".git"));
@@ -966,7 +968,6 @@ async function updateStandard(args, config = {}) {
       execFileSync(command, commandArgs, { stdio: "inherit" });
     }
   }
-  const cliWrappers = dryRun ? [] : ensureCliWrappers(standardDir);
 
   const afterVersion = dryRun
     ? beforeVersion
@@ -976,6 +977,8 @@ async function updateStandard(args, config = {}) {
   const configResult = dryRun
     ? cleanHermesConfig({ dryRun: true, models: gatewayModels })
     : cleanHermesConfigWithUpdatedScript(standardDir, gatewayModels);
+  if (hermesConfigBlocked("update", configResult, dryRun)) return;
+  const cliWrappers = dryRun ? [] : ensureCliWrappers(standardDir);
   const thclawsResult = syncThclawsCatalogue(gatewayModels, { dryRun });
   let clientSetup = null;
   if (!boolValue(args.no_setup) && !dryRun) {
@@ -1012,10 +1015,10 @@ async function updateStandard(args, config = {}) {
 }
 
 function cleanHermesConfigWithUpdatedScript(standardDir, gatewayModels = FALLBACK_BDA_MODELS) {
+  const preflight = cleanHermesConfig({ dryRun: true, models: gatewayModels });
+  if (preflight.blocked) return preflight;
   const updatedScript = path.join(standardDir, "scripts", "aks.mjs");
-  // The update may overwrite the script that is currently executing. Always
-  // launch config-clean in a fresh Node process so it reads the fetched code,
-  // even when standardDir is the same checkout as this process.
+  // Re-execute fetched code, but never fall back after a child failure.
   if (fs.existsSync(updatedScript)) {
     try {
       const raw = execFileSync(process.execPath, [updatedScript, "config-clean"], {
@@ -1033,42 +1036,11 @@ function cleanHermesConfigWithUpdatedScript(standardDir, gatewayModels = FALLBAC
       const parsed = JSON.parse(raw);
       if (parsed && parsed.hermes_config) return parsed.hermes_config;
     } catch {
-      // Fall back to this process' cleaner below.
+      return { ...preflight, blocked: true, reason: "updated-config-clean-failed" };
     }
+    return { ...preflight, blocked: true, reason: "invalid-config-clean-result" };
   }
   return cleanHermesConfig({ dryRun: false, models: gatewayModels });
-}
-
-function topLevelKey(line) {
-  const match = line.match(/^([A-Za-z0-9_-]+):(?:\s|$)/);
-  return match ? match[1] : "";
-}
-
-function removeTopLevelBlocks(yamlText, keys) {
-  const lines = yamlText.split(/\r?\n/);
-  const out = [];
-  for (let i = 0; i < lines.length; i += 1) {
-    const key = topLevelKey(lines[i]);
-    if (!key || !keys.has(key)) {
-      out.push(lines[i]);
-      continue;
-    }
-    i += 1;
-    while (i < lines.length && !topLevelKey(lines[i])) {
-      i += 1;
-    }
-    i -= 1;
-  }
-  return out.join("\n");
-}
-
-function removeLegacyAgentCommandCatalog(yamlText) {
-  return yamlText
-    .replace(/You are running with BDA AI Dev Standard v[0-9.]+/g, "You are running with BDA AI Dev Standard.")
-    .replace(/During an active session, treat bda-dev-\*, bda-nondev-\*, and bda-pm-\* prefixes as real BDA work commands and send\/prepare bda event\./g,
-      "During an active session, use only the compact BDA commands: bda-dev, bda-nondev, and bda-pm. Send/prepare bda event for meaningful subtasks.")
-    .replace(/Command catalog: bda-dev-debug, bda-dev-review, bda-dev-tdd, bda-dev-plan-discuss, bda-dev-plan-create, bda-dev-plan-execute, bda-dev-plan-review, bda-dev-plan-verify, bda-nondev-explore, bda-nondev-write, bda-pm-log, bda-pm-status, bda-pm-risk, bda-pm-followup, bda-pm-requirement, bda-pm-standup\./g,
-      "Command catalog: bda-dev, bda-nondev, bda-pm.");
 }
 
 function collectBdaModelNames(yamlText) {
@@ -1079,12 +1051,13 @@ function collectBdaModelNames(yamlText) {
 }
 
 function normalizeHermesBdaConfig(yamlText, models = FALLBACK_BDA_MODELS) {
-  let next = removeTopLevelBlocks(yamlText, new Set(["model", "auxiliary", "providers", "custom_providers", "compression"]));
-  next = removeLegacyAgentCommandCatalog(next);
-  next = next.replace(/^\s+$/gm, "");
-  next = next.replace(/\n{3,}/g, "\n\n").trimStart();
-  const merged = `${buildHermesBdaConfigBlock(models)}${next.trim() ? `\n${next}` : ""}\n`;
-  return merged;
+  const generated = buildHermesBdaConfigBlock(models);
+  if (!yamlText.trim()) return generated;
+  if (yamlText === generated) return yamlText;
+  // Without a YAML parser, block migration rather than drop personal settings.
+  const error = new Error("Existing Hermes config requires reviewed manual migration.");
+  error.code = "hermes-config-manual-migration-required";
+  throw error;
 }
 
 function modelsFromEnvOverride() {
@@ -1107,16 +1080,35 @@ function cleanHermesConfig({ dryRun = false, models = modelsFromEnvOverride() } 
       after_models: [],
     })),
     changed: false,
+    blocked: false,
     removed_caches: [],
   };
-
+  const updates = [];
   for (const entry of result.config_paths) {
     if (!entry.exists) continue;
     const before = fs.readFileSync(entry.config_path, "utf8");
-    const after = normalizeHermesBdaConfig(before, models);
     entry.before_models = collectBdaModelNames(before);
-    entry.after_models = collectBdaModelNames(after);
-    entry.changed = before !== after;
+    try {
+      const after = normalizeHermesBdaConfig(before, models);
+      entry.after_models = collectBdaModelNames(after);
+      entry.changed = before !== after;
+      updates.push({ entry, after });
+    } catch (error) {
+      if (error.code !== "hermes-config-manual-migration-required") throw error;
+      entry.reason = error.code;
+      result.blocked = true;
+    }
+  }
+  // Preflight every profile before any write, backup or cache cleanup.
+  if (result.blocked) {
+    for (const entry of result.config_paths) {
+      entry.changed = false;
+      entry.after_models = entry.before_models;
+    }
+    result.reason = "hermes-config-manual-migration-required";
+    return result;
+  }
+  for (const { entry, after } of updates) {
     result.changed = result.changed || entry.changed;
     if (entry.changed && !dryRun) {
       const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
@@ -1125,13 +1117,20 @@ function cleanHermesConfig({ dryRun = false, models = modelsFromEnvOverride() } 
       fs.writeFileSync(entry.config_path, after);
     }
   }
-
   for (const cachePath of HERMES_CACHE_PATHS) {
     if (!fs.existsSync(cachePath)) continue;
     result.removed_caches.push(cachePath);
     if (!dryRun) fs.rmSync(cachePath, { force: true });
   }
   return result;
+}
+
+function hermesConfigBlocked(action, result, dryRun = false) {
+  if (!result.blocked) return false;
+  console.log(JSON.stringify({ ok: false, action, dry_run: dryRun, hermes_config: result,
+    note: "Config unchanged; a reviewed manual migration is required before this operation." }, null, 2));
+  if (!dryRun) process.exitCode = 2;
+  return true;
 }
 
 function safeBackupName(filePath) {
@@ -1577,9 +1576,12 @@ async function printDoctor(config = {}, args = {}) {
 
 async function printHermesReset(config = {}, args = {}) {
   const dryRun = boolValue(args.dry_run);
-  const stateResult = moveHermesState(config, { dryRun });
+  const preflight = cleanHermesConfig({ dryRun: true });
+  if (hermesConfigBlocked("hermes-reset", preflight, dryRun)) return;
   const models = await fetchBdaGatewayModels(config);
   const configResult = cleanHermesConfig({ dryRun, models });
+  if (hermesConfigBlocked("hermes-reset", configResult, dryRun)) return;
+  const stateResult = moveHermesState(config, { dryRun });
   const hermesEnv = syncHermesEnv(config, { dryRun });
   const thclaws = syncThclawsCatalogue(models, { dryRun });
   console.log(JSON.stringify({
@@ -1736,19 +1738,25 @@ function syncThclawsCatalogue(models = FALLBACK_BDA_MODELS, { dryRun = false } =
 }
 
 async function printConfigStatus(config = {}) {
+  const preflight = cleanHermesConfig({ dryRun: true });
+  if (hermesConfigBlocked("config-status", preflight, true)) return;
   const models = await fetchBdaGatewayModels(config);
   const result = cleanHermesConfig({ dryRun: true, models });
+  if (hermesConfigBlocked("config-status", result, true)) return;
   const hermesEnv = syncHermesEnv(config, { dryRun: true });
   const thclaws = syncThclawsCatalogue(models, { dryRun: true });
   console.log(JSON.stringify({ ok: true, action: "config-status", gateway_models: models, hermes_config: result, hermes_env: hermesEnv, thclaws_config: thclaws }, null, 2));
 }
 
 async function printConfigClean(config = {}) {
+  const preflight = cleanHermesConfig({ dryRun: true });
+  if (hermesConfigBlocked("config-clean", preflight)) return;
+  const models = await fetchBdaGatewayModels(config);
+  const result = cleanHermesConfig({ dryRun: false, models });
+  if (hermesConfigBlocked("config-clean", result)) return;
   const cliWrappers = envValue("BDA_UPDATE_POST_CLEAN") === "1"
     ? ensureCliWrappers(repoRoot())
     : [];
-  const models = await fetchBdaGatewayModels(config);
-  const result = cleanHermesConfig({ dryRun: false, models });
   const hermesEnv = syncHermesEnv(config, { dryRun: false });
   const thclaws = syncThclawsCatalogue(models, { dryRun: false });
   console.log(JSON.stringify({
