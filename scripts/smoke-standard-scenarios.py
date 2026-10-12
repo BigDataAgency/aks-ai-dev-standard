@@ -100,6 +100,9 @@ def validate_version_consistency() -> None:
 
 
 def validate_required_sections() -> None:
+    for rel in ["templates/test-scenario-report.md", "templates/standard-feedback.md"]:
+        assert_contains_all(rel, REQUIRED_SECTIONS)
+
     for rel in GLOBAL_FILES:
         assert_contains_all(rel, REQUIRED_SECTIONS)
 
