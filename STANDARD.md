@@ -14,6 +14,7 @@
 - รักษา command/slash command เดิมเป็น default; เพิ่ม discipline ใน workflow ภายในแทนการเปลี่ยน UX โดยไม่จำเป็น
 
 ## 3. Execute
+- ถ้ามี submodule/หลาย repo หรือหลาย branch ใช้ [Git topology baseline](policies/multi-repo-and-branching.md): child push ก่อน parent pointer และยืนยัน branch/environment/deploy gates ตามโครงการ
 - แก้เฉพาะ scope ที่เกี่ยวข้อง
 - เก็บ backward compatibility ถ้าเป็นระบบใช้งานจริง
 - อย่า format หรือ refactor ใหญ่โดยไม่จำเป็น
@@ -50,6 +51,7 @@
 - map verification กลับไปยัง success criteria ทีละข้อ และระบุส่วนที่ยังไม่มี evidence
 
 ## 5. Handoff
+- งานหลาย repo/branch ต้องส่ง repo/ref/SHA, child push/pointer evidence และ promotion/environment/deploy status ตาม [Git topology baseline](policies/multi-repo-and-branching.md)
 - สรุปให้คนรับงานทำต่อได้ทันที
 - ระบุไฟล์, behavior ที่เปลี่ยน, verification, risk, next step
 - งานเล็กใช้ handoff สั้นได้ แต่ต้องยังมี success criteria/evidence/risk ที่ตรวจกลับได้

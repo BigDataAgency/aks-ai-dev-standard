@@ -141,6 +141,19 @@ def validate_hidden_regression_preflight() -> None:
         assert_contains_all(rel, ["Latest definition source", "Preserved behavior", "Runtime loaded latest bundle"])
 
 
+def validate_git_topology() -> None:
+    assert_contains_all("policies/multi-repo-and-branching.md", [
+        "Child before parent", "git add -A", "merge-base --is-ancestor",
+        "git ls-files --stage", "ทุก repo", "Branch to environment",
+        "Source branch/SHA", "Target branch", "Environment", "deploy trigger",
+        "Promotion direction", "scoped owner approval", "rollback", "main → dev",
+    ])
+    assert_contains_all("STANDARD.md", ["policies/multi-repo-and-branching.md", "child push", "promotion/environment"])
+    for rel in ["checklists/before-commit.md", "checklists/before-handoff.md"]:
+        assert_contains_all(rel, ["child push", "reachable", "intended remote/ref", "branch↔environment", "promotion direction", "deploy trigger", "scoped approval/rollback"])
+    assert_contains_all("templates/implementation-report.md", ["Repos/branches touched", "child push/pointer evidence", "approval/rollback", "verification per step"])
+
+
 def validate_claude_usage_docs() -> None:
     for rel in ["README.md", "claude/CLAUDE.md"]:
         assert_contains_all(
@@ -448,6 +461,7 @@ def main() -> int:
         validate_success_criteria_mappings,
         validate_review_traceability,
         validate_hidden_regression_preflight,
+        validate_git_topology,
         validate_claude_usage_docs,
         validate_command_pack,
         validate_bda_session_cli,
