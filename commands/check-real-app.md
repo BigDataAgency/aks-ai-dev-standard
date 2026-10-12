@@ -26,6 +26,7 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 - [ ] เปิด/รันแอปตามวิธีของ repo
 - [ ] เช็กหน้าหรือ endpoint จริง
 - [ ] UI/frontend: visual/runtime ของ worst/edge case; บันทึก viewport/device, expected/actual, evidence หรือ Not verified
+- [ ] หลัง merge/conflict: ใช้ [recurring conflict workflow](../workflows/recurring-conflict-resolutions.md) และ [QA regression mapping](../templates/test-scenario-report.md#merge-conflict-regressions-when-applicable); ตรวจ provider/debug, location error callback, checkURL/null guard ตาม scope พร้อม expected/actual/evidence
 - [ ] ตรวจ console/log
 - [ ] capture evidence ถ้าทำได้
 

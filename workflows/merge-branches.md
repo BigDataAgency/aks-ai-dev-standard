@@ -18,6 +18,7 @@
 2. Merge/cherry-pick ref นั้น; ถ้าไม่มี conflict ข้ามไปข้อ 5
 3. **Conflict = หยุด ref loop** แก้ไฟล์ต่อได้เฉพาะเมื่อมีหลักฐาน intent และ behavior/test ของทั้งสองฝั่ง; ถ้ายังไม่รู้ให้คง conflict ไม่ข้ามไป ref ถัดไป
 3.1 ระบุไฟล์ที่ conflict และ intent ของแต่ละฝั่ง (อ่าน commit/PR/issue ที่เกี่ยวข้อง)
+3.2 ก่อนถามเจ้าของงาน ตรวจ [recurring conflict patterns](recurring-conflict-resolutions.md) และ registry ของโครงการ; pattern ที่รายงานไม่ใช่ canonical ให้ทำ behavior inventory และ regression mapping โดยคง conflict เปิดเมื่อหลักฐานขาด
 4. ตัดสินใจต่อไฟล์ ตาม decision steps:
    1. เทียบ revision/behavior ปัจจุบันของ target กับ ref: ฝั่งไหนมี behavior ที่อีกฝั่งไม่มี (ดูโค้ดจริงและ test ไม่ใช่ชื่อ commit)
    2. ถ้ามี cross-reference ใน [policies/cross-reference.md](../policies/cross-reference.md) ให้ตรวจตามนั้นเป็นหลักฐานประกอบ ไม่ใช่คำตอบอัตโนมัติ

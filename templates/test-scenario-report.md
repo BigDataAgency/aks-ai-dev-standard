@@ -53,6 +53,16 @@ Status summary vocabulary: Pass / Fail / Blocked / Not run (map to detailed stat
 - Route source types used: visible menu / direct URL / source code route / old docs / browser redirect / deployed bundle
 - Out of scope:
 
+## Merge conflict regressions (when applicable)
+
+ใช้ [recurring conflict workflow](../workflows/recurring-conflict-resolutions.md) เมื่อ merge แตะ pattern เหล่านี้; บันทึก target/source/reference SHA, registry และ retained behavior → scenario ID; ไม่เกี่ยวข้องให้ N/A พร้อมเหตุผล ไม่ได้รันให้ Not run/Blocked ตาม taxonomy เดิม
+
+- [ ] App.js: SafeAreaProvider/context/layout + debug logger ตาม environment เดิม; runtime viewport/theme ตาม project gates
+- [ ] LocationUtils.js: success, exception/error callback, cleanup และ permission-denied ถ้าเกี่ยวข้อง; ไม่ทิ้ง error path
+- [ ] NewsAndEventScreen.js: handler ไม่ซ้ำ, checkURL valid/invalid, message != null สำหรับ null/undefined และ normal message; navigation/service behavior คงครบ
+- [ ] Transit v2 ถ้าเกี่ยวข้อง: feature/config ที่ SHA ตรง registry reference; missing evidence คง conflict เปิด ไม่เดา branch
+- [ ] ทุก retained behavior มี expected/actual/evidence และสถานะใน Test matrix; removal มี scoped decision ที่ตรวจได้
+
 ## Test matrix
 
 This section is the test matrix for scenario status, console notes, severity, and recommendations.
