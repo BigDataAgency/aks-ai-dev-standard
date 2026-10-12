@@ -163,6 +163,14 @@ def validate_ui_runtime_verification() -> None:
     assert_contains_all("commands/handoff-report.md", ["pre-existing vs regression vs unknown", "baseline/revision evidence"])
 
 
+def validate_merge_workflow() -> None:
+    assert_contains_all("workflows/merge-branches.md", ["git cherry -v", "off-scope commits", "cherry-pick", "Conflict = หยุด ref loop", "regression test/manual evidence", "git cherry-pick --skip", "policies/multi-repo-and-branching.md"])
+    for rel in ["commands/build-feature.md", "commands/fix-bug.md"]:
+        prompt = read(rel).split("```text\n", 1)[1].split("```", 1)[0]
+        assert "workflows/merge-branches.md" in prompt and "policies/cross-reference.md" in prompt, rel
+    assert_contains_all("policies/cross-reference.md", ["Project-owned registry", "Ref + SHA", "Decision steps", "Not verified", "ห้ามคัดลอก/เลือกฝั่ง project อื่นอัตโนมัติ"])
+
+
 def validate_claude_usage_docs() -> None:
     for rel in ["README.md", "claude/CLAUDE.md"]:
         assert_contains_all(
@@ -472,6 +480,7 @@ def main() -> int:
         validate_hidden_regression_preflight,
         validate_git_topology,
         validate_ui_runtime_verification,
+        validate_merge_workflow,
         validate_claude_usage_docs,
         validate_command_pack,
         validate_bda_session_cli,

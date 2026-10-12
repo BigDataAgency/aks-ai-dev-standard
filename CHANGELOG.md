@@ -15,6 +15,7 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 - Document precedence for existing project schemas and linked companion reporting, with a dual-compliant example. Preserve the retirement of public staff operational workflows and require project-specific migration/rollout evidence.
 
 ### Fixed
+- Add ordered multi-ref merge workflow and project-owned cross-reference policy, linked from build/fix commands, with scope and conflict-preservation gates.
 - Require risk-based worst/edge-case visual/runtime evidence for UI verification and preserve uncertain UAT defect provenance in handoff.
 - Add multi-repo/submodule push-order and branch/environment promotion guidance with linked commit/handoff checklists and smoke guard.
 

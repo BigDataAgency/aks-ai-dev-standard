@@ -15,6 +15,7 @@
 
 ## 3. Execute
 - ถ้ามี submodule/หลาย repo หรือหลาย branch ใช้ [Git topology baseline](policies/multi-repo-and-branching.md): child push ก่อน parent pointer และยืนยัน branch/environment/deploy gates ตามโครงการ
+- ถ้า merge หลาย branch/ref เข้า target เดียว ใช้ [merge-branches workflow](workflows/merge-branches.md); ถ้าตัดสินใจโดยอ้างอิง project อื่น ใช้ [cross-reference policy](policies/cross-reference.md) (registry เป็นของโครงการ)
 - แก้เฉพาะ scope ที่เกี่ยวข้อง
 - เก็บ backward compatibility ถ้าเป็นระบบใช้งานจริง
 - อย่า format หรือ refactor ใหญ่โดยไม่จำเป็น

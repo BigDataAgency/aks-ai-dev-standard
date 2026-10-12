@@ -9,6 +9,7 @@
 ทำงาน: Fix Bug
 Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
+ก่อนรวมหลาย branch/ref ใช้ workflows/merge-branches.md และ policies/cross-reference.md; ยืนยัน scope/revision, คง conflict ที่ยังไม่มีหลักฐาน และรักษา project release gates
 1. ถ้ามี Obsidian context manifest (`00-Agent-Context.md` หรือ `.bda/obsidian-context.md`) ให้อ่านก่อนเริ่ม และเตรียม session/evidence note ตาม context; ถ้าไม่มีและงานต้องผูกกับ Obsidian ให้ใช้ `commands/init.md`
 2. ระบุ bug success criteria: อะไรต้องกลับมาถูก และอะไรต้องไม่พัง
 3. reproduce หรืออธิบายเหตุที่ reproduce ไม่ได้
