@@ -11,7 +11,8 @@ Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 โปรดทำตามขั้นตอนนี้:
 0. ถ้ามี CREATE OR REPLACE FUNCTION / RPC rewrite ให้ค้นทุกdefinitionของschema/signatureนั้นในrepo ระบุ Latest definition source (path/migration/revisionและappliedstateถ้าทราบ), list Preserved behavior และเทียบdiffกับนิยามล่าสุด ไม่ใช้bodyเก่าทับfilter/contract/settingsเดิม; ถ้ายังยืนยันล่าสุดไม่ได้ให้ Not verified และห้ามอ้างว่าตรวจclobberผ่าน
 1. รัน test/lint/build ที่เกี่ยวข้อง
-2. ตรวจ manual flow ถ้าจำเป็น
+2. งาน UI/frontend ต้องตรวจ visual/runtime ในแอปที่รันจริงด้วย screenshot + interaction ผ่าน browser/E2E หรือ manual บน device; เลือก worst/edge case ตามความเสี่ยง ไม่ใช้ first passing case เป็นตัวแทน เช่น หลายรูป/thumbnail, ข้อความยาว, empty, loading/error, resume และ viewport แคบ/กว้างที่รองรับ ระบุเหตุที่เลือกเคสและเคสไม่เกี่ยวเป็น N/A; ตรวจ overflow/alignment/interaction ตาม success criteria พร้อม URL/environment, revision, viewport/device, input, expected/actual และ evidence path; unit/tsc/build ผ่านไม่แทนหลักฐาน UI ถ้าเข้า runtime หรือเก็บหลักฐานไม่ได้ให้ Not verified พร้อม blocker ไม่ประกาศ feature verified
+2.1 ตรวจ manual flow อื่นถ้าจำเป็น
 3. บันทึก command และผลลัพธ์
 4. บอกสิ่งที่ไม่ได้ตรวจ
 
@@ -23,7 +24,8 @@ Output ที่ต้องส่งต้องมีหัวข้อ: BDA S
 ## Checklist
 - [ ] DB/RPC rewrite: Latest definition source และ Preserved behavior ผูกหลักฐานล่าสุด; diffไม่ย้อนพฤติกรรมก่อนหน้า ดู `docs/hidden-regression-preflight.md`
 - [ ] รัน test/lint/build ที่เกี่ยวข้อง
-- [ ] ตรวจ manual flow ถ้าจำเป็น
+- [ ] UI/frontend: visual/runtime ของ worst/edge case พร้อมเหตุเลือกเคส, viewport/device, expected/actual และ evidence; ไม่มีหลักฐานให้ Not verified
+- [ ] ตรวจ manual flow อื่นถ้าจำเป็น
 - [ ] บันทึก command และผลลัพธ์
 - [ ] บอกสิ่งที่ไม่ได้ตรวจ
 

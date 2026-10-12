@@ -45,6 +45,7 @@
 - เมื่อเจอ timeout/connection/model error ให้บันทึก model เวลา error และ fallback ไป model ที่เสถียรกว่าแทนการ retry ยาวโดยไม่มีประโยชน์
 
 ## 4. Verify
+- UI/frontend ต้องมี visual/runtime verification ของ worst/edge case ตามความเสี่ยง (เช่นหลายรูป, ข้อความยาว, empty/error/resume, viewport ที่รองรับ) พร้อม screenshot/interaction evidence; ไม่ใช้ first passing case หรือ unit/build แทน feature verification ดู `commands/verify-work.md`; ไม่มีruntimeproofให้ Not verified
 - ใช้ test/lint/build/manual check จริง
 - ถ้ารันไม่ได้ ให้บอก blocker และทางเลือกตรวจ
 - เก็บ command และผลลัพธ์ไว้ในรายงาน

@@ -16,6 +16,8 @@ Context: <วาง task/ไฟล์/ลิงก์/ข้อจำกัด>
 5. บอก next step
 6. จาก templates/verification-report.md ส่ง Latest definition source, Preserved behavior และ Runtime loaded latest bundle พร้อมevidence/status; N/Aต้องมีเหตุ ส่วนที่ไม่มีหลักฐานเป็นNot verified ไม่ถือcompileผ่านว่าระบบจริงผ่าน
 
+เมื่อพบ defect ระหว่าง UAT ให้ระบุ pre-existing vs regression vs unknown พร้อม baseline/revision evidence; ถ้ายืนยันต้นเหตุไม่ได้ให้ unknown และคงข้อที่ยังไม่ผ่านไว้
+
 Output ที่ต้องส่ง: รายงานส่งต่องานภาษาไทย
 
 Output ที่ต้องส่งต้องมีหัวข้อ: BDA Standard files used, Pipeline trace, Commands run, Verification / Evidence, Limitations / Risks / Next steps

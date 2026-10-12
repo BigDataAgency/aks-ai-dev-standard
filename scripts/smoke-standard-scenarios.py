@@ -154,6 +154,15 @@ def validate_git_topology() -> None:
     assert_contains_all("templates/implementation-report.md", ["Repos/branches touched", "child push/pointer evidence", "approval/rollback", "verification per step"])
 
 
+def validate_ui_runtime_verification() -> None:
+    for rel in ["commands/verify-work.md", "commands/check-real-app.md"]:
+        prompt = read(rel).split("```text\n", 1)[1].split("```", 1)[0]
+        assert all(term in prompt for term in ["UI/frontend", "visual/runtime", "worst/edge case", "first passing case", "screenshot", "interaction", "viewport/device", "expected/actual", "Not verified"]), rel
+    assert_contains_all("STANDARD.md", ["visual/runtime verification", "worst/edge case", "commands/verify-work.md"])
+    assert_contains_all("templates/verification-report.md", ["UI Visual / Runtime Verification", "selection reason", "Viewport / device", "Screenshot / interaction evidence", "pre-existing vs regression vs unknown"])
+    assert_contains_all("commands/handoff-report.md", ["pre-existing vs regression vs unknown", "baseline/revision evidence"])
+
+
 def validate_claude_usage_docs() -> None:
     for rel in ["README.md", "claude/CLAUDE.md"]:
         assert_contains_all(
@@ -462,6 +471,7 @@ def main() -> int:
         validate_review_traceability,
         validate_hidden_regression_preflight,
         validate_git_topology,
+        validate_ui_runtime_verification,
         validate_claude_usage_docs,
         validate_command_pack,
         validate_bda_session_cli,
