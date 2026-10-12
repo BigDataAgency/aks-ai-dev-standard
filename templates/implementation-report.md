@@ -2,6 +2,11 @@
 
 ## Summary
 
+## Repos/branches touched
+
+- Repo/path, remote/ref, source/target SHA; child push/pointer evidence or N/A
+- Branch/environment mapping, promotion direction, deploy trigger, approval/rollback and verification per step; separate merged/deployed/accepted
+
 ## Files Changed
 - 
 
