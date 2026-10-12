@@ -22,6 +22,9 @@
 - ห้ามเพิ่ม speculative abstraction, configuration, dependency, หรือ feature ที่ผู้ใช้ไม่ได้ขอ
 - ถ้ามี assumption/ambiguity ให้หยุดถามเฉพาะเมื่อมีผลต่อ scope, data safety, security, หรือ correctness; ถ้าไม่กระทบให้ระบุ assumption แล้วทำต่อแบบเล็กที่สุด
 
+### Existing project schemas
+- รักษาschemaและข้อมูลของโครงการเดิม; มาตรฐานรายงานกลางไม่ใช่คำอนุมัติmigration. ดู [precedenceและตัวอย่างรายงานประกอบ](docs/layered-standards.md) ก่อนเปลี่ยนรูปแบบที่มีconsumerใช้อยู่
+
 ## 3.1 BDA AI Session and Model Use
 - ห้าม AI/tool เรียก `bda start` หรือ `bda stop` เองโดยไม่อยู่ในคำสั่งหรือ flow ที่ผู้ใช้ยืนยันแล้ว
 - `bda start` ต้องมี project, task_summary, command/tool, employee_code และ session_id ที่ trace กลับไปยังงานจริงได้

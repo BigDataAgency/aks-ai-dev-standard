@@ -10,6 +10,10 @@ This project uses Semantic Versioning: `MAJOR.MINOR.PATCH`.
 
 ## [Unreleased]
 
+### Added
+
+- Document precedence for existing project schemas and linked companion reporting, with a dual-compliant example. Preserve the retirement of public staff operational workflows and require project-specific migration/rollout evidence.
+
 ### Fixed
 
 - Validate the required report sections in the current test-scenario and standard-feedback templates, rather than only their commands and generated smoke reports.
