@@ -92,9 +92,7 @@ function normalizeConfig(input = {}, args = {}) {
     tool: input.tool || "hermes-desktop-agent",
     installer_version: VERSION,
   };
-  if (!config.work_event_url) config.work_event_url = BDA_GATEWAY_BASE_URL === "https://api.bdagx10.com/v1"
-    ? "https://ai-local.scmc.digital/bda/work-events"
-    : `${BDA_GATEWAY_BASE_URL.replace(/\/v1$/, "")}/bda/work-events`;
+  if (!config.work_event_url) config.work_event_url = `${BDA_GATEWAY_BASE_URL.replace(/\/v1$/, "")}/bda/work-events`;
   return config;
 }
 

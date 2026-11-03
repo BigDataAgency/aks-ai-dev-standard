@@ -8,7 +8,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 // production endpoint เป็น default — เครื่องที่ env เก่า/หายจะได้รายงาน inventory ได้ (แก้ false negative ตอนเช็ค adoption 2026-07-07)
-const DEFAULT_URL = "https://ai-local.scmc.digital/bda/work-events";
+const DEFAULT_URL = "https://api.bdagx10.com/bda/work-events";
 const SESSION_VERSION = "aks-session/1.0.0";
 const STANDARD_REPO_URL = "https://github.com/BigDataAgency/aks-ai-dev-standard.git";
 
@@ -370,8 +370,6 @@ function mergeDotEnvText(text, values) {
 function workEventUrlFromBaseUrl(value) {
   const text = String(value || "").trim();
   if (!text) return "";
-  // Keep the existing work-event route separate from the inference API migration.
-  if (text === "https://api.bdagx10.com/v1") return DEFAULT_URL;
   try {
     const url = new URL(text);
     url.pathname = url.pathname.replace(/\/v1\/?$/, "/bda/work-events");
