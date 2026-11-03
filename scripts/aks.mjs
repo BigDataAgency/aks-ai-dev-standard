@@ -370,7 +370,7 @@ function mergeDotEnvText(text, values) {
 function workEventUrlFromBaseUrl(value) {
   const text = String(value || "").trim();
   if (!text) return "";
-  // Work-event ingestion retains its supported endpoint during the inference API migration.
+  // Keep the existing work-event route separate from the inference API migration.
   if (text === "https://api.bdagx10.com/v1") return DEFAULT_URL;
   try {
     const url = new URL(text);
