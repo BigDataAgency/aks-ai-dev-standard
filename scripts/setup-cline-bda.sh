@@ -7,7 +7,7 @@
 set -euo pipefail
 
 STATE="$HOME/.cline/data/globalState.json"
-BASE_URL="${AKS_AI_ROUTER_BASE_URL:-${BDA_AI_ROUTER_BASE_URL:-https://ai-local.scmc.digital/v1}}"
+BASE_URL="${AKS_AI_ROUTER_BASE_URL:-${BDA_AI_ROUTER_BASE_URL:-https://api.bdagx10.com/v1}}"
 MODEL="${AKS_CLINE_MODEL:-${BDA_CLINE_MODEL:-aksai}}"
 CTX="${AKS_CLINE_CONTEXT_WINDOW:-${BDA_CLINE_CONTEXT_WINDOW:-110000}}"
 MAXTOK="${AKS_CLINE_MAX_TOKENS:-${BDA_CLINE_MAX_TOKENS:-16384}}"

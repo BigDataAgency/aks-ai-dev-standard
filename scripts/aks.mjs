@@ -28,7 +28,7 @@ function envMapValue(envMap, name, fallback = "") {
   return envMap[name] || fallback;
 }
 
-const BDA_GATEWAY_BASE_URL = envValue("BDA_GATEWAY_BASE_URL", "https://ai-local.scmc.digital/v1");
+const BDA_GATEWAY_BASE_URL = envValue("BDA_GATEWAY_BASE_URL", "https://api.bdagx10.com/v1");
 
 // Live context windows learned from the gateway /v1/models response (id -> context_window).
 // Populated by fetchBdaGatewayModels and preferred over the hardcoded heuristic so that
