@@ -33,4 +33,27 @@ for (const [overrides, expected] of [
   assert.equal(result.status, 0);
   assert.equal(result.stdout, expected, 'Cline default and explicit override precedence');
 }
-console.log('9 gateway-default and explicit-override checks PASS; no user files or network touched');
+const cli = fs.readFileSync(path.join(root, 'aks.mjs'), 'utf8');
+const workStart = cli.indexOf('function workEventUrlFromBaseUrl(');
+const workFn = cli.slice(workStart, cli.indexOf('\n}\n', workStart) + 3);
+for (const [base, expected] of [
+  ['https://api.bdagx10.com/v1', 'https://ai-local.scmc.digital/bda/work-events'],
+  ['https://custom.example/v1', 'https://custom.example/bda/work-events'],
+]) {
+  const context = {URL, DEFAULT_URL: 'https://ai-local.scmc.digital/bda/work-events', base};
+  vm.runInNewContext(`${workFn}\nresult = workEventUrlFromBaseUrl(base)`, context);
+  assert.equal(context.result, expected, 'API migration must retain supported work-event route');
+}
+const installer = fs.readFileSync(path.join(root, 'install-bda-standard.mjs'), 'utf8');
+const normalizeStart = installer.indexOf('function normalizeConfig(');
+const normalizeFn = installer.slice(normalizeStart, installer.indexOf('\n}\n', normalizeStart) + 3);
+for (const [base, input, expected] of [
+  ['https://api.bdagx10.com/v1', {}, 'https://ai-local.scmc.digital/bda/work-events'],
+  ['https://custom.example/v1', {}, 'https://custom.example/bda/work-events'],
+  ['https://api.bdagx10.com/v1', {work_event_url:'https://events.example/ingest'}, 'https://events.example/ingest'],
+]) {
+  const context = {BDA_GATEWAY_BASE_URL:base, VERSION:'fixture', input, envValue:(_key,fallback='')=>fallback};
+  vm.runInNewContext(`${normalizeFn}\nresult = normalizeConfig(input)`, context);
+  assert.equal(context.result.work_event_url, expected, 'Installer keeps supported or explicit work-event endpoint');
+}
+console.log('14 gateway-default, override and work-event compatibility checks PASS; no user files or network touched');
